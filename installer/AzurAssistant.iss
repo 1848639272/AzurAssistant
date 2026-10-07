@@ -61,7 +61,7 @@ Name: "{group}\蔚蓝助手"; Filename: "{app}\AzurAssistant.exe"; WorkingDir: "
 Name: "{autodesktop}\蔚蓝助手"; Filename: "{app}\AzurAssistant.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\AzurAssistant.exe"; Parameters: "--skip-startup-actions"; Description: "启动蔚蓝助手"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\AzurAssistant.exe"; Parameters: "--skip-startup-actions"; Description: "启动蔚蓝助手"; Flags: shellexec nowait postinstall skipifsilent
 
 [Code]
 const
