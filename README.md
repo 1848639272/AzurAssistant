@@ -67,7 +67,7 @@
 
 使用名称以 `-win-x64-setup.exe` 结尾的**完整 EXE 安装包**。安装包内置 .NET 运行环境，并在需要时安装 Visual C++ 运行库；使用程序无需安装 .NET SDK。
 
-当前可使用已提供的完整 EXE。GitHub 仓库创建并发布后，完整安装包将在该仓库的 **Releases** 页面提供，下载链接届时补充。
+从 [GitHub Releases](https://github.com/1848639272/AzurAssistant/releases) 下载完整 EXE 安装包。展开对应版本的 **Assets**，选择名称以 `-win-x64-setup.exe` 结尾的文件。
 
 ## 使用方法
 
@@ -94,7 +94,7 @@
 
 更新保留设置、委托记录、周本记录、用户路线和日志。安装完成后的首次启动会跳过自动连接与自动一条龙；之后正常启动按已保存设置执行。
 
-**当前 GitHub 更新仓库尚未配置**，检查更新会提示尚未配置仓库。接入真实仓库后才能联网获取新版本。
+更新源为 [1848639272/AzurAssistant](https://github.com/1848639272/AzurAssistant) 的已发布 Releases。beta 版本也参与更新检查，草稿不参与；通过递增构建号判断是否有新版。
 
 ## 当前支持范围
 
@@ -129,7 +129,7 @@ Inno Setup 6.7.3 和微软签名的 x64 Visual C++ v14 完整离线运行库仅�
 
 ### 接入 GitHub 更新
 
-在 [update-source.json](AzurAssistant/update-source.json) 设置真实 `owner/repository` 后重新构建完整包。已发布的 beta Release 参与更新检查，草稿不参与。当前空地址版本需要先手动安装接入仓库地址的新版，之后才能通过程序检查后续更新。
+默认更新仓库已在 [update-source.json](AzurAssistant/update-source.json) 配置为 `1848639272/AzurAssistant`。已发布的 beta Release 参与更新检查，草稿不参与。早期未配置地址的安装包需要先手动安装本仓库发布的完整 EXE，之后才能通过程序检查后续更新。
 
 ## 文件说明
 
@@ -140,7 +140,7 @@ Inno Setup 6.7.3 和微软签名的 x64 Visual C++ v14 完整离线运行库仅�
 | `AzurAssistant/assets/` | 程序图标、裁剪识别模板、导航底图与特征 |
 | `AzurAssistant/models/` | 本地 OCR 模型、清单和字典 |
 | `AzurAssistant/licenses/` | 第三方许可与通知 |
-| `AzurAssistant/update-source.json` | GitHub 更新仓库配置，当前为空 |
+| `AzurAssistant/update-source.json` | GitHub 更新仓库配置 |
 | `AzurAssistant/release.json` | 开发版本标识；打包时在临时副本生成正式构建号 |
 | `scripts/Build-Release.ps1` | 完整程序与 EXE 安装包构建入口 |
 | `installer/` | 安装、覆盖升级和卸载脚本及中文翻译 |

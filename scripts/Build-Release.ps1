@@ -57,19 +57,21 @@ if ($LASTEXITCODE -ne 0) { throw 'Self-contained publish failed; original worksp
 foreach ($file in Get-ChildItem -LiteralPath $program -Recurse -File) {
     if ($file.Extension -in @('.pdb','.lib','.md') -or $file.Name -like '*-source.png') { Remove-Item -LiteralPath $file.FullName }
 }
+$updateSourceDescription = if ($GitHubRepository) { "更新仓库：$GitHubRepository（GitHub Releases）。" } else { '当前仓库尚未配置。' }
 $programReadme = @'
 蔚蓝助手 v0.1.0 beta
 蓝色星原：旅谣自动化辅助
 
 Windows 10 2004+ x64。启动 AzurAssistant.exe 时允许管理员权限；首次使用建议运行完整 EXE 安装包，以安装必要的 Visual C++ 依赖。.NET 运行环境已经内置。
 在设置中选择游戏启动文件，选择需要的功能。暂停/继续默认 F9；停止默认 F10。
-设置页支持自动更新：开启并重启后每天首次启动检查 GitHub，有更新时提醒。关闭提醒后可点击检查更新。当前仓库尚未配置。
+设置页支持自动更新：开启并重启后每天首次启动检查 GitHub，有更新时提醒。关闭提醒后可点击检查更新。__UPDATE_SOURCE__
 手动更新：关闭助手，运行最新完整 EXE，沿用原安装目录。用户配置、委托记录、周本记录、routes 和 logs 保留。
 安装后首次启动跳过自动连接/一条龙；以后正常启动按保存的设置执行。
 故障日志位于 logs。配置、路线保存在本程序目录；卸载不会主动删除用户生成的数据。
 当前游戏识别支持中文 1920×1080 客户区；其他分辨率、HDR、独占全屏与长期无人值守待验证，部分真实游戏流程尚待验收。
 第三方许可与通知见 licenses。assets、models、各DLL为运行所需，请勿删除。
 '@
+$programReadme = $programReadme.Replace('__UPDATE_SOURCE__', $updateSourceDescription)
 [IO.File]::WriteAllText((Join-Path $program 'README.txt'), $programReadme)
 $managedFiles = Get-ChildItem -LiteralPath $program -Recurse -File | ForEach-Object { [IO.Path]::GetRelativePath($program, $_.FullName) } | Sort-Object
 $managedFiles | Set-Content -LiteralPath (Join-Path $program 'payload-files.txt') -Encoding utf8
