@@ -1,0 +1,267 @@
+{
+  "SchemaVersion": 1,
+  "ReferenceWidth": 1920,
+  "ReferenceHeight": 1080,
+  "Templates": {
+    "login-title": {
+      "File": "login-title.png",
+      "Search": {
+        "X": 100,
+        "Y": 65,
+        "Width": 450,
+        "Height": 185
+      },
+      "Threshold": 0.85,
+      "Sha256": "FCFFD1C3B824970E9CF7B4A369AF845C32E2781D1A5151F88D2F09ED497ABA5B",
+      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
+      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
+      "SourceCrop": {
+        "X": 180,
+        "Y": 110,
+        "Width": 265,
+        "Height": 112
+      },
+      "Version": "1.0.0"
+    },
+    "login-close": {
+      "File": "login-close.png",
+      "Search": {
+        "X": 1840,
+        "Y": 10,
+        "Width": 70,
+        "Height": 70
+      },
+      "Threshold": 0.88,
+      "Sha256": "4B701155A928B4680163BF57657ADD9FC04AA801E5A3B586D10FF159E6201020",
+      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
+      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
+      "SourceCrop": {
+        "X": 1855,
+        "Y": 26,
+        "Width": 33,
+        "Height": 33
+      },
+      "Version": "1.0.0"
+    },
+    "login-arrow-top": {
+      "File": "login-arrow-top.png",
+      "Search": {
+        "X": 544,
+        "Y": 832,
+        "Width": 812,
+        "Height": 31
+      },
+      "Threshold": 0.88,
+      "Sha256": "EA8ECEE4123311C5DDF004B1D7D899539C6CBA92F8F299E1A6D7E36BF8BEEE19",
+      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
+      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
+      "SourceCrop": {
+        "X": 938,
+        "Y": 841,
+        "Width": 24,
+        "Height": 18
+      },
+      "Version": "1.0.0"
+    },
+    "login-arrow-bottom": {
+      "File": "login-arrow-bottom.png",
+      "Search": {
+        "X": 544,
+        "Y": 1030,
+        "Width": 812,
+        "Height": 25
+      },
+      "Threshold": 0.88,
+      "Sha256": "43659A68CC2411F225BB20D2171D92A57390E5800395DAF5A784DA53E8DAC85C",
+      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
+      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
+      "SourceCrop": {
+        "X": 938,
+        "Y": 1035,
+        "Width": 24,
+        "Height": 15
+      },
+      "Version": "1.0.0"
+    },
+    "claimed-check": {
+      "File": "login-card-check-claimed.png",
+      "Search": {
+        "X": 544,
+        "Y": 929,
+        "Width": 812,
+        "Height": 47
+      },
+      "Threshold": 0.78,
+      "Sha256": "61304FA3B0833C4B385F52186E7FC51D908666416287FB6408AE23B629AD8FB7",
+      "Source": "录屏素材\\进入游戏\\step3领取后状态，点击右上角x关闭.jpg",
+      "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
+      "SourceCrop": {
+        "X": 938,
+        "Y": 940,
+        "Width": 25,
+        "Height": 22
+      },
+      "Version": "1.0.0"
+    },
+    "future-card-edge": {
+      "File": "login-card-edge-future-variant-1.png",
+      "Search": {
+        "X": 544,
+        "Y": 906,
+        "Width": 812,
+        "Height": 98
+      },
+      "Threshold": 0.94,
+      "Sha256": "59BC09498644A02A5626C5BA280D56304FDCC5A4592559426E074B85861AA707",
+      "Source": "录屏素材\\进入游戏\\step3领取后状态，点击右上角x关闭.jpg",
+      "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
+      "SourceCrop": {
+        "X": 1021,
+        "Y": 915,
+        "Width": 12,
+        "Height": 78
+      },
+      "Version": "1.0.0"
+    },
+    "login-highlight": {
+      "File": "login-card-edge-highlighted.png",
+      "Search": {
+        "X": 544,
+        "Y": 906,
+        "Width": 812,
+        "Height": 98
+      },
+      "Threshold": 0.94,
+      "Sha256": "AE119983B88478B7F827AFF4256573F9C9E43B9F44BCF2DC7EB29BE4BB3D44BC",
+      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
+      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
+      "SourceCrop": {
+        "X": 901,
+        "Y": 915,
+        "Width": 12,
+        "Height": 78
+      },
+      "Version": "1.0.0"
+    },
+    "monthly-label": {
+      "File": "monthly-label.png",
+      "Search": {
+        "X": 795,
+        "Y": 920,
+        "Width": 330,
+        "Height": 70
+      },
+      "Threshold": 0.87,
+      "Sha256": "C7963775A562CA5784064A87865FCD4B9359D7A4132E8758D93103F15E215543",
+      "Source": "录屏素材\\进入游戏\\step4如有月卡会提示领取，但是实际上等个几秒他会自动领取.jpg",
+      "SourceSha256": "9BFE0487086DCF201E5AB7BC78F929433D5B89AD4C7046B8935926395CBB856D",
+      "SourceCrop": {
+        "X": 842,
+        "Y": 948,
+        "Width": 164,
+        "Height": 27
+      },
+      "Version": "1.0.0"
+    },
+    "monthly-prompt": {
+      "File": "monthly-prompt.png",
+      "Search": {
+        "X": 795,
+        "Y": 975,
+        "Width": 330,
+        "Height": 65
+      },
+      "Threshold": 0.87,
+      "Sha256": "862D176BBA9796D81DCC815BDF5A5766EE9158805CA2904E1BD4CB52F576499E",
+      "Source": "录屏素材\\进入游戏\\step4如有月卡会提示领取，但是实际上等个几秒他会自动领取.jpg",
+      "SourceSha256": "9BFE0487086DCF201E5AB7BC78F929433D5B89AD4C7046B8935926395CBB856D",
+      "SourceCrop": {
+        "X": 826,
+        "Y": 991,
+        "Width": 236,
+        "Height": 25
+      },
+      "Version": "1.0.0"
+    },
+    "reward-title": {
+      "File": "reward-title.png",
+      "Search": {
+        "X": 890,
+        "Y": 305,
+        "Width": 140,
+        "Height": 90
+      },
+      "Threshold": 0.85,
+      "Sha256": "73FBD5B0483878F5EC86B807E9BE56EB52D2E728B56931D02D770B7BA63889FA",
+      "Source": "录屏素材\\进入游戏\\step5月卡自动领取后，点击空白处退出.jpg",
+      "SourceSha256": "21CC47A5F41F6B9A3115437A817AEFF86180AF79C990621F0591C10340E55BC7",
+      "SourceCrop": {
+        "X": 928,
+        "Y": 335,
+        "Width": 65,
+        "Height": 32
+      },
+      "Version": "1.0.0"
+    },
+    "reward-dismiss": {
+      "File": "reward-dismiss.png",
+      "Search": {
+        "X": 830,
+        "Y": 765,
+        "Width": 270,
+        "Height": 90
+      },
+      "Threshold": 0.85,
+      "Sha256": "B599C633E19C5CCF92E2D9855C2DA6A366886924254278A54B3675F4D598A29C",
+      "Source": "录屏素材\\进入游戏\\step5月卡自动领取后，点击空白处退出.jpg",
+      "SourceSha256": "21CC47A5F41F6B9A3115437A817AEFF86180AF79C990621F0591C10340E55BC7",
+      "SourceCrop": {
+        "X": 871,
+        "Y": 796,
+        "Width": 180,
+        "Height": 27
+      },
+      "Version": "1.0.0"
+    },
+    "future-card-edge-2": {
+      "File": "login-card-edge-future-variant-2.png",
+      "Search": {
+        "X": 544,
+        "Height": 98,
+        "Width": 812,
+        "Y": 906
+      },
+      "Threshold": 0.94,
+      "Sha256": "760C95BFF822C237CDA9BC008A48DCD7B6B79AC2997E67D2EAD8B7F3117D7C0C",
+      "Source": "录屏素材\\进入游戏\\step3领取后状态，点击右上角x关闭.jpg",
+      "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
+      "SourceCrop": {
+        "X": 1138,
+        "Height": 78,
+        "Width": 12,
+        "Y": 915
+      },
+      "Version": "1.0.0"
+    },
+    "future-card-edge-3": {
+      "File": "login-card-edge-future-variant-3.png",
+      "Search": {
+        "X": 544,
+        "Height": 98,
+        "Width": 812,
+        "Y": 906
+      },
+      "Threshold": 0.94,
+      "Sha256": "21169D1666A09107749CD46BF1FF8DDD61181DC32D57981455E9E34CA91A9618",
+      "Source": "录屏素材\\进入游戏\\step3领取后状态，点击右上角x关闭.jpg",
+      "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
+      "SourceCrop": {
+        "X": 1254,
+        "Height": 78,
+        "Width": 12,
+        "Y": 915
+      },
+      "Version": "1.0.0"
+    }
+  }
+}

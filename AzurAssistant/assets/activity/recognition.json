@@ -1,0 +1,429 @@
+{
+  "ReferenceHeight": 1080,
+  "ReferenceWidth": 1920,
+  "AssetVersion": "1.2.0",
+  "SchemaVersion": 2,
+  "Templates": {
+    "menu-entry": {
+      "Source": "录屏素材\\家园\\step1：esc打开主菜单，点击左下角家园中枢.jpg",
+      "SourceCrop": {
+        "X": 1624,
+        "Y": 46,
+        "Height": 24,
+        "Width": 30
+      },
+      "SourceSha256": "CCF732896CF093CBD4E55CBC8AF02EF13B53A3401B0197587FE1D43C7F791AF5",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1605,
+        "Y": 20,
+        "Height": 70,
+        "Width": 75
+      },
+      "Sha256": "EE76979B9217FDF1C7392501BE3A73996815E9D6E4C76FE0B25EE3C1AD216EB1",
+      "File": "menu-entry.png",
+      "Threshold": 0.84
+    },
+    "day-tab": {
+      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "SourceCrop": {
+        "X": 773,
+        "Y": 29,
+        "Height": 34,
+        "Width": 99
+      },
+      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 750,
+        "Y": 20,
+        "Height": 55,
+        "Width": 140
+      },
+      "Sha256": "28C771E26B2FE9634C9925450B0A9D4B78417EDD2040813585488371A68BE254",
+      "File": "day-tab-selected.png",
+      "Threshold": 0.9
+    },
+    "week-tab": {
+      "Source": "录屏素材\\日常周常\\step11每周任务完成，领取周活跃度.jpg",
+      "SourceCrop": {
+        "X": 1040,
+        "Y": 29,
+        "Height": 34,
+        "Width": 109
+      },
+      "SourceSha256": "ECDC324A00C5CAED9B0E819F28D9ADB6B2CDC87F407FBE857EFFA2527CDC3999",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1020,
+        "Y": 20,
+        "Height": 55,
+        "Width": 145
+      },
+      "Sha256": "CE24A100315C16324D8019205582415B59D519C7CDDCE6090D81F9594DC39164",
+      "File": "week-tab-selected.png",
+      "Threshold": 0.9
+    },
+    "day-label": {
+      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "SourceCrop": {
+        "X": 791,
+        "Y": 37,
+        "Height": 18,
+        "Width": 70
+      },
+      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 778,
+        "Y": 27,
+        "Height": 38,
+        "Width": 98
+      },
+      "Sha256": "3B5B8A99B5D899937AFE8B2059F574661E445E28845F766C07C3B321C72FF469",
+      "File": "day-label-selected.png",
+      "Threshold": 0.88
+    },
+    "day-label-inactive": {
+      "Source": "录屏素材\\日常周常\\step11每周任务完成，领取周活跃度.jpg",
+      "SourceCrop": {
+        "X": 791,
+        "Y": 37,
+        "Height": 18,
+        "Width": 70
+      },
+      "SourceSha256": "ECDC324A00C5CAED9B0E819F28D9ADB6B2CDC87F407FBE857EFFA2527CDC3999",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 778,
+        "Y": 27,
+        "Height": 38,
+        "Width": 98
+      },
+      "Sha256": "75D150BD7CC8244A7375020A628A3CB7C779B4B387933E5E060E60C34191F55E",
+      "File": "day-label-unselected.png",
+      "Threshold": 0.88
+    },
+    "week-label": {
+      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "SourceCrop": {
+        "X": 1058,
+        "Y": 37,
+        "Height": 18,
+        "Width": 70
+      },
+      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1048,
+        "Y": 27,
+        "Height": 38,
+        "Width": 98
+      },
+      "Sha256": "350A5AA45EBCC74A953B016F38DDA7D57D531B8828C7991EE9477ABC8E55F461",
+      "File": "week-label-unselected.png",
+      "Threshold": 0.88
+    },
+    "close": {
+      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "SourceCrop": {
+        "X": 1855,
+        "Y": 27,
+        "Height": 35,
+        "Width": 36
+      },
+      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1835,
+        "Y": 10,
+        "Height": 65,
+        "Width": 70
+      },
+      "Sha256": "B26CCC83C7A2318188B72A3226CED8059C2F614FF20C8CCC0F79E4ACB3C6BA74",
+      "File": "close.png",
+      "Threshold": 0.86
+    },
+    "row-claim-day": {
+      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "SourceCrop": {
+        "X": 1662,
+        "Y": 198,
+        "Height": 43,
+        "Width": 80
+      },
+      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1625,
+        "Y": 170,
+        "Height": 695,
+        "Width": 143
+      },
+      "Sha256": "2BFBC19B7A9DC5A9197E08F6460B9F895EDF30146F5BD319E8842FDB1DC3450A",
+      "File": "day-row-claim.png",
+      "Threshold": 0.88
+    },
+    "row-claim-week": {
+      "Source": "录屏素材\\日常周常\\step11每周任务完成，领取周活跃度.jpg",
+      "SourceCrop": {
+        "X": 1662,
+        "Y": 198,
+        "Height": 43,
+        "Width": 80
+      },
+      "SourceSha256": "ECDC324A00C5CAED9B0E819F28D9ADB6B2CDC87F407FBE857EFFA2527CDC3999",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1625,
+        "Y": 170,
+        "Height": 695,
+        "Width": 143
+      },
+      "Sha256": "2B3A4DC98400A2D7B613D31AD6956645F1B8E5E541F19F3363372A5CE14D9B7E",
+      "File": "week-row-claim.png",
+      "Threshold": 0.88
+    },
+    "row-progress": {
+      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
+      "SourceCrop": {
+        "X": 1663,
+        "Y": 202,
+        "Height": 28,
+        "Width": 76
+      },
+      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1625,
+        "Y": 170,
+        "Height": 695,
+        "Width": 143
+      },
+      "Sha256": "1C25FDBCBA2D441EAD8018A5713158B8BC21B8B0A768103D244EDBD00FB187C3",
+      "File": "row-progress.png",
+      "Threshold": 0.85
+    },
+    "row-go": {
+      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
+      "SourceCrop": {
+        "X": 1640,
+        "Y": 314,
+        "Height": 40,
+        "Width": 121
+      },
+      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1625,
+        "Y": 170,
+        "Height": 695,
+        "Width": 143
+      },
+      "Sha256": "4C251AB67DE65829711B26559F4F0356D95C76D75332FDC50936A43F4E4D6644",
+      "File": "row-go.png",
+      "Threshold": 0.85
+    },
+    "row-claimed": {
+      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
+      "SourceCrop": {
+        "X": 1664,
+        "Y": 676,
+        "Height": 28,
+        "Width": 74
+      },
+      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1625,
+        "Y": 170,
+        "Height": 695,
+        "Width": 143
+      },
+      "Sha256": "1A20FEC1DA0A0FA7BA06FA6E2C09BA9277E396A076FAA5DCE9EF8FA9B525EE6A",
+      "File": "row-claimed.png",
+      "Threshold": 0.85
+    },
+    "chest-ready-day": {
+      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
+      "SourceCrop": {
+        "X": 770,
+        "Y": 955,
+        "Height": 63,
+        "Width": 66
+      },
+      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 740,
+        "Y": 935,
+        "Height": 87,
+        "Width": 130
+      },
+      "Sha256": "F7BFCF6B8C78428FEF607CE6634F65496B0A5ED4154C2A52C8A2BF1196FC4806",
+      "File": "day-chest-ready.png",
+      "Threshold": 0.86
+    },
+    "chest-alert": {
+      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
+      "SourceCrop": {
+        "X": 822,
+        "Y": 963,
+        "Height": 14,
+        "Width": 12
+      },
+      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 812,
+        "Y": 954,
+        "Height": 33,
+        "Width": 33
+      },
+      "Sha256": "3ECC8C4DA0E93D734427CD87748424094FB89E8215C0D48E94B73188CA501396",
+      "File": "day-chest-alert.png",
+      "Threshold": 0.8
+    },
+    "chest-alert-week": {
+      "Source": "录屏素材\\日常周常\\step12根据目前激活的周活跃度奖励，点击领取，只完成第一档.jpg",
+      "SourceCrop": {
+        "X": 822,
+        "Y": 963,
+        "Height": 14,
+        "Width": 12
+      },
+      "SourceSha256": "209CC257487ADB9A280902BF86ED53E0843343F150AF1DE7A608869092C5F05D",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 812,
+        "Y": 954,
+        "Height": 33,
+        "Width": 33
+      },
+      "Sha256": "BF75BE393F384390D7981446795B17FA0295480F5300DBC8454816149071E22E",
+      "File": "week-chest-alert.png",
+      "Threshold": 0.8
+    },
+    "chest-ready-week": {
+      "Source": "录屏素材\\日常周常\\step12根据目前激活的周活跃度奖励，点击领取，只完成第一档.jpg",
+      "SourceCrop": {
+        "X": 770,
+        "Y": 955,
+        "Height": 63,
+        "Width": 66
+      },
+      "SourceSha256": "209CC257487ADB9A280902BF86ED53E0843343F150AF1DE7A608869092C5F05D",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 740,
+        "Y": 935,
+        "Height": 87,
+        "Width": 130
+      },
+      "Sha256": "CC7EF536E60D8524008CE1985A23F55EC0D2632B72ED5D9ED49D5044C377F027",
+      "File": "week-chest-ready-slot-1.png",
+      "Threshold": 0.86
+    },
+    "chest-ready-week-4": {
+      "Source": "录屏素材\\日常周常\\step13每周活跃度完成到第四档.jpg",
+      "SourceCrop": {
+        "X": 1400,
+        "Y": 955,
+        "Height": 63,
+        "Width": 66
+      },
+      "SourceSha256": "B41CC9735FBA723CE7484DED3CCA531426C4037706ED522042D0FC43BACEA09A",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1370,
+        "Y": 935,
+        "Height": 87,
+        "Width": 130
+      },
+      "Sha256": "A7B1362071A5DB3FA8FE94E7F1481AD7716EE73F4FD680A1A7B3486E40E52AFB",
+      "File": "week-chest-ready-slot-4.png",
+      "Threshold": 0.86
+    },
+    "chest-ready-week-5": {
+      "Source": "录屏素材\\日常周常\\step14每周活跃度全部完成的状态.jpg",
+      "SourceCrop": {
+        "X": 1610,
+        "Y": 955,
+        "Height": 63,
+        "Width": 66
+      },
+      "SourceSha256": "226EFBFF69FB38A8141AAC8116B33090BE6F4C8021F95AD97B359F91B6EDDC5D",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1580,
+        "Y": 935,
+        "Height": 87,
+        "Width": 130
+      },
+      "Sha256": "7F8CE72F08A835CDA712F911E69E123E25F448B7C6695A12EA5717A0E8D5447B",
+      "File": "week-chest-ready-slot-5.png",
+      "Threshold": 0.86
+    },
+    "chest-locked": {
+      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "SourceCrop": {
+        "X": 772,
+        "Y": 964,
+        "Height": 47,
+        "Width": 50
+      },
+      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 740,
+        "Y": 935,
+        "Height": 87,
+        "Width": 130
+      },
+      "Sha256": "726AA32E10BE5321A9B26E62B8F2ACAAFC4F15C53F008FBBEF06901B80389292",
+      "File": "chest-locked.png",
+      "Threshold": 0.86
+    },
+    "chest-open": {
+      "Source": "录屏素材\\日常周常\\step3每日活跃度奖励全部领取完成的状态.jpg",
+      "SourceCrop": {
+        "X": 772,
+        "Y": 964,
+        "Height": 47,
+        "Width": 50
+      },
+      "SourceSha256": "0E93725572EFA302FAEA7EF989F98A40A236081BF0BCF8693B4D82DDAB893DD6",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 740,
+        "Y": 935,
+        "Height": 87,
+        "Width": 130
+      },
+      "Sha256": "28B4C6F73F32EE0F1BA6E80F297CC07D9F5DE2AD0A388AB8023136DBBE17EDF1",
+      "File": "chest-open.png",
+      "Threshold": 0.86
+    },
+    "chest-open-week": {
+      "Channel": "RedMinusBlue",
+      "Source": "AzurAssistant.Tests\\Fixtures\\activity-week-claimed-live.png",
+      "SourceCrop": {
+        "X": 1402,
+        "Y": 964,
+        "Height": 47,
+        "Width": 50
+      },
+      "SourceSha256": "1AF9A74C7484A777186DC0FA651DE83E141D4592E0FF194DF904A9C2289BD0F1",
+      "Version": "1.2.0",
+      "Search": {
+        "X": 1370,
+        "Y": 935,
+        "Height": 87,
+        "Width": 130
+      },
+      "Sha256": "0F50A91BEC5B0654237D9159687D98671A9FD9E2B2939364521954B109637A4A",
+      "File": "week-chest-open.png",
+      "Threshold": 0.86
+    }
+  }
+}

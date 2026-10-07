@@ -1,0 +1,88 @@
+{
+  "SchemaVersion": 1,
+  "Version": "1.0.0",
+  "ReferenceWidth": 1920,
+  "ReferenceHeight": 1080,
+  "Templates": {
+    "update-title": {
+      "File": "update-title.png",
+      "Search": {
+        "Y": 420,
+        "Height": 55,
+        "Width": 85,
+        "X": 530
+      },
+      "Threshold": 0.86,
+      "Sha256": "9E6BE97B861AE937D4E73D0AF4225D075CD70F7060D76BB86FEB9EDB3C79F31C",
+      "Source": "录屏素材/进入游戏/step0：更新提示.jpg",
+      "SourceSha256": "F9AC00F64DE65B909D96E933BE2F58FC5731B9DE6C0779A8BF8B1C6F79567900",
+      "SourceCrop": {
+        "Y": 438,
+        "Height": 22,
+        "Width": 38,
+        "X": 556
+      },
+      "Version": "1.0.0"
+    },
+    "update-required": {
+      "File": "update-required.png",
+      "Search": {
+        "Y": 510,
+        "Height": 80,
+        "Width": 380,
+        "X": 730
+      },
+      "Threshold": 0.86,
+      "Sha256": "04743CC66F54AEBF39B9CDC7821961A19DBF5D2E64D58C04F0795D3E8628F336",
+      "Source": "录屏素材/进入游戏/step0：更新提示.jpg",
+      "SourceSha256": "F9AC00F64DE65B909D96E933BE2F58FC5731B9DE6C0779A8BF8B1C6F79567900",
+      "SourceCrop": {
+        "Y": 536,
+        "Height": 26,
+        "Width": 88,
+        "X": 816
+      },
+      "Version": "1.0.0"
+    },
+    "update-resources": {
+      "File": "update-resources.png",
+      "Search": {
+        "Y": 510,
+        "Height": 80,
+        "Width": 320,
+        "X": 900
+      },
+      "Threshold": 0.86,
+      "Sha256": "9843E8C1B6012EC7955A1BE3BBFDDBB518460683D180E9B59F611CF253BE73B4",
+      "Source": "录屏素材/进入游戏/step0：更新提示.jpg",
+      "SourceSha256": "F9AC00F64DE65B909D96E933BE2F58FC5731B9DE6C0779A8BF8B1C6F79567900",
+      "SourceCrop": {
+        "Y": 536,
+        "Height": 26,
+        "Width": 94,
+        "X": 1006
+      },
+      "Version": "1.0.0"
+    },
+    "update-confirm": {
+      "File": "update-confirm.png",
+      "Search": {
+        "Y": 625,
+        "Height": 95,
+        "Width": 305,
+        "X": 1110
+      },
+      "Threshold": 0.86,
+      "Sha256": "544FFC9AC24CCE1577FBB6C9A64B68E9A78E7FFD40F3C3F0DD3FE21A6D3C1197",
+      "Source": "录屏素材/进入游戏/step0：更新提示.jpg",
+      "SourceSha256": "F9AC00F64DE65B909D96E933BE2F58FC5731B9DE6C0779A8BF8B1C6F79567900",
+      "SourceCrop": {
+        "Y": 653,
+        "Height": 38,
+        "Width": 224,
+        "X": 1154
+      },
+      "Version": "1.0.0"
+    }
+  }
+}

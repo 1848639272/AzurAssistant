@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+/.packages/
+/.tools/
+/.vs/
+/artifacts/
+/out/
+/settings.json*
+/commissions.json*
+/weekly-progress.json*
+/update-state.json*
+/routes/
+/logs/
+*.user
+*.suo

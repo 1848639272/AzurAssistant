@@ -1,0 +1,430 @@
+{
+  "SchemaVersion": 1,
+  "Version": "1.4.5",
+  "Source": "录屏素材/委托，初版2026-10-03；Hub入口2026-10-05；1.2.0实机短拖保留重叠；1.2.1灰/金勾标题锚点排除队员等级；1.3.0新增主线19张原图标定，日常目录限定575–765标题带、完整名称匹配与同帧局部补识别；1.4.0新增领取后牵绊等级文字与空白关闭坐标；1.4.1危机领取失败两帧标定独立消耗数字ROI，严格OCR且与可读长句数值交叉核对；1.4.2按用户指定将MVP关闭点改到开始旅程相近的中下位置，记录故障帧来源，实机点击实效待验收",
+  "Regions": {
+    "daily-name": {
+      "X": 1385,
+      "Y": 284,
+      "Width": 452,
+      "Height": 65
+    },
+    "daily-list": {
+      "X": 175,
+      "Y": 575,
+      "Width": 1010,
+      "Height": 190
+    },
+    "daily-tabs": {
+      "X": 510,
+      "Y": 1005,
+      "Width": 925,
+      "Height": 47
+    },
+    "weekly-name": {
+      "X": 1430,
+      "Y": 238,
+      "Width": 420,
+      "Height": 59
+    },
+    "weekly-list": {
+      "X": 80,
+      "Y": 950,
+      "Width": 605,
+      "Height": 60
+    },
+    "crisis-name": {
+      "X": 1190,
+      "Y": 196,
+      "Width": 490,
+      "Height": 84
+    },
+    "crisis-list": {
+      "X": 273,
+      "Y": 154,
+      "Width": 445,
+      "Height": 820
+    },
+    "crisis-tiers": {
+      "X": 60,
+      "Y": 150,
+      "Width": 80,
+      "Height": 645
+    },
+    "resources-menu": {
+      "X": 1350,
+      "Y": 28,
+      "Width": 540,
+      "Height": 55
+    },
+    "resources-reward": {
+      "X": 1350,
+      "Y": 28,
+      "Width": 540,
+      "Height": 55
+    },
+    "daily-cost": {
+      "X": 1385,
+      "Y": 596,
+      "Width": 200,
+      "Height": 39
+    },
+    "weekly-cost": {
+      "X": 1385,
+      "Y": 609,
+      "Width": 200,
+      "Height": 43
+    },
+    "crisis-cost": {
+      "X": 1170,
+      "Y": 592,
+      "Width": 300,
+      "Height": 70
+    },
+    "reward-cost": {
+      "X": 795,
+      "Y": 391,
+      "Width": 220,
+      "Height": 37
+    },
+    "reward-cost-number": {
+      "X": 972,
+      "Y": 390,
+      "Width": 54,
+      "Height": 40
+    },
+    "multiplier": {
+      "X": 1153,
+      "Y": 390,
+      "Width": 175,
+      "Height": 36
+    },
+    "team-headers": {
+      "X": 720,
+      "Y": 175,
+      "Width": 55,
+      "Height": 715
+    },
+    "team-names": {
+      "X": 185,
+      "Y": 175,
+      "Width": 540,
+      "Height": 715
+    },
+    "prepare-name": {
+      "X": 248,
+      "Y": 202,
+      "Width": 550,
+      "Height": 72
+    },
+    "prepare-team": {
+      "X": 1250,
+      "Y": 97,
+      "Width": 265,
+      "Height": 50
+    },
+    "prepare-cost": {
+      "X": 500,
+      "Y": 718,
+      "Width": 75,
+      "Height": 37
+    },
+    "story-numbers": {
+      "X": 780,
+      "Y": 303,
+      "Width": 1070,
+      "Height": 51
+    },
+    "story-names": {
+      "X": 780,
+      "Y": 415,
+      "Width": 1070,
+      "Height": 38
+    },
+    "weekly-counter": {
+      "X": 1393,
+      "Y": 37,
+      "Width": 227,
+      "Height": 38
+    },
+    "auto-key": {
+      "X": 1842,
+      "Y": 94,
+      "Width": 42,
+      "Height": 34
+    }
+  },
+  "Points": {
+    "hub-regional-tab": {
+      "X": 784,
+      "Y": 1038
+    },
+    "hub-assembly-tab": {
+      "X": 1100,
+      "Y": 1038
+    },
+    "hub-daily": {
+      "X": 1289,
+      "Y": 707
+    },
+    "hub-weekly": {
+      "X": 1564,
+      "Y": 608
+    },
+    "hub-crisis": {
+      "X": 1275,
+      "Y": 782
+    },
+    "hub-story": {
+      "X": 1260,
+      "Y": 420
+    },
+    "chapter-1": {
+      "X": 389,
+      "Y": 1008
+    },
+    "chapter-2": {
+      "X": 778,
+      "Y": 1008
+    },
+    "chapter-3": {
+      "X": 1167,
+      "Y": 1008
+    },
+    "chapter-4": {
+      "X": 1556,
+      "Y": 1008
+    },
+    "story-left-from": {
+      "X": 1600,
+      "Y": 600
+    },
+    "story-left-to": {
+      "X": 1360,
+      "Y": 600
+    },
+    "story-right-from": {
+      "X": 1050,
+      "Y": 600
+    },
+    "story-right-to": {
+      "X": 1290,
+      "Y": 600
+    },
+    "back": {
+      "X": 72,
+      "Y": 55
+    },
+    "daily-tier-1": {
+      "X": 1444,
+      "Y": 389
+    },
+    "weekly-tier-1": {
+      "X": 1453,
+      "Y": 374
+    },
+    "multiplier": {
+      "X": 1250,
+      "Y": 410
+    },
+    "multiplier-1": {
+      "X": 1247,
+      "Y": 458
+    },
+    "multiplier-2": {
+      "X": 1247,
+      "Y": 502
+    },
+    "multiplier-3": {
+      "X": 1247,
+      "Y": 547
+    },
+    "mvp-dismiss": {
+      "X": 966,
+      "Y": 903
+    },
+    "bond-dismiss": {
+      "X": 1600,
+      "Y": 800
+    },
+    "list-left-from": {
+      "X": 1070,
+      "Y": 600
+    },
+    "list-left-to": {
+      "X": 830,
+      "Y": 600
+    },
+    "list-right-from": {
+      "X": 350,
+      "Y": 600
+    },
+    "list-right-to": {
+      "X": 590,
+      "Y": 600
+    },
+    "crisis-up-from": {
+      "X": 650,
+      "Y": 780
+    },
+    "crisis-up-to": {
+      "X": 650,
+      "Y": 540
+    },
+    "crisis-down-from": {
+      "X": 650,
+      "Y": 290
+    },
+    "crisis-down-to": {
+      "X": 650,
+      "Y": 530
+    },
+    "tier-up-from": {
+      "X": 100,
+      "Y": 740
+    },
+    "tier-up-to": {
+      "X": 100,
+      "Y": 580
+    },
+    "tier-down-from": {
+      "X": 100,
+      "Y": 310
+    },
+    "tier-down-to": {
+      "X": 100,
+      "Y": 470
+    },
+    "team-up-from": {
+      "X": 600,
+      "Y": 770
+    },
+    "team-up-to": {
+      "X": 600,
+      "Y": 590
+    },
+    "team-down-from": {
+      "X": 600,
+      "Y": 310
+    },
+    "team-down-to": {
+      "X": 600,
+      "Y": 490
+    }
+  },
+  "PointSources": {
+    "hub-regional-tab": {
+      "Source": "录屏素材\\委托\\日常委托\\1、地区委托页面进入日常委托 .jpg",
+      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
+      "Version": "1.1.0",
+      "RequiredHubSection": "Either"
+    },
+    "hub-assembly-tab": {
+      "Source": "录屏素材\\委托\\日常委托\\1、地区委托页面进入日常委托 .jpg",
+      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
+      "Version": "1.1.0",
+      "RequiredHubSection": "Either"
+    },
+    "hub-daily": {
+      "Source": "录屏素材\\委托\\日常委托\\1、地区委托页面进入日常委托 .jpg",
+      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
+      "Version": "1.1.0",
+      "RequiredHubSection": "Regional"
+    },
+    "hub-weekly": {
+      "Source": "录屏素材\\委托\\日常委托\\1、地区委托页面进入日常委托 .jpg",
+      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
+      "Version": "1.1.0",
+      "RequiredHubSection": "Regional"
+    },
+    "hub-crisis": {
+      "Source": "录屏素材\\委托\\危机讨伐\\1.1点击下方星协集会，然后识别到危机讨伐，并点击，此处识别不要用图片，图案可能会变.jpg",
+      "SourceSha256": "fe55a5e83cbba935306ad645794e87756f7c5850a394d9e93108a6b6444258bf",
+      "Version": "1.1.0",
+      "RequiredHubSection": "Assembly"
+    },
+    "hub-story": {
+      "Source": "录屏素材\\委托\\主线委托\\1.0点击日常委托上面的主线委托.jpg",
+      "SourceSha256": "cece01f8ee2c02d5f27ddbb3999389a697bd315bf217aae5e70846776dd31f8d",
+      "Version": "1.3.0",
+      "RequiredPage": "Hub Regional"
+    },
+    "chapter-1": {
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "Version": "1.3.0",
+      "RequiredPage": "Story with unique selected chapter"
+    },
+    "chapter-2": {
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "Version": "1.3.0",
+      "RequiredPage": "Story with unique selected chapter"
+    },
+    "chapter-3": {
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "Version": "1.3.0",
+      "RequiredPage": "Story with unique selected chapter"
+    },
+    "chapter-4": {
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "Version": "1.3.0",
+      "RequiredPage": "Story with unique selected chapter"
+    },
+    "story-left-from": {
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "Version": "1.3.0",
+      "RequiredPage": "Story with unique selected chapter"
+    },
+    "story-left-to": {
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "Version": "1.3.0",
+      "RequiredPage": "Story with unique selected chapter"
+    },
+    "story-right-from": {
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "Version": "1.3.0",
+      "RequiredPage": "Story with unique selected chapter"
+    },
+    "story-right-to": {
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "Version": "1.3.0",
+      "RequiredPage": "Story with unique selected chapter"
+    },
+    "bond-dismiss": {
+      "Source": "录屏素材\\委托\\领取并结算特殊情况\\1、任意委托点击领取并结算后，有可能会出现角色牵绊等级提升的画面，需要点击任意空白处关闭.jpg",
+      "SourceSha256": "ab24d3dbfd46ed433c2f027227f4059e375fa5b9b862faec6bfa9c2eee4cb819",
+      "Version": "1.4.0",
+      "RequiredPage": "BondLevelUp with opaque bond-level-title text"
+    },
+    "mvp-dismiss": {
+      "Source": "AzurAssistant.Tests/fixtures/commissions/crisis-mvp-dismiss-failure-2026-10-06.png",
+      "SourceSha256": "fa79f25dd84f5e703ed4db0b59a44a342dd3a96c901ef35283da20958ea2d5e9",
+      "Version": "1.4.2",
+      "RequiredPage": "Mvp with mvp anchor",
+      "Description": "User-requested lower-center dismissal point, matching the existing start-journey position (966,903); static placement checked against this failure frame, live click effectiveness remains unverified."
+    }
+  },
+  "RegionSources": {
+    "reward-cost-number": {
+      "Source": "AzurAssistant.Tests/fixtures/commissions/crisis-reward-failure-2026-10-06-frame-1926.png",
+      "SourceSha256": "4bc9fbf837211529c45b5f377b5ce38d605ade521b06e6bf07778ae51929293b",
+      "Version": "1.4.1",
+      "RequiredPage": "Reward or Multiplier with reward-title and reward-claim",
+      "Description": "Only the displayed cost number and trailing bracket, excluding resource icon, multiplier and reward amounts."
+    },
+    "auto-key": {
+      "Source": "AzurAssistant.Tests/fixtures/commissions/story-auto-battle-2026-10-06/frame-00001-observation.png",
+      "SourceSha256": "ef481389dc4670d6954c1c73be11236f21c14d912d8eb0fe03effc7a62a4fb31",
+      "Version": "1.4.5",
+      "RequiredPage": "No higher-priority dialog or result; inactive auto-icon matched, and neither enabled marker matched",
+      "Description": "Three-times OCR of the full F1 shortcut, confidence at least 0.90 and an unclipped box; F1 itself is present in both enabled and disabled states."
+    }
+  }
+}

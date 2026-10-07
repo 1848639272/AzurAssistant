@@ -1,0 +1,244 @@
+{
+  "SchemaVersion": 2,
+  "Version": "1.1",
+  "Width": 1920,
+  "Height": 1080,
+  "Algorithm": "OpenCV CCoeffNormed grayscale",
+  "DialogueTextRegion": {
+    "X": 500,
+    "Y": 830,
+    "Width": 920,
+    "Height": 120
+  },
+  "IconSearchX": 1150,
+  "IconSearchWidth": 45,
+  "RowHeight": 44,
+  "MaxRowDistance": 7,
+  "NameOffsetX": 33,
+  "NameWidth": 285,
+  "FirstRowY": 570,
+  "RowSpacing": 54,
+  "MaxVisibleRows": 4,
+  "Templates": [
+    {
+      "Id": "dialogue-auto",
+      "File": "dialogue-auto.png",
+      "Sha256": "BD9D74E961B5AF39B393A5FD1DB49BFA4E247321D4D7D0421EEC4AB4E57689A0",
+      "Threshold": 0.9,
+      "Search": {
+        "X": 1650,
+        "Y": 20,
+        "Width": 130,
+        "Height": 55
+      },
+      "Source": "录屏素材/剧情/AzurPromilia 2026-09-20 00-52-41-857.jpg",
+      "SourceSha256": "3D5A6060C1C9D87425241A5B9F6FDC7B991B8AD10BCA24126D628DAAB866B6DE",
+      "Crop": {
+        "X": 1675,
+        "Y": 32,
+        "Width": 76,
+        "Height": 28
+      }
+    },
+    {
+      "Id": "dialogue-skip",
+      "File": "dialogue-skip.png",
+      "Sha256": "9461089C1A898EABD2D9E09D8B0DF25052E511D831C31D240500B87D1F7D2124",
+      "Threshold": 0.9,
+      "Search": {
+        "X": 1825,
+        "Y": 15,
+        "Width": 70,
+        "Height": 65
+      },
+      "Source": "录屏素材/剧情/AzurPromilia 2026-09-20 00-52-41-857.jpg",
+      "SourceSha256": "3D5A6060C1C9D87425241A5B9F6FDC7B991B8AD10BCA24126D628DAAB866B6DE",
+      "Crop": {
+        "X": 1845,
+        "Y": 30,
+        "Width": 30,
+        "Height": 31
+      }
+    },
+    {
+      "Id": "pickup-icon",
+      "File": "pickup-icon.png",
+      "Sha256": "BEAD2D1915203EECE7CE34F10CB1A05806F67C47CC9F5744587427394E72B407",
+      "Threshold": 0.82,
+      "Search": {
+        "X": 1150,
+        "Y": 540,
+        "Width": 45,
+        "Height": 215
+      },
+      "Source": "录屏素材/采集物/AzurPromilia 2026-09-20 00-52-03-162.jpg",
+      "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
+      "Crop": {
+        "X": 1156,
+        "Y": 554,
+        "Width": 31,
+        "Height": 31
+      }
+    },
+    {
+      "Id": "interact-key",
+      "File": "interact-key.png",
+      "Sha256": "67101653E44244341AD566DD69B9B7B78B68A81BEF77D0AE6F647685EB46ABC8",
+      "Threshold": 0.8,
+      "Search": {
+        "X": 1075,
+        "Y": 545,
+        "Width": 35,
+        "Height": 220
+      },
+      "Source": "录屏素材/采集物/AzurPromilia 2026-09-20 00-52-03-162.jpg",
+      "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
+      "Crop": {
+        "X": 1087,
+        "Y": 563,
+        "Width": 12,
+        "Height": 17
+      }
+    },
+    {
+      "Id": "talk-icon",
+      "File": "talk-icon.png",
+      "Sha256": "6C8089DAB9C49FAFC17C6E1962A4895E9DC1F1D00AAFB68F2129A2807DF1C109",
+      "Threshold": 0.86,
+      "Search": {
+        "X": 1150,
+        "Y": 540,
+        "Width": 45,
+        "Height": 215
+      },
+      "Source": "录屏素材/采集物/此时选中的是对话，不能采集，需要滚轮往下一下.jpg",
+      "SourceSha256": "292B595040C3A813FC8ACEAA26A48C4E3A7F93FBA984EBAAD5DD9E04161B2E29",
+      "Crop": {
+        "X": 1156,
+        "Y": 554,
+        "Width": 31,
+        "Height": 31
+      }
+    },
+    {
+      "Id": "world-menu",
+      "File": "world-menu.png",
+      "Sha256": "ECE0FF20F135A04E65F18452339D026341A417CA3ABBD3D9861D47712DD89BA1",
+      "Threshold": 0.8,
+      "Search": {
+        "X": 20,
+        "Y": 15,
+        "Width": 70,
+        "Height": 65
+      },
+      "Source": "录屏素材/采集物/AzurPromilia 2026-09-20 00-52-03-162.jpg",
+      "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
+      "Crop": {
+        "Width": 25,
+        "X": 39,
+        "Height": 24,
+        "Y": 35
+      }
+    },
+    {
+      "Id": "world-hud",
+      "File": "world-hud.png",
+      "Sha256": "1360C2DB86703CCE984CDACA1AE52B5A7D83C868DB6F1194D85D1E28A85AD80D",
+      "Threshold": 0.8,
+      "Search": {
+        "X": 1510,
+        "Y": 1025,
+        "Width": 75,
+        "Height": 40
+      },
+      "Source": "录屏素材/采集物/AzurPromilia 2026-09-20 00-52-03-162.jpg",
+      "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
+      "Crop": {
+        "X": 1523,
+        "Y": 1034,
+        "Width": 44,
+        "Height": 19
+      }
+    },
+    {
+      "Id": "dialogue-summary-title",
+      "File": "dialogue-summary-title.png",
+      "Sha256": "EFC34E9C630FC552318C65FC1A1C009014F2DFEF03C0DDC9A4E989CE732F8EA2",
+      "Threshold": 0.9,
+      "Search": {
+        "X": 870,
+        "Y": 320,
+        "Width": 180,
+        "Height": 70
+      },
+      "Source": "录屏素材/剧情/剧情跳过确认.jpg",
+      "SourceSha256": "6D51DD21DF74E5ACBD5B4C3C8EA7A0CD217E4C3D4160B2DE109D9639C8347285",
+      "Crop": {
+        "X": 891,
+        "Y": 336,
+        "Width": 139,
+        "Height": 36
+      }
+    },
+    {
+      "Id": "dialogue-summary-confirm",
+      "File": "dialogue-summary-confirm.png",
+      "Sha256": "15AB7DFC149BE05C481B4F1BCAD55384BA5568D2CB85A6A1834839FA0E7CC7B6",
+      "Threshold": 0.9,
+      "Search": {
+        "X": 1220,
+        "Y": 765,
+        "Width": 160,
+        "Height": 65
+      },
+      "Source": "录屏素材/剧情/剧情跳过确认.jpg",
+      "SourceSha256": "6D51DD21DF74E5ACBD5B4C3C8EA7A0CD217E4C3D4160B2DE109D9639C8347285",
+      "Crop": {
+        "X": 1246,
+        "Y": 782,
+        "Width": 107,
+        "Height": 32
+      }
+    },
+    {
+      "Id": "dialogue-prompt-question",
+      "File": "dialogue-prompt-question.png",
+      "Sha256": "7937D0EAF950EDF3897EC09165CB11477082816364EC77FD9FDBC56828C454F5",
+      "Threshold": 0.9,
+      "Search": {
+        "X": 975,
+        "Y": 510,
+        "Width": 255,
+        "Height": 65
+      },
+      "Source": "录屏素材/剧情/剧情跳过确认2.jpg",
+      "SourceSha256": "023A6BD59B914BEF4DD23136F21E8C10D995C563EE0300473D87436137E88E37",
+      "Crop": {
+        "X": 995,
+        "Y": 529,
+        "Width": 210,
+        "Height": 29
+      }
+    },
+    {
+      "Id": "dialogue-prompt-confirm",
+      "File": "dialogue-prompt-confirm.png",
+      "Sha256": "50E693377988808077AB1DFB88DEB883E1E9D2D518E150517AB2AC92CDFA3477",
+      "Threshold": 0.9,
+      "Search": {
+        "X": 1200,
+        "Y": 640,
+        "Width": 125,
+        "Height": 65
+      },
+      "Source": "录屏素材/剧情/剧情跳过确认2.jpg",
+      "SourceSha256": "023A6BD59B914BEF4DD23136F21E8C10D995C563EE0300473D87436137E88E37",
+      "Crop": {
+        "X": 1230,
+        "Y": 660,
+        "Width": 60,
+        "Height": 29
+      }
+    }
+  ]
+}

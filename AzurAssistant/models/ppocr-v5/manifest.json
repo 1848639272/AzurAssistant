@@ -1,0 +1,11 @@
+{
+  "SchemaVersion": 1,
+  "ModelVersion": "PP-OCRv5-mobile-zh / RapidOCR v3.9.2",
+  "License": "Apache-2.0",
+  "Files": [
+    { "Role": "Detection", "File": "det.onnx", "Sha256": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae", "Source": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.9.2/onnx/PP-OCRv5/det/ch_PP-OCRv5_det_mobile.onnx" },
+    { "Role": "Classification", "File": "cls.onnx", "Sha256": "54379ae5174d026780215fc748a7f31910dee36818e63d49e17dc598ecc82df7", "Source": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.9.2/onnx/PP-OCRv5/cls/ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx" },
+    { "Role": "Recognition", "File": "rec.onnx", "Sha256": "5825fc7ebf84ae7a412be049820b4d86d77620f204a041697b0494669b1742c5", "Source": "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.9.2/onnx/PP-OCRv5/rec/ch_PP-OCRv5_rec_mobile.onnx" },
+    { "Role": "Dictionary", "File": "ppocrv5_dict.txt", "Sha256": "d1979e9f794c464c0d2e0b70a7fe14dd978e9dc644c0e71f14158cdf8342af1b", "Source": "https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/dab3fe35379033fdcb2d0e9572fac0b36c9a9ebf/ppocr/utils/dict/ppocrv5_dict.txt" }
+  ]
+}

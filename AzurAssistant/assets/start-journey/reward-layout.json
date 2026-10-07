@@ -1,0 +1,42 @@
+{
+  "SchemaVersion": 1,
+  "Version": "1.0.0",
+  "Source": "录屏素材/进入游戏/step2进入游戏可能有奖励可领取.jpg",
+  "CardCenters": [
+    600,
+    717,
+    833,
+    950,
+    1067,
+    1184,
+    1300
+  ],
+  "CardClickY": 950,
+  "MaxArrowOffset": 12,
+  "DismissOffsetY": 80,
+  "TopArrow": {
+    "X": -52,
+    "Y": 832,
+    "Width": 104,
+    "Height": 31
+  },
+  "BottomArrow": {
+    "X": -52,
+    "Y": 1030,
+    "Width": 104,
+    "Height": 25
+  },
+  "Check": {
+    "X": -32,
+    "Y": 929,
+    "Width": 64,
+    "Height": 47
+  },
+  "Edge": {
+    "X": -55,
+    "Y": 906,
+    "Width": 25,
+    "Height": 98
+  },
+  "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0"
+}

@@ -1,0 +1,33 @@
+{
+  "SchemaVersion": 2,
+  "Version": "1.1.0",
+  "MapId": "200000",
+  "Floor": 0,
+  "CoordinateVersion": "village-pixel-v1",
+  "MapFile": "village-map.png",
+  "MapSha256": "e80e5a43acc39210ee1bf35b0976267eebb47d39858259ceb8faeb520fac38be",
+  "Width": 2048,
+  "Height": 2048,
+  "Source": "maptest/results/textures/tex_miniMap_200000.png",
+  "SourcePackage": "2302423",
+  "Minimap": {
+    "X": 64,
+    "Y": 45,
+    "Width": 160,
+    "Height": 160
+  },
+  "MinimapCenter": {
+    "X": 144,
+    "Y": 124
+  },
+  "MinimapRadius": 67,
+  "Teleport": {
+    "Id": "village-star-node",
+    "Name": "夏露露村·星脉节点",
+    "X": 1314,
+    "Y": 682,
+    "LandingX": 1255.6,
+    "LandingY": 709.2
+  },
+  "Notes": "左上角原点，X向右/Y向下，参考像素而非米；图标按0.6默认缩放底图配准标定；落点来自navigation-teleport-20261006-213841无人工输入的265帧，图标中心与出生点分别保存。"
+}

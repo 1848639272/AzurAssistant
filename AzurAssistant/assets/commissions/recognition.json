@@ -1,0 +1,1264 @@
+{
+  "SchemaVersion": 1,
+  "AssetVersion": "1.4.5",
+  "ReferenceWidth": 1920,
+  "ReferenceHeight": 1080,
+  "Templates": {
+    "menu-entry": {
+      "File": "menu-entry.png",
+      "Search": {
+        "X": 1640,
+        "Y": 820,
+        "Width": 110,
+        "Height": 80
+      },
+      "Threshold": 0.84,
+      "Sha256": "f795d622d869ac48e5924ae97a71f11773f3c417438932f2485768a486ca0bbe",
+      "Source": "录屏素材\\委托\\esc进入主菜单.jpg",
+      "SourceSha256": "fcc721e9b9938bf35513a25f41d3b578df9a9cc53128491863b036cca3da122f",
+      "SourceCrop": {
+        "X": 1669,
+        "Y": 843,
+        "Width": 53,
+        "Height": 29
+      },
+      "Version": "1.0.0"
+    },
+    "hub-title": {
+      "File": "hub-title.png",
+      "Search": {
+        "X": 165,
+        "Y": 35,
+        "Width": 58,
+        "Height": 38
+      },
+      "Threshold": 0.87,
+      "Sha256": "130a94d85b33533412b6337f7f3d4542dd9b17c41a394e8d03fd4a29513f781e",
+      "Source": "录屏素材\\委托\\日常委托\\1、地区委托页面进入日常委托 .jpg",
+      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
+      "SourceCrop": {
+        "X": 173,
+        "Y": 43,
+        "Width": 42,
+        "Height": 22
+      },
+      "Version": "1.0.0"
+    },
+    "hub-regional-selected": {
+      "File": "hub-regional-selected.png",
+      "Search": {
+        "X": 660,
+        "Y": 1011,
+        "Width": 250,
+        "Height": 57
+      },
+      "Threshold": 0.9,
+      "Sha256": "bff5a127b355f3600b6ad2f0354ee24bd526a37a558724c911585faa6cd5e434",
+      "Source": "录屏素材\\委托\\日常委托\\1、地区委托页面进入日常委托 .jpg",
+      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
+      "SourceCrop": {
+        "X": 664,
+        "Y": 1015,
+        "Width": 242,
+        "Height": 49
+      },
+      "Version": "1.1.0"
+    },
+    "hub-regional-unselected": {
+      "File": "hub-regional-unselected.png",
+      "Search": {
+        "X": 660,
+        "Y": 1011,
+        "Width": 250,
+        "Height": 57
+      },
+      "Threshold": 0.9,
+      "Sha256": "d54a17276b88192eda9fa9fa40b0abccc3644dd2229dcb33c7469593813d1d17",
+      "Source": "录屏素材\\委托\\危机讨伐\\1.1点击下方星协集会，然后识别到危机讨伐，并点击，此处识别不要用图片，图案可能会变.jpg",
+      "SourceSha256": "fe55a5e83cbba935306ad645794e87756f7c5850a394d9e93108a6b6444258bf",
+      "SourceCrop": {
+        "X": 664,
+        "Y": 1015,
+        "Width": 242,
+        "Height": 49
+      },
+      "Version": "1.1.0"
+    },
+    "hub-assembly-selected": {
+      "File": "hub-assembly-selected.png",
+      "Search": {
+        "X": 980,
+        "Y": 1011,
+        "Width": 250,
+        "Height": 57
+      },
+      "Threshold": 0.9,
+      "Sha256": "520353cfb81db94cbf22012d10a7ebc3ab447cc8e041800ae55dfec91a478889",
+      "Source": "录屏素材\\委托\\危机讨伐\\1.1点击下方星协集会，然后识别到危机讨伐，并点击，此处识别不要用图片，图案可能会变.jpg",
+      "SourceSha256": "fe55a5e83cbba935306ad645794e87756f7c5850a394d9e93108a6b6444258bf",
+      "SourceCrop": {
+        "X": 984,
+        "Y": 1015,
+        "Width": 242,
+        "Height": 49
+      },
+      "Version": "1.1.0"
+    },
+    "hub-assembly-unselected": {
+      "File": "hub-assembly-unselected.png",
+      "Search": {
+        "X": 980,
+        "Y": 1011,
+        "Width": 250,
+        "Height": 57
+      },
+      "Threshold": 0.9,
+      "Sha256": "f4295f51f536afb2eca055b85b19c87990d9b3d178e78bb3c3ca487ff3f34605",
+      "Source": "录屏素材\\委托\\日常委托\\1、地区委托页面进入日常委托 .jpg",
+      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
+      "SourceCrop": {
+        "X": 984,
+        "Y": 1015,
+        "Width": 242,
+        "Height": 49
+      },
+      "Version": "1.1.0"
+    },
+    "daily-title": {
+      "File": "daily-title.png",
+      "Search": {
+        "X": 148,
+        "Y": 35,
+        "Width": 97,
+        "Height": 38
+      },
+      "Threshold": 0.87,
+      "Sha256": "d8940d642da51313b1e7e533c2b739ae5b5ae84af6949db286a7754c567b51de",
+      "Source": "录屏素材\\委托\\日常委托\\2.1.1基础材料-银光闪闪.jpg",
+      "SourceSha256": "158edfc0671315d550e521cc69cc6040b0fa56ac289564de7953a80eb1cc8024",
+      "SourceCrop": {
+        "X": 156,
+        "Y": 43,
+        "Width": 81,
+        "Height": 22
+      },
+      "Version": "1.0.0"
+    },
+    "weekly-title": {
+      "File": "weekly-title.png",
+      "Search": {
+        "X": 147,
+        "Y": 35,
+        "Width": 99,
+        "Height": 38
+      },
+      "Threshold": 0.87,
+      "Sha256": "5c65b6f02465beadd8ca13731377428213c61e3b4c5553ad48451902c29b4971",
+      "Source": "录屏素材\\委托\\往厄残影\\2.1周本-暗焰兽.jpg",
+      "SourceSha256": "658fe778a15081b5dfcbb7af00c05d8185cc0dd3a193cd88663b56e9e8b3e368",
+      "SourceCrop": {
+        "X": 155,
+        "Y": 43,
+        "Width": 83,
+        "Height": 22
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-title": {
+      "File": "crisis-title.png",
+      "Search": {
+        "X": 147,
+        "Y": 35,
+        "Width": 99,
+        "Height": 38
+      },
+      "Threshold": 0.87,
+      "Sha256": "33ba53c682d861744e27430e380faa862656081995de1508c500d8ac681e2455",
+      "Source": "录屏素材\\委托\\危机讨伐\\2.0此时需要计算右上角体力数量，蓝色的叫异辉晶钥石，黄色的叫晶钥石，领取副本奖励时也可以选择1-3倍领取.jpg",
+      "SourceSha256": "2d16f05859d0563110ef8c22a9653811cc73d5ec59072ca7db7c09fa94b5d4ce",
+      "SourceCrop": {
+        "X": 155,
+        "Y": 43,
+        "Width": 83,
+        "Height": 22
+      },
+      "Version": "1.0.0"
+    },
+    "story-title": {
+      "File": "story-title.png",
+      "Search": {
+        "X": 147,
+        "Y": 35,
+        "Width": 99,
+        "Height": 38
+      },
+      "Threshold": 0.87,
+      "Sha256": "db1940c56e5d9f0a0f411e7e15a46cf39b42ab09efe96c24bca88c0bfe234a05",
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "SourceCrop": {
+        "X": 155,
+        "Y": 43,
+        "Width": 83,
+        "Height": 22
+      },
+      "Version": "1.3.0"
+    },
+    "story-chapter-selected": {
+      "File": "story-chapter-selected.png",
+      "Search": {
+        "X": 365,
+        "Y": 925,
+        "Width": 50,
+        "Height": 62
+      },
+      "Threshold": 0.88,
+      "Sha256": "6478290535bd9c7b31d0d7d13a2ac30d1cf0f533147869c9c8bd07cbbe8afab6",
+      "Source": "录屏素材\\委托\\主线委托\\1.1.jpg",
+      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
+      "SourceCrop": {
+        "X": 379,
+        "Y": 937,
+        "Width": 22,
+        "Height": 42
+      },
+      "Version": "1.3.0"
+    },
+    "dungeon-goal-story": {
+      "File": "story-dungeon-goal.png",
+      "Search": {
+        "X": 54,
+        "Y": 283,
+        "Width": 115,
+        "Height": 65
+      },
+      "Threshold": 0.85,
+      "Sha256": "18d67a8a3661b5d8ea2254553380442c785cbfb5ea249b5addbc2a766acc7c16",
+      "Source": "录屏素材\\委托\\主线委托\\5.2开启自动.jpg",
+      "SourceSha256": "44073463244b0ee66f9e5352c48eb47b4f8a78d8a2d9b0907db1e945ed67d0e0",
+      "SourceCrop": {
+        "X": 69,
+        "Y": 301,
+        "Width": 81,
+        "Height": 22
+      },
+      "Version": "1.3.0"
+    },
+    "solo-daily": {
+      "File": "daily-solo.png",
+      "Search": {
+        "X": 1695,
+        "Y": 772,
+        "Width": 96,
+        "Height": 40
+      },
+      "Threshold": 0.87,
+      "Sha256": "da56b059ddd60e03974a58f460b69132556f83b380b0ae2024b370224399e023",
+      "Source": "录屏素材\\委托\\日常委托\\2.1.1基础材料-银光闪闪.jpg",
+      "SourceSha256": "158edfc0671315d550e521cc69cc6040b0fa56ac289564de7953a80eb1cc8024",
+      "SourceCrop": {
+        "X": 1703,
+        "Y": 780,
+        "Width": 80,
+        "Height": 24
+      },
+      "Version": "1.0.0"
+    },
+    "solo-weekly": {
+      "File": "weekly-solo.png",
+      "Search": {
+        "X": 1695,
+        "Y": 888,
+        "Width": 96,
+        "Height": 40
+      },
+      "Threshold": 0.87,
+      "Sha256": "7daa7210d5dfca68ab06ff3ff7f13cde211503f0a575662e81fc9e756224f564",
+      "Source": "录屏素材\\委托\\往厄残影\\2.1周本-暗焰兽.jpg",
+      "SourceSha256": "658fe778a15081b5dfcbb7af00c05d8185cc0dd3a193cd88663b56e9e8b3e368",
+      "SourceCrop": {
+        "X": 1703,
+        "Y": 896,
+        "Width": 80,
+        "Height": 24
+      },
+      "Version": "1.0.0"
+    },
+    "prepare-start": {
+      "File": "prepare-start.png",
+      "Search": {
+        "X": 1480,
+        "Y": 915,
+        "Width": 180,
+        "Height": 60
+      },
+      "Threshold": 0.85,
+      "Sha256": "f47eb22fc4f83b502f23daccc371bbe32024c3d8e17e0f28d848717b417e3b89",
+      "Source": "录屏素材\\委托\\日常委托\\3.1正常情况，点击单人挑战后出现准备页面，特殊情况确认后也会来到这个页面.jpg",
+      "SourceSha256": "98c3b004966b27bd7dbab5446af83100b7395ef0f545a1276508c674c8691307",
+      "SourceCrop": {
+        "X": 1532,
+        "Y": 932,
+        "Width": 90,
+        "Height": 26
+      },
+      "Version": "1.0.0"
+    },
+    "team-list": {
+      "File": "team-list.png",
+      "Search": {
+        "X": 1112,
+        "Y": 925,
+        "Width": 101,
+        "Height": 40
+      },
+      "Threshold": 0.87,
+      "Sha256": "86ebf2966901112745f80e24ed5cf2515d90e01d478193e245dab04182bd9c5f",
+      "Source": "录屏素材\\委托\\日常委托\\3.1正常情况，点击单人挑战后出现准备页面，特殊情况确认后也会来到这个页面.jpg",
+      "SourceSha256": "98c3b004966b27bd7dbab5446af83100b7395ef0f545a1276508c674c8691307",
+      "SourceCrop": {
+        "X": 1120,
+        "Y": 933,
+        "Width": 85,
+        "Height": 24
+      },
+      "Version": "1.0.0"
+    },
+    "team-title": {
+      "File": "team-title.png",
+      "Search": {
+        "X": 79,
+        "Y": 134,
+        "Width": 100,
+        "Height": 38
+      },
+      "Threshold": 0.87,
+      "Sha256": "396199fab4ee80575e390d04294a5da90882132f36451f3b32cb3a8d73506751",
+      "Source": "录屏素材\\委托\\日常委托\\3.2点击队伍列表，出现队伍选择，自动寻找指定队伍的名称，并点击，如果没找到就往下拉继续找，还是没找到就不切换队伍了，再次点击队伍列表关闭列表，然后点击开始委托.jpg",
+      "SourceSha256": "ff7497a2cb6131afe117f0179545a0d031135576e10262516f0529c1667e2c5f",
+      "SourceCrop": {
+        "X": 87,
+        "Y": 142,
+        "Width": 84,
+        "Height": 22
+      },
+      "Version": "1.0.0"
+    },
+    "team-selected": {
+      "File": "team-selected.png",
+      "Search": {
+        "X": 720,
+        "Y": 175,
+        "Width": 55,
+        "Height": 715
+      },
+      "Threshold": 0.88,
+      "Sha256": "3a2918b05dc5e80f6059b83682a973b717ea3b45ab030a7f25486872ad3826f9",
+      "Source": "录屏素材\\委托\\日常委托\\3.2点击队伍列表，出现队伍选择，自动寻找指定队伍的名称，并点击，如果没找到就往下拉继续找，还是没找到就不切换队伍了，再次点击队伍列表关闭列表，然后点击开始委托.jpg",
+      "SourceSha256": "ff7497a2cb6131afe117f0179545a0d031135576e10262516f0529c1667e2c5f",
+      "SourceCrop": {
+        "X": 730,
+        "Y": 195,
+        "Width": 28,
+        "Height": 28
+      },
+      "Version": "1.0.0"
+    },
+    "team-unselected": {
+      "File": "team-unselected.png",
+      "Search": {
+        "X": 720,
+        "Y": 175,
+        "Width": 55,
+        "Height": 715
+      },
+      "Threshold": 0.88,
+      "Sha256": "c7a62d438b6ff14ac8b39c20de233d6f460cb8fa7a348ad60ff616835257535c",
+      "Source": "录屏素材\\委托\\日常委托\\3.2点击队伍列表，出现队伍选择，自动寻找指定队伍的名称，并点击，如果没找到就往下拉继续找，还是没找到就不切换队伍了，再次点击队伍列表关闭列表，然后点击开始委托.jpg",
+      "SourceSha256": "ff7497a2cb6131afe117f0179545a0d031135576e10262516f0529c1667e2c5f",
+      "SourceCrop": {
+        "X": 730,
+        "Y": 409,
+        "Width": 28,
+        "Height": 28
+      },
+      "Version": "1.2.1"
+    },
+    "leave-message": {
+      "File": "leave-message.png",
+      "Search": {
+        "X": 725,
+        "Y": 530,
+        "Width": 460,
+        "Height": 60
+      },
+      "Threshold": 0.86,
+      "Sha256": "e7725db2d0d68d3e6b062c80c53a1fafbb290474f8cc9e98fd69023a3501bc8d",
+      "Source": "录屏素材\\委托\\日常委托\\3.0特殊情况，点击单人挑战后，如果已经有小队，会提示是否退出，选择确认.jpg",
+      "SourceSha256": "be00a43c0a0d3bce516bbdbaf16abbc3679850ac5e3b29aa361393ce444595b4",
+      "SourceCrop": {
+        "X": 755,
+        "Y": 549,
+        "Width": 408,
+        "Height": 21
+      },
+      "Version": "1.0.0"
+    },
+    "leave-confirm": {
+      "File": "leave-confirm.png",
+      "Search": {
+        "X": 1208,
+        "Y": 645,
+        "Width": 98,
+        "Height": 62
+      },
+      "Threshold": 0.84,
+      "Sha256": "7b5e477d67a9b50f12c86adbeb54b463a9040bcc519c0e827bbc59b7b4878275",
+      "Source": "录屏素材\\委托\\日常委托\\3.0特殊情况，点击单人挑战后，如果已经有小队，会提示是否退出，选择确认.jpg",
+      "SourceSha256": "be00a43c0a0d3bce516bbdbaf16abbc3679850ac5e3b29aa361393ce444595b4",
+      "SourceCrop": {
+        "X": 1234,
+        "Y": 663,
+        "Width": 42,
+        "Height": 24
+      },
+      "Version": "1.3.0"
+    },
+    "reward-title": {
+      "File": "reward-title.png",
+      "Search": {
+        "X": 400,
+        "Y": 282,
+        "Width": 108,
+        "Height": 41
+      },
+      "Threshold": 0.87,
+      "Sha256": "fc06ad3068a9f6906a3eece0afacca4f3d6ab5fe221f5db64a681ca6f3b7444a",
+      "Source": "录屏素材\\委托\\日常委托\\4.3战斗结束后，会自动寻路到宝箱开启领取页面，此时需要根据当前的体力计算领取方式.jpg",
+      "SourceSha256": "b13fd96da0085a62f881139d2515d513959dbac624e748cebc16eaef93b679bc",
+      "SourceCrop": {
+        "X": 408,
+        "Y": 290,
+        "Width": 92,
+        "Height": 25
+      },
+      "Version": "1.0.0"
+    },
+    "reward-claim": {
+      "File": "reward-claim.png",
+      "Search": {
+        "X": 1334,
+        "Y": 728,
+        "Width": 126,
+        "Height": 41
+      },
+      "Threshold": 0.87,
+      "Sha256": "2f8489b0d327a16576ee906bb41d2936ce26bfcc6083dcaf0742890ed1faf317",
+      "Source": "录屏素材\\委托\\日常委托\\4.3战斗结束后，会自动寻路到宝箱开启领取页面，此时需要根据当前的体力计算领取方式.jpg",
+      "SourceSha256": "b13fd96da0085a62f881139d2515d513959dbac624e748cebc16eaef93b679bc",
+      "SourceCrop": {
+        "X": 1342,
+        "Y": 736,
+        "Width": 110,
+        "Height": 25
+      },
+      "Version": "1.0.0"
+    },
+    "reward-skip": {
+      "File": "reward-skip.png",
+      "Search": {
+        "X": 1027,
+        "Y": 728,
+        "Width": 146,
+        "Height": 41
+      },
+      "Threshold": 0.87,
+      "Sha256": "90966bb84f667fa0ce5ac4343de74706a8badf16a4edc87494e3c36dbdd26b1f",
+      "Source": "录屏素材\\委托\\日常委托\\4.3战斗结束后，会自动寻路到宝箱开启领取页面，此时需要根据当前的体力计算领取方式.jpg",
+      "SourceSha256": "b13fd96da0085a62f881139d2515d513959dbac624e748cebc16eaef93b679bc",
+      "SourceCrop": {
+        "X": 1035,
+        "Y": 736,
+        "Width": 130,
+        "Height": 25
+      },
+      "Version": "1.0.0"
+    },
+    "reward-cancel": {
+      "File": "reward-cancel.png",
+      "Search": {
+        "X": 1072,
+        "Y": 728,
+        "Width": 56,
+        "Height": 41
+      },
+      "Threshold": 0.87,
+      "Sha256": "ec164657998dd57e569a6e712701d4ca294e42f59f0c34c1711756128b2af420",
+      "Source": "录屏素材\\委托\\危机讨伐\\4.4战斗完成后会自动打开领取页面，根据当前副本类型消耗的石头，计算当前石头能完成几次.jpg",
+      "SourceSha256": "b9f84c261c5042e778ea65526012ba2320747b071fcff54bc95cf508d9249fca",
+      "SourceCrop": {
+        "X": 1080,
+        "Y": 736,
+        "Width": 40,
+        "Height": 25
+      },
+      "Version": "1.0.0"
+    },
+    "multiplier-open": {
+      "File": "multiplier-open.png",
+      "Search": {
+        "X": 1138,
+        "Y": 440,
+        "Width": 230,
+        "Height": 135
+      },
+      "Threshold": 0.86,
+      "Sha256": "861dcbdf70f8f1f3f040dee725ad2a10f80a509a6c8a3a5c4b7e73c1d8d52f1a",
+      "Source": "录屏素材\\委托\\日常委托\\4.4例如当前有146体力，当前副本单倍为30消耗，消耗完体力需要90+30，也就是一次三倍一次一倍，那就先选择三倍，然后领取.jpg",
+      "SourceSha256": "d15aaa4fffc5977c2bdf4ab9110c3522973396a79e76b0b5237538b2988d6077",
+      "SourceCrop": {
+        "X": 1150,
+        "Y": 480,
+        "Width": 205,
+        "Height": 82
+      },
+      "Version": "1.0.0"
+    },
+    "result-title": {
+      "File": "result-title.png",
+      "Search": {
+        "X": 1090,
+        "Y": 110,
+        "Width": 490,
+        "Height": 100
+      },
+      "Threshold": 0.8,
+      "Sha256": "1a67ef89bc50382d93c0e5edb5e684cb5518224f50feef5a1e5cd6a4135e8a9a",
+      "Source": "录屏素材\\委托\\日常委托\\4.5领取后弹出结算页面，点击再次挑战，重复刚才4.1~4.4的步骤，体力消耗完后就不要点击再次挑战了，点击返回.jpg",
+      "SourceSha256": "04f8afc85a0c0e78bcf4f15048cf8fc35ae480bb3856a0e4a8b7870c33255008",
+      "SourceCrop": {
+        "X": 1147,
+        "Y": 145,
+        "Width": 373,
+        "Height": 40
+      },
+      "Version": "1.0.0"
+    },
+    "result-return": {
+      "File": "result-return.png",
+      "Search": {
+        "X": 1190,
+        "Y": 925,
+        "Width": 130,
+        "Height": 39
+      },
+      "Threshold": 0.87,
+      "Sha256": "76775709bcb54003ec2c3a735efe6bf72d207e18fd5ec451d05444365a510ae3",
+      "Source": "录屏素材\\委托\\日常委托\\4.5领取后弹出结算页面，点击再次挑战，重复刚才4.1~4.4的步骤，体力消耗完后就不要点击再次挑战了，点击返回.jpg",
+      "SourceSha256": "04f8afc85a0c0e78bcf4f15048cf8fc35ae480bb3856a0e4a8b7870c33255008",
+      "SourceCrop": {
+        "X": 1260,
+        "Y": 933,
+        "Width": 44,
+        "Height": 23
+      },
+      "Version": "1.4.4",
+      "SearchSources": [
+        {
+          "Source": "AzurAssistant.Tests\\fixtures\\commissions\\story-result-next-stage-2026-10-06.png",
+          "SourceSha256": "f544fa77c1343350edd6c82db95ea78b0fed8b5148fb064e297368993ed652ac",
+          "Version": "1.4.4",
+          "Note": "主线下一关按钮可见时返回和再次挑战左移；搜索覆盖两种已确认文字位置，保持原文字模板与阈值，不授权下一关"
+        }
+      ]
+    },
+    "result-again": {
+      "File": "result-again.png",
+      "Search": {
+        "X": 1380,
+        "Y": 925,
+        "Width": 310,
+        "Height": 39
+      },
+      "Threshold": 0.87,
+      "Sha256": "b2a6804982e23791c9e8b82365f325656db65f90e8154be756a1b523e51eddce",
+      "Source": "录屏素材\\委托\\日常委托\\4.5领取后弹出结算页面，点击再次挑战，重复刚才4.1~4.4的步骤，体力消耗完后就不要点击再次挑战了，点击返回.jpg",
+      "SourceSha256": "04f8afc85a0c0e78bcf4f15048cf8fc35ae480bb3856a0e4a8b7870c33255008",
+      "SourceCrop": {
+        "X": 1580,
+        "Y": 933,
+        "Width": 87,
+        "Height": 23
+      },
+      "Version": "1.4.4",
+      "SearchSources": [
+        {
+          "Source": "AzurAssistant.Tests\\fixtures\\commissions\\story-result-next-stage-2026-10-06.png",
+          "SourceSha256": "f544fa77c1343350edd6c82db95ea78b0fed8b5148fb064e297368993ed652ac",
+          "Version": "1.4.4",
+          "Note": "主线下一关按钮可见时返回和再次挑战左移；搜索覆盖两种已确认文字位置，保持原文字模板与阈值，不授权下一关"
+        }
+      ]
+    },
+    "crisis-result-return": {
+      "File": "crisis-result-return.png",
+      "Search": {
+        "X": 1655,
+        "Y": 925,
+        "Width": 60,
+        "Height": 39
+      },
+      "Threshold": 0.87,
+      "Sha256": "1d25ee12f74e64d148eb545f13f08189a219843e2b41ecf7deb3cc5fe4c2ff4e",
+      "Source": "录屏素材\\委托\\危机讨伐\\4.7出现结算页面后，点击返回.jpg",
+      "SourceSha256": "687f060e6fc7d9cd88eaa159d50be361a71c1ae8e012d2b09a4c29c9c5172d95",
+      "SourceCrop": {
+        "X": 1663,
+        "Y": 933,
+        "Width": 44,
+        "Height": 23
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-result-reward": {
+      "File": "crisis-result-complete.png",
+      "Search": {
+        "X": 1288,
+        "Y": 248,
+        "Width": 108,
+        "Height": 44
+      },
+      "Threshold": 0.87,
+      "Sha256": "50125faa44b2ebd3ea9bc820c89ae3f2e908d4d8672d3df02d01202b73acc617",
+      "Source": "录屏素材\\委托\\危机讨伐\\4.7出现结算页面后，点击返回.jpg",
+      "SourceSha256": "687f060e6fc7d9cd88eaa159d50be361a71c1ae8e012d2b09a4c29c9c5172d95",
+      "SourceCrop": {
+        "X": 1302,
+        "Y": 258,
+        "Width": 76,
+        "Height": 24
+      },
+      "Version": "1.4.3"
+    },
+    "mvp": {
+      "File": "mvp.png",
+      "Search": {
+        "X": 1320,
+        "Y": 285,
+        "Width": 350,
+        "Height": 150
+      },
+      "Threshold": 0.8,
+      "Sha256": "e72b4b76c703c5cf76d787894631e41395bebbb31c6c1103d4c3b904741a29c1",
+      "Source": "录屏素材\\委托\\危机讨伐\\4.6点击领取并结算后，会先出现一个胜利页面，此页面不会自动跳过，判断依据是右边有个大大的MVP，此时点击任意空白处即可跳过.jpg",
+      "SourceSha256": "8606dd18a34605d185fc2839bac343bd5169a7c9178c9655bf433ee5709f0f77",
+      "SourceCrop": {
+        "X": 1384,
+        "Y": 320,
+        "Width": 248,
+        "Height": 73
+      },
+      "Version": "1.0.0"
+    },
+    "bond-level-title": {
+      "File": "bond-level-title.png",
+      "Search": {
+        "X": 906,
+        "Y": 400,
+        "Width": 130,
+        "Height": 54
+      },
+      "Threshold": 0.9,
+      "Sha256": "d17a955c408139fc3d53d2d7b16fdf12e190509eeab2e7a89e81f87698de1120",
+      "Source": "录屏素材\\委托\\领取并结算特殊情况\\1、任意委托点击领取并结算后，有可能会出现角色牵绊等级提升的画面，需要点击任意空白处关闭.jpg",
+      "SourceSha256": "ab24d3dbfd46ed433c2f027227f4059e375fa5b9b862faec6bfa9c2eee4cb819",
+      "SourceCrop": {
+        "X": 920,
+        "Y": 414,
+        "Width": 99,
+        "Height": 26
+      },
+      "Version": "1.4.0"
+    },
+    "auto-icon": {
+      "File": "auto-icon.png",
+      "Search": {
+        "X": 1833,
+        "Y": 22,
+        "Width": 64,
+        "Height": 66
+      },
+      "Threshold": 0.76,
+      "Sha256": "949227c5279959a15f2d85de58978348896921b1793b80c805b8d944a7459734",
+      "Source": "录屏素材\\委托\\日常委托\\4.1进入副本后，右上角会出现一个自动战斗图标，按F1启用，随后会自动完成副本战斗.jpg",
+      "SourceSha256": "1aa71b8516a0190d5e4f8d555b42a2514099fd8b87b396c7796970157989a312",
+      "SourceCrop": {
+        "X": 1847,
+        "Y": 38,
+        "Width": 30,
+        "Height": 31
+      },
+      "Version": "1.0.0"
+    },
+    "auto-gear": {
+      "File": "auto-gear.png",
+      "Search": {
+        "X": 1775,
+        "Y": 28,
+        "Width": 52,
+        "Height": 52
+      },
+      "Threshold": 0.76,
+      "Sha256": "215fe022604b596f5739acdd1e7b5b6d6e229fb8d218719323678a8a4776bd7a",
+      "Source": "录屏素材\\委托\\日常委托\\4.2启用自动战斗后，图标左边会出现一个小齿轮，说明正在运行.jpg",
+      "SourceSha256": "2b1ac31f9736e4c430c43bfb8f6690c2ee236256fde86ae5196f8af91fc69b3e",
+      "SourceCrop": {
+        "X": 1785,
+        "Y": 39,
+        "Width": 32,
+        "Height": 30
+      },
+      "Version": "1.0.0"
+    },
+    "auto-running": {
+      "File": "auto-running.png",
+      "Search": {
+        "X": 835,
+        "Y": 855,
+        "Width": 245,
+        "Height": 60
+      },
+      "Threshold": 0.78,
+      "Sha256": "8d748205e742f1bfde7c9b1f51b62b9f44dbeef9caaad38b0f7088394c5cb9a5",
+      "Source": "录屏素材\\委托\\日常委托\\4.2启用自动战斗后，图标左边会出现一个小齿轮，说明正在运行.jpg",
+      "SourceSha256": "2b1ac31f9736e4c430c43bfb8f6690c2ee236256fde86ae5196f8af91fc69b3e",
+      "SourceCrop": {
+        "X": 900,
+        "Y": 877,
+        "Width": 119,
+        "Height": 23
+      },
+      "Version": "1.0.0"
+    },
+    "dungeon-goal": {
+      "File": "dungeon-goal.png",
+      "Search": {
+        "X": 15,
+        "Y": 80,
+        "Width": 160,
+        "Height": 75
+      },
+      "Threshold": 0.8,
+      "Sha256": "29147b8e2d402985d924db5a0caf6e32f54bf82b77cff5a1796463ab6e0238e7",
+      "Source": "录屏素材\\委托\\日常委托\\4.1进入副本后，右上角会出现一个自动战斗图标，按F1启用，随后会自动完成副本战斗.jpg",
+      "SourceSha256": "1aa71b8516a0190d5e4f8d555b42a2514099fd8b87b396c7796970157989a312",
+      "SourceCrop": {
+        "X": 29,
+        "Y": 92,
+        "Width": 109,
+        "Height": 23
+      },
+      "Version": "1.0.0"
+    },
+    "dungeon-goal-crisis": {
+      "File": "crisis-dungeon-goal.png",
+      "Search": {
+        "X": 15,
+        "Y": 80,
+        "Width": 160,
+        "Height": 75
+      },
+      "Threshold": 0.8,
+      "Sha256": "1731e4306587ddceac338ff85c2e63c90110c03f806785d4af0b3d31ee243092",
+      "Source": "录屏素材\\委托\\危机讨伐\\4.3启用自动战斗后，会出现小齿轮，说明正在运行.jpg",
+      "SourceSha256": "5d50214432a36e97fe17f7b57eb0c9972f92d7778ad9c42703efe1faf836c295",
+      "SourceCrop": {
+        "X": 29,
+        "Y": 92,
+        "Width": 109,
+        "Height": 23
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-create": {
+      "File": "crisis-create.png",
+      "Search": {
+        "X": 1170,
+        "Y": 820,
+        "Width": 200,
+        "Height": 80
+      },
+      "Threshold": 0.82,
+      "Sha256": "aedfdba4fb602f0f89c18f0ae2501501a4605562333908da93cf5f299a3e1ddb",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.8选中普通副本页面.jpg",
+      "SourceSha256": "61f80c6682b79091944f8e023a9f8cea6bb6bc67f03b37463a41fc9c5db9a857",
+      "SourceCrop": {
+        "X": 1216,
+        "Y": 843,
+        "Width": 83,
+        "Height": 32
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-create-dark": {
+      "File": "crisis-create-dark.png",
+      "Search": {
+        "X": 1170,
+        "Y": 820,
+        "Width": 200,
+        "Height": 80
+      },
+      "Threshold": 0.86,
+      "Sha256": "b683c3d8d71013a96ae3d4ec15eca7e702c02714831b98ab117f633997dfd886",
+      "Source": "录屏素材\\委托\\危机讨伐\\5.3补充一个特殊情况，如果回到讨伐页面，队伍已经解散，那么就没有更换目标副本的按钮，而是创建队伍和随机匹配，此时就需要跟第一次一样，创建队伍，然后进入挑战，一直打到石头耗尽为止.jpg",
+      "SourceSha256": "886e36e6aff961410ff916431e952384bda3a1bc9691d52719297cb6d3f1dcd9",
+      "SourceCrop": {
+        "X": 1216,
+        "Y": 843,
+        "Width": 83,
+        "Height": 32
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-enter": {
+      "File": "crisis-enter.png",
+      "Search": {
+        "X": 1400,
+        "Y": 845,
+        "Width": 210,
+        "Height": 90
+      },
+      "Threshold": 0.82,
+      "Sha256": "222b64491cd29deeae52f60ed22e0597854282562aa1c8261bec8aa07e7ba7bc",
+      "Source": "录屏素材\\委托\\危机讨伐\\4.0特殊情况，如果在进入该任务前已经在队伍中，那么右边就会显示匹配队友或者进入副本.jpg",
+      "SourceSha256": "f934790b577ef084d7c963af00e8fa9cf4185ddfc4e36ce2e550440ec8c6f11b",
+      "SourceCrop": {
+        "X": 1470,
+        "Y": 873,
+        "Width": 80,
+        "Height": 30
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-change": {
+      "File": "crisis-change.png",
+      "Search": {
+        "X": 1230,
+        "Y": 824,
+        "Width": 260,
+        "Height": 100
+      },
+      "Threshold": 0.82,
+      "Sha256": "20bf473cd13ae4cd66e7f2ed967b926af5783c085b380c6cd42e27a8f0c621e7",
+      "Source": "录屏素材\\委托\\危机讨伐\\5.1回到讨伐页面后，如果刚才的副本类型石头已经消耗完，需要切换副本，选中指定副本后，右边会显示更换目标副本，点击.jpg",
+      "SourceSha256": "76f8a2c912e4b34d72b018e4556837d4076d5d6a62deb54461eef54c2d4442e9",
+      "SourceCrop": {
+        "X": 1307,
+        "Y": 856,
+        "Width": 130,
+        "Height": 34
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-launch": {
+      "File": "crisis-launch.png",
+      "Search": {
+        "X": 1456,
+        "Y": 999,
+        "Width": 61,
+        "Height": 42
+      },
+      "Threshold": 0.87,
+      "Sha256": "aaa3c0cf586464bdd4f5018f6619966698695f96e101651f697bc5d22dab45c0",
+      "Source": "录屏素材\\委托\\危机讨伐\\4.1正常情况，没有队伍的情况下点击创建队伍，来到队伍页面，然后点击讨伐，进入副本.jpg",
+      "SourceSha256": "a57d18afd2594b23b39f640f817a7be34b2747eabfc5dbcc7c667c0c4dc9ec21",
+      "SourceCrop": {
+        "X": 1464,
+        "Y": 1007,
+        "Width": 45,
+        "Height": 26
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-lobby": {
+      "File": "crisis-lobby.png",
+      "Search": {
+        "X": 789,
+        "Y": 860,
+        "Width": 345,
+        "Height": 42
+      },
+      "Threshold": 0.87,
+      "Sha256": "ada68e24ba2e00bcf5af142762761049887c7bc955f6d35f441c8a3425fa0a7c",
+      "Source": "录屏素材\\委托\\危机讨伐\\4.1正常情况，没有队伍的情况下点击创建队伍，来到队伍页面，然后点击讨伐，进入副本.jpg",
+      "SourceSha256": "a57d18afd2594b23b39f640f817a7be34b2747eabfc5dbcc7c667c0c4dc9ec21",
+      "SourceCrop": {
+        "X": 797,
+        "Y": 868,
+        "Width": 329,
+        "Height": 26
+      },
+      "Version": "1.0.0"
+    },
+    "ring-daily": {
+      "File": "daily-tier-ring.png",
+      "Search": {
+        "X": 1375,
+        "Y": 353,
+        "Width": 480,
+        "Height": 60
+      },
+      "Threshold": 0.83,
+      "Sha256": "88beddc479535333c49ab5e2d7762639178c095e833396f74056ea3012691dcc",
+      "Source": "录屏素材\\委托\\日常委托\\2.1.1基础材料-银光闪闪.jpg",
+      "SourceSha256": "158edfc0671315d550e521cc69cc6040b0fa56ac289564de7953a80eb1cc8024",
+      "SourceCrop": {
+        "X": 1687,
+        "Y": 370,
+        "Width": 10,
+        "Height": 39
+      },
+      "Version": "1.0.0"
+    },
+    "ring-boss": {
+      "File": "boss-tier-ring.png",
+      "Search": {
+        "X": 1375,
+        "Y": 353,
+        "Width": 480,
+        "Height": 60
+      },
+      "Threshold": 0.83,
+      "Sha256": "9bf1f750ae0e17dc3e5a2203c806f498373a80717fb758aca902a6fef80418d4",
+      "Source": "录屏素材\\委托\\日常委托\\2.2.1首领挑战-无惧之战砧.jpg",
+      "SourceSha256": "fa26184c560cad1b63203ff7839aca36d58493cdb51d4c93203329b38ecf950c",
+      "SourceCrop": {
+        "X": 1620,
+        "Y": 370,
+        "Width": 10,
+        "Height": 39
+      },
+      "Version": "1.0.0"
+    },
+    "ring-weapon": {
+      "File": "weapon-tier-ring.png",
+      "Search": {
+        "X": 1375,
+        "Y": 353,
+        "Width": 480,
+        "Height": 60
+      },
+      "Threshold": 0.83,
+      "Sha256": "6a9cf43ac226fc8bce40d9de9d0eda9197d3992cbd8491e0b36610e1fcfb2e6b",
+      "Source": "录屏素材\\委托\\日常委托\\2.3.1武备获取-苍雷之卫.jpg",
+      "SourceSha256": "ca9b68bf60de23498b34dfc38e02018cff123b83fa7fcd72117ba2acd5cf10a1",
+      "SourceCrop": {
+        "X": 1714,
+        "Y": 370,
+        "Width": 10,
+        "Height": 39
+      },
+      "Version": "1.0.0"
+    },
+    "ring-weekly": {
+      "File": "weekly-tier-ring.png",
+      "Search": {
+        "X": 1380,
+        "Y": 344,
+        "Width": 470,
+        "Height": 65
+      },
+      "Threshold": 0.83,
+      "Sha256": "a4899b29b0cf78fb097a437b8cbcbce0b3082359fb19b22de70efde4d8390f13",
+      "Source": "录屏素材\\委托\\往厄残影\\2.1周本-暗焰兽.jpg",
+      "SourceSha256": "658fe778a15081b5dfcbb7af00c05d8185cc0dd3a193cd88663b56e9e8b3e368",
+      "SourceCrop": {
+        "X": 1432,
+        "Y": 354,
+        "Width": 9,
+        "Height": 41
+      },
+      "Version": "1.0.0"
+    },
+    "lock-daily": {
+      "File": "daily-tier-lock.png",
+      "Search": {
+        "X": 1390,
+        "Y": 365,
+        "Width": 440,
+        "Height": 48
+      },
+      "Threshold": 0.85,
+      "Sha256": "c09427031ab68f56bcf350cea5e27834df90b8e1f608ebf953000f8c50298c31",
+      "Source": "录屏素材\\委托\\日常委托\\2.1.1基础材料-银光闪闪.jpg",
+      "SourceSha256": "158edfc0671315d550e521cc69cc6040b0fa56ac289564de7953a80eb1cc8024",
+      "SourceCrop": {
+        "X": 1769,
+        "Y": 379,
+        "Width": 18,
+        "Height": 23
+      },
+      "Version": "1.0.0"
+    },
+    "lock-weekly": {
+      "File": "weekly-tier-lock.png",
+      "Search": {
+        "X": 1390,
+        "Y": 350,
+        "Width": 440,
+        "Height": 48
+      },
+      "Threshold": 0.85,
+      "Sha256": "5955bdf4f9313a67e6f6928f762f348a30a0f878e000a111cd41d5226c60af42",
+      "Source": "录屏素材\\委托\\往厄残影\\2.1周本-暗焰兽.jpg",
+      "SourceSha256": "658fe778a15081b5dfcbb7af00c05d8185cc0dd3a193cd88663b56e9e8b3e368",
+      "SourceCrop": {
+        "X": 1644,
+        "Y": 362,
+        "Width": 18,
+        "Height": 23
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-tier-1": {
+      "File": "crisis-tier-1.png",
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "9f4545a87596ce7971b7d5dc5dae133d6e8f33893bf2ca49c0e56bfd9d5f4166",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.1难度Ⅰ副本可选项.jpg",
+      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
+      "SourceCrop": {
+        "X": 54,
+        "Y": 263,
+        "Width": 86,
+        "Height": 80
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-tier-2": {
+      "File": "crisis-tier-2.png",
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "b932ac47cac770b54c2a237eaa58dc284a75f80ff49ded73752291963846ab44",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.2难度Ⅱ副本可选项.jpg",
+      "SourceSha256": "3ad859e2b56329dea8f42221494bc101f7bcaa2eafc7bf19c108b35c30b4e696",
+      "SourceCrop": {
+        "X": 54,
+        "Y": 381,
+        "Width": 86,
+        "Height": 80
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-tier-3": {
+      "File": "crisis-tier-3.png",
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "e566ae638bf5bd691f001b5ce0e5c79a528d2fc14c3ff9c1e35c28ddc0110240",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.3难度Ⅲ副本可选项.jpg",
+      "SourceSha256": "20b507c244ed953ead5616cd370c2a288d66a38ba71827878d5deebdbed32ad0",
+      "SourceCrop": {
+        "X": 54,
+        "Y": 499,
+        "Width": 86,
+        "Height": 80
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-tier-4": {
+      "File": "crisis-tier-4.png",
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "9202395196ee6133552687bdb9d97d1aca1632f3643325c956bb9b7ad0e7f0d0",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.4难度Ⅳ副本可选项.jpg",
+      "SourceSha256": "13eb1120819df80101e6359388f1879d17492aefb3ade5c654ee15ee0c668940",
+      "SourceCrop": {
+        "X": 54,
+        "Y": 616,
+        "Width": 86,
+        "Height": 80
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-tier-5": {
+      "File": "crisis-tier-5.png",
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "27f56107030fff7d79d6b299ac93cbbca30e4beef847b2025e6564581f5fcdc5",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.5难度Ⅴ副本可选项.jpg",
+      "SourceSha256": "c0779333fc0b3b8e80af6a325d557d48a8563435ce749a9a5bb72cdce72d1aca",
+      "SourceCrop": {
+        "X": 54,
+        "Y": 563,
+        "Width": 86,
+        "Height": 80
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-tier-6": {
+      "File": "crisis-tier-6.png",
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "f0d25c77d1582be1e6eeae580a93de20ec8d886a77e56d2896a3863fa5666d28",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.6难度Ⅵ副本可选项.jpg",
+      "SourceSha256": "57249a21d66a807b1a81c7f1eb23ba611744ad653de870f9f9a920ea7db5d9e3",
+      "SourceCrop": {
+        "X": 54,
+        "Y": 679,
+        "Width": 86,
+        "Height": 80
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-glyph-1": {
+      "File": "crisis-glyph-1.png",
+      "Search": {
+        "X": 56,
+        "Y": 150,
+        "Width": 87,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "0f39ae827755518383734a947179975ce4b8435e9406bb240c967124dd50c2a3",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.2难度Ⅱ副本可选项.jpg",
+      "SourceSha256": "3ad859e2b56329dea8f42221494bc101f7bcaa2eafc7bf19c108b35c30b4e696",
+      "SourceCrop": {
+        "X": 68,
+        "Y": 270,
+        "Width": 60,
+        "Height": 47
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-glyph-2": {
+      "File": "crisis-glyph-2.png",
+      "Search": {
+        "X": 56,
+        "Y": 150,
+        "Width": 87,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "1019f8084dd510708eb59ef56007a1927e922db29f2b56517ae061a09b57a56a",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.1难度Ⅰ副本可选项.jpg",
+      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
+      "SourceCrop": {
+        "X": 68,
+        "Y": 388,
+        "Width": 60,
+        "Height": 47
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-glyph-3": {
+      "File": "crisis-glyph-3.png",
+      "Search": {
+        "X": 56,
+        "Y": 150,
+        "Width": 87,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "b79d95e6de7a4b237a5495ea2491b1c613a5f5a441acfb2e45ed42eef134f551",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.1难度Ⅰ副本可选项.jpg",
+      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
+      "SourceCrop": {
+        "X": 68,
+        "Y": 506,
+        "Width": 60,
+        "Height": 47
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-glyph-4": {
+      "File": "crisis-glyph-4.png",
+      "Search": {
+        "X": 56,
+        "Y": 150,
+        "Width": 87,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "a834c759aa6ce07c5e31617d9604234a5e1d1af96b304cb6f821b3c37faeec28",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.1难度Ⅰ副本可选项.jpg",
+      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
+      "SourceCrop": {
+        "X": 68,
+        "Y": 623,
+        "Width": 60,
+        "Height": 47
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-glyph-5": {
+      "File": "crisis-glyph-5.png",
+      "Search": {
+        "X": 56,
+        "Y": 150,
+        "Width": 87,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "0757b82811ab7a6cb099b9d712679c77f2d199e6531c2ce6c132bdc6ad7d67e0",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.1难度Ⅰ副本可选项.jpg",
+      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
+      "SourceCrop": {
+        "X": 68,
+        "Y": 741,
+        "Width": 60,
+        "Height": 47
+      },
+      "Version": "1.0.0"
+    },
+    "crisis-glyph-6": {
+      "File": "crisis-glyph-6.png",
+      "Search": {
+        "X": 56,
+        "Y": 150,
+        "Width": 87,
+        "Height": 650
+      },
+      "Threshold": 0.9,
+      "Sha256": "c71cda704d4c72326e9baa57791463e1e68c7d24ee2db8951a6097abc9e6aff7",
+      "Source": "录屏素材\\委托\\危机讨伐\\3.5难度Ⅴ副本可选项.jpg",
+      "SourceSha256": "c0779333fc0b3b8e80af6a325d557d48a8563435ce749a9a5bb72cdce72d1aca",
+      "SourceCrop": {
+        "X": 68,
+        "Y": 686,
+        "Width": 60,
+        "Height": 47
+      },
+      "Version": "1.0.0"
+    }
+  }
+}

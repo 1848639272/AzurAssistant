@@ -1,0 +1,38 @@
+{
+  "SchemaVersion": 2,
+  "Version": "2.0.0",
+  "Width": 1920,
+  "Height": 1080,
+  "Esc": {
+    "Region": {
+      "X": 20,
+      "Y": 60,
+      "Width": 65,
+      "Height": 48
+    },
+    "MinimumConfidence": 0.85,
+    "Scales": [
+      3,
+      2
+    ]
+  },
+  "Enter": {
+    "Region": {
+      "X": 25,
+      "Y": 1015,
+      "Width": 85,
+      "Height": 45
+    },
+    "MinimumConfidence": 0.9,
+    "Scales": [
+      3,
+      2
+    ]
+  },
+  "Source": "录屏素材/esc.jpg",
+  "SourceSha256": "4C95F6420CD75B26FBA006E378B5386D2B965A40E920CA2580D00388D419475D",
+  "EnterSource": "AzurAssistant.Tests/fixtures/navigation/motion-2026-10-06/world-enter-template-miss.png",
+  "EnterSourceSha256": "598D11CB916426C4C2C9FA6F26D6E757C1F09F3A5F6F9DC9B9B6AF61F57CA2C4",
+  "Purpose": "已知页面和部分弹窗优先拦截；同帧限定区域完整Esc和Enter文字共同确认世界，半透明图片模板不参与世界判定。"
+}
+

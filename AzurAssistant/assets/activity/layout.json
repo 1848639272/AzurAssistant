@@ -1,0 +1,12 @@
+{
+  "SchemaVersion": 1,
+  "Version": "1.2.0",
+  "Source": "录屏素材/日常周常；中文1920×1080",
+  "Activity": {"X": 340, "Y": 940, "Width": 245, "Height": 82},
+  "ActivityValue": {"X": 340, "Y": 940, "Width": 135, "Height": 82},
+  "FirstTask": {"X": 950, "Y": 188, "Width": 650, "Height": 58},
+  "ChestCenters": [797, 1007, 1217, 1427, 1637],
+  "ChestAlertSearch": {"X": 812, "Y": 954, "Width": 33, "Height": 33},
+  "ChestAlertOffset": {"X": -31, "Y": 19},
+  "RowCenters": [215, 334, 452, 571, 689, 808]
+}

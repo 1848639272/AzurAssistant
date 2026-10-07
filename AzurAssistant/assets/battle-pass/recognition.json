@@ -1,0 +1,288 @@
+{
+  "ReferenceWidth": 1920,
+  "ReferenceHeight": 1080,
+  "AssetVersion": "1.0.0",
+  "Templates": {
+    "menu-entry": {
+      "Version": "1.0.0",
+      "Sha256": "9665D9751E4D60459A6DE00BB44F58FD487D6585F7D66DF93C9AA2429A152A98",
+      "SourceSha256": "CCF732896CF093CBD4E55CBC8AF02EF13B53A3401B0197587FE1D43C7F791AF5",
+      "SourceCrop": {
+        "Width": 27,
+        "X": 1481,
+        "Height": 29,
+        "Y": 43
+      },
+      "Source": "录屏素材\\家园\\step1：esc打开主菜单，点击左下角家园中枢.jpg",
+      "Threshold": 0.84,
+      "Search": {
+        "Width": 70,
+        "X": 1460,
+        "Height": 65,
+        "Y": 20
+      },
+      "File": "menu-entry.png"
+    },
+    "title": {
+      "Version": "1.0.0",
+      "Sha256": "06385496E666BC678F0D9E945BA72493C8B1E63AB55498B8E6DB1D27D47C3A34",
+      "SourceSha256": "88EFFD53213F12157F3EF0F42613DB9F8EEF27D956465447BA70D1F605920C5E",
+      "SourceCrop": {
+        "Width": 134,
+        "X": 127,
+        "Height": 24,
+        "Y": 41
+      },
+      "Source": "录屏素材\\通行证\\step1先进入底下的任务栏，通行证经验领取前.jpg",
+      "Threshold": 0.9,
+      "Search": {
+        "Width": 172,
+        "X": 105,
+        "Height": 58,
+        "Y": 25
+      },
+      "File": "title.png"
+    },
+    "tasks-tab": {
+      "Version": "1.0.0",
+      "Sha256": "00FAB6465DB011582E21AB00D7175620022BFD5431A2E7163C60CA8318522D07",
+      "SourceSha256": "88EFFD53213F12157F3EF0F42613DB9F8EEF27D956465447BA70D1F605920C5E",
+      "SourceCrop": {
+        "Width": 165,
+        "X": 990,
+        "Height": 44,
+        "Y": 1028
+      },
+      "Source": "录屏素材\\通行证\\step1先进入底下的任务栏，通行证经验领取前.jpg",
+      "Threshold": 0.88,
+      "Search": {
+        "Width": 195,
+        "X": 980,
+        "Height": 58,
+        "Y": 1021
+      },
+      "File": "tasks-tab-selected.png"
+    },
+    "rewards-tab": {
+      "Version": "1.0.0",
+      "Sha256": "CCB564A6267F0779F2E4234E6B4537D25793BA1F0860CBEC5803536243A71114",
+      "SourceSha256": "5C4F093C1B4359D6607B8FA64D2DC4B354E92465C18C4D8D2840B51D27051135",
+      "SourceCrop": {
+        "Width": 183,
+        "X": 656,
+        "Height": 44,
+        "Y": 1028
+      },
+      "Source": "录屏素材\\通行证\\step4切到奖励栏，通行证奖励领取前.jpg",
+      "Threshold": 0.88,
+      "Search": {
+        "Width": 211,
+        "X": 642,
+        "Height": 58,
+        "Y": 1021
+      },
+      "File": "rewards-tab-selected.png"
+    },
+    "tasks-label": {
+      "Version": "1.0.0",
+      "Sha256": "D3438FE482B6011286F8DEC4162DD5E7F2843AD75CB51EE279D8B3F7030E9806",
+      "SourceSha256": "5C4F093C1B4359D6607B8FA64D2DC4B354E92465C18C4D8D2840B51D27051135",
+      "SourceCrop": {
+        "Width": 86,
+        "X": 1082,
+        "Height": 32,
+        "Y": 1034
+      },
+      "Source": "录屏素材\\通行证\\step4切到奖励栏，通行证奖励领取前.jpg",
+      "Threshold": 0.84,
+      "Search": {
+        "Width": 115,
+        "X": 1067,
+        "Height": 52,
+        "Y": 1026
+      },
+      "File": "tasks-label-unselected.png"
+    },
+    "rewards-label": {
+      "Version": "1.0.0",
+      "Sha256": "CEE88B642342CB3DDA6A3396317FB348E814D2C0B531A3BB9631647F593AEE37",
+      "SourceSha256": "88EFFD53213F12157F3EF0F42613DB9F8EEF27D956465447BA70D1F605920C5E",
+      "SourceCrop": {
+        "Width": 89,
+        "X": 748,
+        "Height": 32,
+        "Y": 1034
+      },
+      "Source": "录屏素材\\通行证\\step1先进入底下的任务栏，通行证经验领取前.jpg",
+      "Threshold": 0.84,
+      "Search": {
+        "Width": 117,
+        "X": 734,
+        "Height": 52,
+        "Y": 1026
+      },
+      "File": "rewards-label-unselected.png"
+    },
+    "claim-all": {
+      "Version": "1.0.0",
+      "Sha256": "AF39BBC3FC4A688E441410F7DB821586D26B8E27EC35F1FE01FB72BCA420A602",
+      "SourceSha256": "88EFFD53213F12157F3EF0F42613DB9F8EEF27D956465447BA70D1F605920C5E",
+      "SourceCrop": {
+        "Width": 105,
+        "X": 1678,
+        "Height": 33,
+        "Y": 844
+      },
+      "Source": "录屏素材\\通行证\\step1先进入底下的任务栏，通行证经验领取前.jpg",
+      "Threshold": 0.86,
+      "Search": {
+        "Width": 150,
+        "X": 1660,
+        "Height": 70,
+        "Y": 824
+      },
+      "File": "claim-all.png"
+    },
+    "empty-unlocked": {
+      "Version": "1.0.0",
+      "Sha256": "F812A080FE8CBF67722150C395A27E88AE34C453AE31A8D9BE4705AC5B133657",
+      "SourceSha256": "8EE5735671785E71D83A492A06E6882BA973FEB1A71A305DCAA47DDA2E2D3934",
+      "SourceCrop": {
+        "Width": 173,
+        "X": 1653,
+        "Height": 29,
+        "Y": 845
+      },
+      "Source": "录屏素材\\通行证\\step3通行证经验领取后.jpg",
+      "Threshold": 0.88,
+      "Search": {
+        "Width": 216,
+        "X": 1635,
+        "Height": 64,
+        "Y": 826
+      },
+      "File": "empty-unlocked.png"
+    },
+    "level-title": {
+      "Version": "1.0.0",
+      "Sha256": "D2408AE1FDC5AB667EE2A1E4583FB7D4213C7A24D0AEA0BA067D3578447ED86F",
+      "SourceSha256": "7C13BB70E09B2E4E5F0656C85D79C0AB8C9EBCC0CECB55695049FC5F12C77061",
+      "SourceCrop": {
+        "Width": 145,
+        "X": 887,
+        "Height": 37,
+        "Y": 620
+      },
+      "Source": "录屏素材\\通行证\\step2通行证经验领取后可能触发升级，点击空白处关闭.jpg",
+      "Threshold": 0.88,
+      "Search": {
+        "Width": 200,
+        "X": 860,
+        "Height": 76,
+        "Y": 600
+      },
+      "File": "level-title.png"
+    },
+    "level-emblem": {
+      "Version": "1.0.0",
+      "Sha256": "C382C1C7FA01189AA474B62CE3D811AF4587EC2B73F1FFF8597BC3A697868F3E",
+      "SourceSha256": "7C13BB70E09B2E4E5F0656C85D79C0AB8C9EBCC0CECB55695049FC5F12C77061",
+      "SourceCrop": {
+        "Width": 231,
+        "X": 845,
+        "Height": 152,
+        "Y": 406
+      },
+      "Source": "录屏素材\\通行证\\step2通行证经验领取后可能触发升级，点击空白处关闭.jpg",
+      "Threshold": 0.84,
+      "Search": {
+        "Width": 290,
+        "X": 817,
+        "Height": 207,
+        "Y": 380
+      },
+      "File": "level-emblem.png"
+    },
+    "reward-title": {
+      "Version": "1.0.0",
+      "Sha256": "1DF8580BBBAC61F902AC60AF9373406F2F31BF0C5E4E69B7728841C9BBC17B8F",
+      "SourceSha256": "DEB80134F9B4A3FA7B12C6D0A5F584C762CD6D9DDB1BC18C4A6ABB748D739254",
+      "SourceCrop": {
+        "Width": 69,
+        "X": 926,
+        "Height": 44,
+        "Y": 334
+      },
+      "Source": "录屏素材\\通行证\\step5通行证奖励领取后，奖励弹窗，点击空白处关闭.jpg",
+      "Threshold": 0.86,
+      "Search": {
+        "Width": 112,
+        "X": 905,
+        "Height": 90,
+        "Y": 312
+      },
+      "File": "reward-title.png"
+    },
+    "reward-dismiss": {
+      "Version": "1.0.0",
+      "Sha256": "A4C8D5A35C4C91CEBF12AA1AC14BDAAFBF9EF74520ABE9BE2AA0C16E5E2529FD",
+      "SourceSha256": "DEB80134F9B4A3FA7B12C6D0A5F584C762CD6D9DDB1BC18C4A6ABB748D739254",
+      "SourceCrop": {
+        "Width": 180,
+        "X": 870,
+        "Height": 30,
+        "Y": 796
+      },
+      "Source": "录屏素材\\通行证\\step5通行证奖励领取后，奖励弹窗，点击空白处关闭.jpg",
+      "Threshold": 0.86,
+      "Search": {
+        "Width": 228,
+        "X": 846,
+        "Height": 75,
+        "Y": 774
+      },
+      "File": "reward-dismiss.png"
+    },
+    "special-title": {
+      "Version": "1.0.0",
+      "Sha256": "8C7326BEB96C651F8271A457DB2B6B14651612E353294CC311989342EB248A96",
+      "SourceSha256": "F2DC6EA4F0E6454A775569FAFAC845BE8431DF3B704F6E02A7BCCB958818257F",
+      "SourceCrop": {
+        "Width": 101,
+        "X": 912,
+        "Height": 46,
+        "Y": 262
+      },
+      "Source": "录屏素材\\通行证\\step6通行证奖励领取后可能会触发第二次奖励弹窗，点击空白处关闭.jpg",
+      "Threshold": 0.84,
+      "Search": {
+        "Width": 152,
+        "X": 887,
+        "Height": 90,
+        "Y": 240
+      },
+      "File": "special-title.png"
+    },
+    "special-dismiss": {
+      "Version": "1.0.0",
+      "Sha256": "D91FC3B77D5C5A374F2DEE311892BAE26B1F86D98262AC3BE4766A9C5DBED51C",
+      "SourceSha256": "F2DC6EA4F0E6454A775569FAFAC845BE8431DF3B704F6E02A7BCCB958818257F",
+      "SourceCrop": {
+        "Width": 177,
+        "X": 872,
+        "Height": 31,
+        "Y": 1006
+      },
+      "Source": "录屏素材\\通行证\\step6通行证奖励领取后可能会触发第二次奖励弹窗，点击空白处关闭.jpg",
+      "Threshold": 0.84,
+      "Search": {
+        "Width": 223,
+        "X": 850,
+        "Height": 68,
+        "Y": 985
+      },
+      "File": "special-dismiss.png"
+    }
+  },
+  "SchemaVersion": 1
+}

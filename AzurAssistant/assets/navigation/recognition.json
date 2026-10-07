@@ -1,0 +1,789 @@
+{
+  "SchemaVersion": 2,
+  "ReferenceWidth": 1920,
+  "ReferenceHeight": 1080,
+  "Templates": {
+    "adventure-title": {
+      "File": "adventure-title.png",
+      "Search": {
+        "X": 135,
+        "Y": 25,
+        "Width": 130,
+        "Height": 60
+      },
+      "Threshold": 0.86,
+      "Sha256": "82298cc32698a063db04e827d943bb2492d8ab5ebfddb40677992032c3b2f799",
+      "Source": "录屏素材/地图测试/参考图0.6：角色在其他地图时，从世界地图打开夏露露村地图的默认画面.jpg",
+      "SourceSha256": "0bc67382e88260cdf3c906887ceea05eb9c5751dbd5bb821949f6274bd06b64f",
+      "Crop": {
+        "X": 154,
+        "Y": 41,
+        "Width": 82,
+        "Height": 25
+      },
+      "Version": "1.0.0"
+    },
+    "village-title": {
+      "File": "village-title.png",
+      "Search": {
+        "X": 867,
+        "Y": 24,
+        "Width": 188,
+        "Height": 68
+      },
+      "Threshold": 0.72,
+      "Sha256": "9aee80a0ce8f021966d770b16fae3ae08f7f538019d26d71272ef890213fd108",
+      "Source": "录屏素材/地图测试/参考图0.6：角色在其他地图时，从世界地图打开夏露露村地图的默认画面.jpg",
+      "SourceSha256": "0bc67382e88260cdf3c906887ceea05eb9c5751dbd5bb821949f6274bd06b64f",
+      "Crop": {
+        "X": 901,
+        "Y": 37,
+        "Width": 118,
+        "Height": 36
+      },
+      "Version": "1.0.0"
+    },
+    "teleport-icon": {
+      "File": "teleport-icon.png",
+      "Search": {
+        "X": 30,
+        "Y": 100,
+        "Width": 1760,
+        "Height": 875
+      },
+      "Threshold": 0.7,
+      "Sha256": "a046b8c8abbccaa26896c03d4ff3de00dfe2a0179f791ba2820d2cc527712840",
+      "Source": "录屏素材/地图测试/参考图0.6：角色在其他地图时，从世界地图打开夏露露村地图的默认画面.jpg",
+      "SourceSha256": "0bc67382e88260cdf3c906887ceea05eb9c5751dbd5bb821949f6274bd06b64f",
+      "Crop": {
+        "X": 1114,
+        "Y": 508,
+        "Width": 34,
+        "Height": 54
+      },
+      "Version": "1.0.0"
+    },
+    "teleport-button": {
+      "File": "teleport-button.png",
+      "Search": {
+        "X": 1530,
+        "Y": 960,
+        "Width": 260,
+        "Height": 85
+      },
+      "Threshold": 0.86,
+      "Sha256": "0dc5a80b155a9be051795a8d20255d2a8aa3ef19744beaa371619f63b802afe8",
+      "Source": "录屏素材/地图测试/夏露露村/夏露露村传送点.jpg",
+      "SourceSha256": "b7adf35a464548dffd0f9503b53843dbd297136a9f084afede54753f551257b1",
+      "Crop": {
+        "X": 1617,
+        "Y": 986,
+        "Width": 104,
+        "Height": 31
+      },
+      "Version": "1.0.0"
+    },
+    "village-teleport-title": {
+      "File": "village-teleport-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 305,
+        "Height": 85
+      },
+      "Threshold": 0.83,
+      "Sha256": "5e5f27dfbbc94a03469454eb054441d8fc2ed08a027732a563bb0fa62483c9c8",
+      "Source": "录屏素材/地图测试/夏露露村/夏露露村传送点.jpg",
+      "SourceSha256": "b7adf35a464548dffd0f9503b53843dbd297136a9f084afede54753f551257b1",
+      "Crop": {
+        "X": 1507,
+        "Y": 65,
+        "Width": 251,
+        "Height": 43
+      },
+      "Version": "1.0.0"
+    },
+    "overlap-teleport-icon": {
+      "File": "overlap-teleport-icon.png",
+      "Search": {
+        "X": 200,
+        "Y": 120,
+        "Width": 1560,
+        "Height": 825
+      },
+      "Threshold": 0.8,
+      "Sha256": "741518df9e6a4ebff5462230b8de4dc221c85714545423ccbf99d81abdcea4da",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦弗利斯城传送点与其他目标接近，需要再次点击右侧选项.jpg",
+      "SourceSha256": "bdecb346ec2cc7608ee24a7bf2cd2686e0c2917a1844fe80d5580e0816917478",
+      "Crop": {
+        "X": 1161,
+        "Y": 550,
+        "Width": 24,
+        "Height": 35
+      },
+      "Version": "1.0.0"
+    },
+    "map-player-arrow": {
+      "File": "map-player-arrow.png",
+      "Search": {
+        "X": 30,
+        "Y": 95,
+        "Width": 1750,
+        "Height": 855
+      },
+      "Threshold": 0.78,
+      "Sha256": "bbcab9194a5a552a3c6f59a6469d8ef0fe369bfc5133d9d6015ff9582b3440fe",
+      "Source": "录屏素材/地图测试/参考图0.2：角色在夏露露村任意位置按m打开地图.jpg",
+      "SourceSha256": "ee6969b1fb05eec205efbd0de443bb04e7000d6d0ae97c4c0d6361d66d43117e",
+      "Crop": {
+        "X": 887,
+        "Y": 516,
+        "Width": 49,
+        "Height": 49
+      },
+      "Version": "1.0.0"
+    },
+    "world-map-title": {
+      "File": "world-map-title.png",
+      "Search": {
+        "X": 135,
+        "Y": 25,
+        "Width": 130,
+        "Height": 60
+      },
+      "Threshold": 0.84,
+      "Sha256": "f74327e1905cf73c7ed91e1cc2cbc2610da09cfb8dd6373a96fa73a8279d841f",
+      "Source": "录屏素材/地图测试/参考图0.5：打开地图后，当前版本点击任意地图右下角的世界地图，默认画面.jpg",
+      "SourceSha256": "1b178678f47ac81d91a955aaaf7f40ba9a7345538be3607c3dfbbdae17997114",
+      "Crop": {
+        "X": 155,
+        "Y": 41,
+        "Width": 80,
+        "Height": 25
+      },
+      "Version": "2.0.0"
+    },
+    "world-map-button": {
+      "File": "world-map-button.png",
+      "Search": {
+        "X": 1640,
+        "Y": 945,
+        "Width": 270,
+        "Height": 120
+      },
+      "Threshold": 0.8,
+      "Sha256": "97ca656835316d5b576eee0d233b7bae7cf29296838f24c2d243e68f502e1824",
+      "Source": "录屏素材/地图测试/参考图0.6：角色在其他地图时，从世界地图打开夏露露村地图的默认画面.jpg",
+      "SourceSha256": "0bc67382e88260cdf3c906887ceea05eb9c5751dbd5bb821949f6274bd06b64f",
+      "Crop": {
+        "X": 1748,
+        "Y": 1020,
+        "Width": 91,
+        "Height": 29
+      },
+      "Version": "2.0.0"
+    },
+    "world-village": {
+      "File": "world-village.png",
+      "Search": {
+        "X": 400,
+        "Y": 250,
+        "Width": 1000,
+        "Height": 650
+      },
+      "Threshold": 0.85,
+      "Sha256": "d30009d3d386c6ab625c69ef653119114b807413991000d3c8156df2a488cd16",
+      "Source": "录屏素材/地图测试/参考图0.5：打开地图后，当前版本点击任意地图右下角的世界地图，默认画面.jpg",
+      "SourceSha256": "1b178678f47ac81d91a955aaaf7f40ba9a7345538be3607c3dfbbdae17997114",
+      "Crop": {
+        "X": 730,
+        "Y": 741,
+        "Width": 143,
+        "Height": 33
+      },
+      "Version": "2.0.0"
+    },
+    "world-valley": {
+      "File": "world-valley.png",
+      "Search": {
+        "X": 400,
+        "Y": 250,
+        "Width": 1000,
+        "Height": 650
+      },
+      "Threshold": 0.85,
+      "Sha256": "f7ab9947f43838660894c9b74f326eb788eb046c03afebd0c75f49d97355f2ac",
+      "Source": "录屏素材/地图测试/参考图0.5：打开地图后，当前版本点击任意地图右下角的世界地图，默认画面.jpg",
+      "SourceSha256": "1b178678f47ac81d91a955aaaf7f40ba9a7345538be3607c3dfbbdae17997114",
+      "Crop": {
+        "X": 837,
+        "Y": 493,
+        "Width": 141,
+        "Height": 35
+      },
+      "Version": "2.0.0"
+    },
+    "world-city": {
+      "File": "world-city.png",
+      "Search": {
+        "X": 400,
+        "Y": 250,
+        "Width": 1000,
+        "Height": 650
+      },
+      "Threshold": 0.85,
+      "Sha256": "0b01bbdf28dc40bbbb8aeb13ea11240dbadb5d50c52ad26f5b28bab8618f66a2",
+      "Source": "录屏素材/地图测试/参考图0.5：打开地图后，当前版本点击任意地图右下角的世界地图，默认画面.jpg",
+      "SourceSha256": "1b178678f47ac81d91a955aaaf7f40ba9a7345538be3607c3dfbbdae17997114",
+      "Crop": {
+        "X": 1056,
+        "Y": 712,
+        "Width": 151,
+        "Height": 35
+      },
+      "Version": "2.0.0"
+    },
+    "map-node-icon": {
+      "File": "map-node-icon.png",
+      "Search": {
+        "X": 30,
+        "Y": 100,
+        "Width": 1360,
+        "Height": 825
+      },
+      "Threshold": 0.7,
+      "Sha256": "479a73fe85b252b860647b30d2eee79fa1d2a6561e8134b57d5334a302d9ec00",
+      "Source": "录屏素材/地图测试/参考图0.7：角色在其他地图时，从世界地图打开新芽山谷默认画面.jpg",
+      "SourceSha256": "b57bf56f594dfa1d26cfa8f4862f30031ee018f53c2a7c0813b04724eced88e4",
+      "Crop": {
+        "X": 946,
+        "Y": 514,
+        "Width": 29,
+        "Height": 44
+      },
+      "Version": "2.0.2",
+      "Channel": "RedMinusBlue"
+    },
+    "village-star-node-title": {
+      "File": "village-star-node-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "dd0f9a38854d7cd8859905520309dfb634c50ba815527eea6a4e6e6aa404d927",
+      "Source": "录屏素材/地图测试/夏露露村/夏露露村传送点.jpg",
+      "SourceSha256": "b7adf35a464548dffd0f9503b53843dbd297136a9f084afede54753f551257b1",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-wind-woods-title": {
+      "File": "valley-wind-woods-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "045761d864a2fd693fb1fcb0dcde325f5d144aa6d8f0035785264f60c86c5bfe",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷倚风林地传送点.jpg",
+      "SourceSha256": "5c4c08a8747c8330d2bd757f732d71749843bb5d982a00fc5a1c3827f05e04f1",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-thunder-ruins-title": {
+      "File": "valley-thunder-ruins-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "bbcee21b2c2985ca4de4d75bf5ff02ddd2c0677e7862ce885ca36d7343520db7",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷唤雷遗迹传送点.jpg",
+      "SourceSha256": "777856defb89ae4d3119be0fe10f983c3681c932f134695d39fd7f4ea5929c68",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-dinatum-title": {
+      "File": "valley-dinatum-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "dc8aa64bdefb6a0bce7cff29c0219db442648b78a035997c85f18f8e6337e1ee",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷帝那图姆传送点.jpg",
+      "SourceSha256": "f692f962d255dce8c65d894943dff8b015c39e26c6955398a4ee045462b8ab82",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-wind-path-title": {
+      "File": "valley-wind-path-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "0b55fedaf2f772bb4de225131f06f996619671c44b7a13b91b5d54d6376eac7f",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷沐风小径传送点.jpg",
+      "SourceSha256": "35bd202c21962007d8d74a53f2f65df61823cb8bdf3b32093eead5df3c1dc25b",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-fishing-hut-title": {
+      "File": "valley-fishing-hut-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "954adb360d37fd28a1fb554ca31d861b80f1540daf62c3770723d1b9515a61d3",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷渔屋传送点.jpg",
+      "SourceSha256": "02590897ba47a6ea46aeb5dc805f1cdac665d7a0a073a135956541430873b14b",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-wolf-plain-title": {
+      "File": "valley-wolf-plain-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "9fbd2a6f8948886a25f6f7ab173873b710706533835879db5a1afa280c4aaf4d",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷狼嚎平原传送点.jpg",
+      "SourceSha256": "cf111ab7f757e5f14324603303dd7e65bd3a6a4bb2cc067d9adaeb377f5443d2",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-rock-highlands-title": {
+      "File": "valley-rock-highlands-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "989cfe0d3bfba506c13f7ef72988224e6f9c4bf746461e33ea7863c3ee54426e",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷缘岩山地传送点.jpg",
+      "SourceSha256": "45d218543669729a7a013e08dab4e1d04d7c9231da44c4e1fcb45be7b2bcd0d8",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-deep-ravine-title": {
+      "File": "valley-deep-ravine-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "74663b88362d6136840fa0570bea1aaf7e1efd49bd4b7af75f04a6e35e0b75bb",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷谷地深涧传送点.jpg",
+      "SourceSha256": "abfe7f56b3308afcf1b51eb332b8afc636a8ffe5dbad5995636a036aaed4d909",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-shadow-valley-title": {
+      "File": "valley-shadow-valley-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "9b97911d64bd86c3f2fdd5558d3534e11beae10f845f1aa43853a423eeb74cfb",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷迹影崖谷传送点.jpg",
+      "SourceSha256": "67a0bea86e921c4d61362dbf3ea605e9bab2b77123f458cc5e625a93fe052254",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-city-gate-title": {
+      "File": "valley-city-gate-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "606177d8920bdb2a5c73d19921ae142f00f54c664504bbf50f34354ea2b661db",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷通向弗利斯城邦传送点，实际传送到达的地点在弗利斯城邦入口.jpg",
+      "SourceSha256": "02e90128164525a395cfd8f1651960287d558305084fa91c192d2b38d9d6a263",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-mist-woods-title": {
+      "File": "valley-mist-woods-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "62bf96a6b5773c648631cc7354ac8af07746d9a7721ef62c8d7fb073cd86ad32",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷雾叶密林传送点.jpg",
+      "SourceSha256": "4b583f06a428f30c87acb058159490daf340b556678d58e9076ab0909c477650",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "valley-wind-hollow-title": {
+      "File": "valley-wind-hollow-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "1d0e355fed609c9c25212606abb64c0148636cfc40662275b105c21bfd781725",
+      "Source": "录屏素材/地图测试/新芽山谷/新芽山谷风障山坞传送点.jpg",
+      "SourceSha256": "3560f8fcc1542758a6e19d161951b24aab6508d68f0b840569186dc35eaafd82",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-fertile-valley-title": {
+      "File": "city-fertile-valley-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "140485b4472b75375936c8b5aa51e524f0a18fa08219dc3b655ba249d84e12bb",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦丰饶谷地传送点.jpg",
+      "SourceSha256": "84675e9aeb1e832b49d0fb1de25e3b2f48a1391be9ad8a8cc8e788868f3c08ce",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-renyang-pass-title": {
+      "File": "city-renyang-pass-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "33ca602da9dd303a638f2bbc16fc86c982c1c1a5d1736cc1e3faaffabab2b4ff",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦壬阳关传送点.jpg",
+      "SourceSha256": "32846bdf3e44b412be758a6cd3e8039b720c15b56c0c0a5ea87d5352155f0a71",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-giant-leaf-path-title": {
+      "File": "city-giant-leaf-path-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "ab0196076a275b80d3e4cc285da7195258d4c8c5801871c9faaeae9b887ab683",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦巨叶迷径传送点.jpg",
+      "SourceSha256": "3d214bd3389b72d10300168ea50333ef28daff928e8f4e0b0af2633514c61c58",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-fris-city-title": {
+      "File": "city-fris-city-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "d7e314f95edef51fbafa9c931cb96476ef40e774ee8eb0b6015c14a091fbb656",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦弗利斯城传送点.jpg",
+      "SourceSha256": "ea24da168137d52bc31a80f7616ec3e5c321d65522741279d578c577b5d74f1a",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-speaker-altar-title": {
+      "File": "city-speaker-altar-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "08daa5abd3536c5ce5dbaec5a04ed295514212ecca99d312b5491d4ecc10cc09",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦执言者祭坛传送点.jpg",
+      "SourceSha256": "db717f71775134934b0e2a9b585712921456e38752241d3536731bdef460c879",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-waterfall-lake-title": {
+      "File": "city-waterfall-lake-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "90f471fe987969b580aef92459f06db9eea81816d79024564f5c29f394016358",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦瀑布湖传送点.jpg",
+      "SourceSha256": "a261d63c56b1380913f5b027e7d7a710b2bab70ee05ca2fe9d57a72f09861a5e",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-flower-crown-title": {
+      "File": "city-flower-crown-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "9b56157e5fb89c78d43c0c3267bd6be111161c622f1cb4c631ff65ded9ddd993",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦繁花冠冕传送点.jpg",
+      "SourceSha256": "a7d05791ee1e075c8468ca51239acfa0b0c4fd7cde1f530b3a8ac631b099c581",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-last-battle-title": {
+      "File": "city-last-battle-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "80c8b7b1517ceb53b1e0f762889907252a7c8caed45d1a11ab6dbe388a12f257",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦终战之痕传送点.jpg",
+      "SourceSha256": "c70860faea5a92af1bf2eabe974f0ca12b04999e0a926a2508ca7e168a5e3b44",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-flower-woods-title": {
+      "File": "city-flower-woods-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "3ca42acd69ce6b8f8c342fb96f2941c85719bc0a88a87afd7ae789d9eef1ad53",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦花林幽境传送点.jpg",
+      "SourceSha256": "b3fda5b8653e7e27061bb4cd5de0f18b61f7d84ce2bc52917972c1e0ae613dfa",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-winter-lake-title": {
+      "File": "city-winter-lake-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "52b2d4a8afc520013ed950cb8ccfc9fd19f3d89a7e3640e15942d81ebf4b9fd0",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦融冬湖传送点.jpg",
+      "SourceSha256": "74f51c4a2ed039828cc4bfdbb692c1060e12254b676bfffcc04d3ec38fbe611d",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-winter-falls-title": {
+      "File": "city-winter-falls-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "10611e644121b50380cb5e0431b4321d589d38806c3cf7452a6787cb69f6d003",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦融冬飞瀑传送点.jpg",
+      "SourceSha256": "0add9af2937c71a30cff68c02f965909bd7be6a9856c00c4bde7f63a333132bf",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "city-lost-forest-title": {
+      "File": "city-lost-forest-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 45,
+        "Width": 395,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "234c43e002e602e394f652c01206a756024f041de232ce778b7ff84137bef8b7",
+      "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦迷迹森林传送点.jpg",
+      "SourceSha256": "3d9afe12412ad3ff7f2e3fe6e25e980a4c0ff899be220010aced7e38cca3f8c8",
+      "Crop": {
+        "X": 1505,
+        "Y": 64,
+        "Width": 345,
+        "Height": 44
+      },
+      "Version": "2.0.0"
+    },
+    "map-simple-node-icon": {
+      "File": "map-simple-node-icon.png",
+      "Search": {
+        "X": 30,
+        "Y": 100,
+        "Width": 1360,
+        "Height": 825
+      },
+      "Threshold": 0.8,
+      "Sha256": "97565ab122ce9c8361e21a332928e0c5fa5deaa258cc5eba3b38bd8c7d657435",
+      "Source": "AzurAssistant.Tests/fixtures/navigation/map-drag-2026-10-07/renyang-visible.png",
+      "SourceSha256": "bcbda369d98f9943927232bb8208de8a6d3e5ba8ccbf42bdc5973f6a87c7cff0",
+      "Crop": {
+        "X": 819,
+        "Y": 658,
+        "Width": 28,
+        "Height": 49
+      },
+      "Version": "2.0.2",
+      "Channel": "RedMinusBlue"
+    }
+  }
+}

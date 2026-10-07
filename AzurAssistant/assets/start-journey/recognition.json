@@ -1,0 +1,26 @@
+{
+  "SchemaVersion": 4,
+  "Version": "2.0.0",
+  "ReferenceWidth": 1920,
+  "ReferenceHeight": 1080,
+  "AgeSearch": [
+    24,
+    930,
+    108,
+    128
+  ],
+  "AgeThreshold": 0.9,
+  "StartClick": [
+    966,
+    903
+  ],
+  "AgeSha256": "39DC8A5AD477FBC58112D5A733C90A4CCF69B8DDBD6EF1BC3D4B276220B106A4",
+  "Source": "AzurAssistant.Tests/fixtures/start-page.png",
+  "SourceSha256": "8CA454E6CB54B9A089CF0E54F09245DFB7D7336B871E147CCD26A374062643D4",
+  "SourceCrop": [
+    37,
+    946,
+    77,
+    99
+  ]
+}

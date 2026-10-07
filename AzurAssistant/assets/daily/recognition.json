@@ -1,0 +1,620 @@
+{
+  "SchemaVersion": 1,
+  "ReferenceWidth": 1920,
+  "ReferenceHeight": 1080,
+  "Templates": {
+    "world-esc": {
+      "File": "world-esc.png",
+      "Search": {
+        "X": 20,
+        "Y": 60,
+        "Width": 65,
+        "Height": 48
+      },
+      "Threshold": 0.72,
+      "Sha256": "DE2C5C76BAABB0019C47455FE32D88AE09DBBD6655F833353639B5BDCD18E2BB",
+      "Source": "录屏素材\\邮件\\step1：判断是否进入游戏，左上角能识别到esc，左下角有enter.jpg",
+      "SourceSha256": "288E9E4775741154F302BB298378B966714BA4526085FAC5482A15929FE56217",
+      "SourceCrop": {
+        "X": 34,
+        "Y": 73,
+        "Width": 39,
+        "Height": 22
+      },
+      "Version": "1.5.0",
+      "Calibration": {
+        "Source": "录屏素材/esc.jpg",
+        "SourceSha256": "4C95F6420CD75B26FBA006E378B5386D2B965A40E920CA2580D00388D419475D",
+        "Score": 0.7417,
+        "PreviousThreshold": 0.83,
+        "Purpose": "半透明Esc场景变化；仅调整Esc阈值，仍要求Enter独立命中及无弹窗证据"
+      }
+    },
+    "world-enter": {
+      "File": "world-enter.png",
+      "Search": {
+        "X": 25,
+        "Y": 1015,
+        "Width": 85,
+        "Height": 45
+      },
+      "Threshold": 0.83,
+      "Sha256": "4E350283EB0DF9F777A98D47B08FFA468A6619CFDAA35E032F4CBB46CF99B67B",
+      "Source": "录屏素材\\邮件\\step1：判断是否进入游戏，左上角能识别到esc，左下角有enter.jpg",
+      "SourceSha256": "288E9E4775741154F302BB298378B966714BA4526085FAC5482A15929FE56217",
+      "SourceCrop": {
+        "X": 44,
+        "Y": 1035,
+        "Width": 47,
+        "Height": 20
+      },
+      "Version": "1.0.0"
+    },
+    "menu-mail": {
+      "File": "menu-mail.png",
+      "Search": {
+        "X": 249,
+        "Y": 88,
+        "Width": 74,
+        "Height": 56
+      },
+      "Threshold": 0.86,
+      "Sha256": "5949C6B80AACDF689B70243CFFCC3452B50709355E00327CA9CC3DE3A64C8C22",
+      "Source": "录屏素材\\邮件\\step2：点击esc后进入游戏主菜单，左上角等级下面有邮件图标.jpg",
+      "SourceSha256": "CCF732896CF093CBD4E55CBC8AF02EF13B53A3401B0197587FE1D43C7F791AF5",
+      "SourceCrop": {
+        "X": 269,
+        "Y": 100,
+        "Width": 34,
+        "Height": 32
+      },
+      "Version": "1.0.0"
+    },
+    "menu-home": {
+      "File": "menu-home.png",
+      "Search": {
+        "X": 378,
+        "Y": 955,
+        "Width": 145,
+        "Height": 92
+      },
+      "Threshold": 0.86,
+      "Sha256": "B7356F3B8C9E27FF42AB5E3429A946A47556D508C73B68F4E3DD93FF49D92DD0",
+      "Source": "录屏素材\\邮件\\step2：点击esc后进入游戏主菜单，左上角等级下面有邮件图标.jpg",
+      "SourceSha256": "CCF732896CF093CBD4E55CBC8AF02EF13B53A3401B0197587FE1D43C7F791AF5",
+      "SourceCrop": {
+        "X": 408,
+        "Y": 980,
+        "Width": 85,
+        "Height": 57
+      },
+      "Version": "1.0.0"
+    },
+    "mail-title": {
+      "File": "mail-title.png",
+      "Search": {
+        "X": 1195,
+        "Y": 190,
+        "Width": 119,
+        "Height": 60
+      },
+      "Threshold": 0.89,
+      "Sha256": "7EE90F9E5B4EAC1113F6C47A7E9EAD86A01F2CFB8337A5A992E39E0FE2A093E3",
+      "Source": "录屏素材\\邮件\\step3：点击邮件进入邮箱后，点击全部领取.jpg",
+      "SourceSha256": "1EE0DD8516F22A56D7E53A22FC84C2C48F844CC8C27055876A723B12052ADC0B",
+      "SourceCrop": {
+        "X": 1224,
+        "Y": 204,
+        "Width": 61,
+        "Height": 31
+      },
+      "Version": "1.0.0"
+    },
+    "mail-claim": {
+      "File": "mail-claim.png",
+      "Search": {
+        "X": 649,
+        "Y": 793,
+        "Width": 154,
+        "Height": 65
+      },
+      "Threshold": 0.88,
+      "Sha256": "4028F324957D6C73620BF168913CE3E855E5D36F4AF887CBD242EED8ABA4155C",
+      "Source": "录屏素材\\邮件\\step3：点击邮件进入邮箱后，点击全部领取.jpg",
+      "SourceSha256": "1EE0DD8516F22A56D7E53A22FC84C2C48F844CC8C27055876A723B12052ADC0B",
+      "SourceCrop": {
+        "X": 693,
+        "Y": 813,
+        "Width": 74,
+        "Height": 25
+      },
+      "Version": "1.0.0"
+    },
+    "mail-close": {
+      "File": "mail-close.png",
+      "Search": {
+        "X": 1595,
+        "Y": 190,
+        "Width": 65,
+        "Height": 60
+      },
+      "Threshold": 0.9,
+      "Sha256": "1878D3267D86C5BAD969F7A1110834B4F28D7B44B53EE702567394549277176A",
+      "Source": "录屏素材\\邮件\\step3：点击邮件进入邮箱后，点击全部领取.jpg",
+      "SourceSha256": "1EE0DD8516F22A56D7E53A22FC84C2C48F844CC8C27055876A723B12052ADC0B",
+      "SourceCrop": {
+        "X": 1615,
+        "Y": 205,
+        "Width": 31,
+        "Height": 30
+      },
+      "Version": "1.0.0"
+    },
+    "mail-reward": {
+      "File": "mail-reward.png",
+      "Search": {
+        "X": 900,
+        "Y": 315,
+        "Width": 120,
+        "Height": 70
+      },
+      "Threshold": 0.86,
+      "Sha256": "06DD3F160BBAB3CE2D3CF96DEC2647C93A928E02F99FC0AC5CD3CD077D746467",
+      "Source": "录屏素材\\邮件\\领取后，无论邮箱有没有东西，能不能领取到东西，都点击一下空白处退出。如果有那就是回到邮箱页，如果没有点的空白处也不影响，然后点击邮箱的X，回到主菜单，再esc关闭住菜单，完成该任务.jpg",
+      "SourceSha256": "DD89B3E1CD0A2C6FD83D15CC4348DD1C05B43D030174A820FB70E1D2AA437BEE",
+      "SourceCrop": {
+        "X": 927,
+        "Y": 334,
+        "Width": 66,
+        "Height": 37
+      },
+      "Version": "1.0.0"
+    },
+    "mail-dismiss": {
+      "File": "mail-dismiss.png",
+      "Search": {
+        "X": 840,
+        "Y": 775,
+        "Width": 242,
+        "Height": 70
+      },
+      "Threshold": 0.86,
+      "Sha256": "1B5A81CC63810E2ACD5B96B2B78735DBF82FF7CF09D668901F77EBC276FD9726",
+      "Source": "录屏素材\\邮件\\领取后，无论邮箱有没有东西，能不能领取到东西，都点击一下空白处退出。如果有那就是回到邮箱页，如果没有点的空白处也不影响，然后点击邮箱的X，回到主菜单，再esc关闭住菜单，完成该任务.jpg",
+      "SourceSha256": "DD89B3E1CD0A2C6FD83D15CC4348DD1C05B43D030174A820FB70E1D2AA437BEE",
+      "SourceCrop": {
+        "X": 872,
+        "Y": 798,
+        "Width": 177,
+        "Height": 25
+      },
+      "Version": "1.0.0"
+    },
+    "home-title": {
+      "File": "home-title.png",
+      "Search": {
+        "X": 135,
+        "Y": 30,
+        "Width": 120,
+        "Height": 45
+      },
+      "Threshold": 0.9,
+      "Sha256": "7DA777156784CDAAC2B9224CE441C8FBDB6E27DDAABF99C2BD326B07DC85086A",
+      "Source": "录屏素材\\家园\\step2：进入家园中枢，点击建筑管理.jpg",
+      "SourceSha256": "54CD4561D567D3C79C97A6CD125C1922B6D6408B0D77859A4E1416C05D49BB39",
+      "SourceCrop": {
+        "X": 155,
+        "Y": 42,
+        "Width": 80,
+        "Height": 24
+      },
+      "Version": "1.0.0"
+    },
+    "home-buildings": {
+      "File": "home-buildings.png",
+      "Search": {
+        "X": 240,
+        "Y": 807,
+        "Width": 145,
+        "Height": 70
+      },
+      "Threshold": 0.86,
+      "Sha256": "2E5BB1DA503A56FC888826AB6CECA0B2DD563CB8E5CD780BDD614FDD6782BE13",
+      "Source": "录屏素材\\家园\\step2：进入家园中枢，点击建筑管理.jpg",
+      "SourceSha256": "54CD4561D567D3C79C97A6CD125C1922B6D6408B0D77859A4E1416C05D49BB39",
+      "SourceCrop": {
+        "X": 267,
+        "Y": 832,
+        "Width": 91,
+        "Height": 29
+      },
+      "Version": "1.0.0"
+    },
+    "home-ranch": {
+      "File": "home-ranch.png",
+      "Search": {
+        "X": 350,
+        "Y": 940,
+        "Width": 160,
+        "Height": 70
+      },
+      "Threshold": 0.86,
+      "Sha256": "112073B1D9D64A4533166C9FE69A9E1803E2DDE9C97693542EDDA65A17B207C6",
+      "Source": "录屏素材\\家园\\step2：进入家园中枢，点击建筑管理.jpg",
+      "SourceSha256": "54CD4561D567D3C79C97A6CD125C1922B6D6408B0D77859A4E1416C05D49BB39",
+      "SourceCrop": {
+        "X": 382,
+        "Y": 962,
+        "Width": 97,
+        "Height": 27
+      },
+      "Version": "1.0.0"
+    },
+    "buildings-title": {
+      "File": "buildings-title.png",
+      "Search": {
+        "X": 135,
+        "Y": 30,
+        "Width": 120,
+        "Height": 45
+      },
+      "Threshold": 0.9,
+      "Sha256": "6F5A9BE35F6C85E4A7F596B4CC63DB7A01D8AD4C1D1023C7B21FC06E8901349A",
+      "Source": "录屏素材\\家园\\step3：进入建筑管理后点击左下角的一键收取.jpg",
+      "SourceSha256": "4E7C75DD67D2E9DBE81CC7023D3D195B9830372EE6F0F497108C9B9E3C952AF7",
+      "SourceCrop": {
+        "X": 155,
+        "Y": 42,
+        "Width": 80,
+        "Height": 24
+      },
+      "Version": "1.0.0"
+    },
+    "buildings-claim": {
+      "File": "buildings-claim.png",
+      "Search": {
+        "X": 25,
+        "Y": 825,
+        "Width": 135,
+        "Height": 150
+      },
+      "Threshold": 0.84,
+      "Sha256": "5F9B2E94B8C05F2DE40423847B60918DBE0AF2FF2A53F922AC727324C53321AA",
+      "Source": "录屏素材\\家园\\step3：进入建筑管理后点击左下角的一键收取.jpg",
+      "SourceSha256": "4E7C75DD67D2E9DBE81CC7023D3D195B9830372EE6F0F497108C9B9E3C952AF7",
+      "SourceCrop": {
+        "X": 43,
+        "Y": 844,
+        "Width": 102,
+        "Height": 121
+      },
+      "Version": "1.0.0",
+      "Purpose": "旧动态宝箱，仅保留只读分数诊断；正式日常识别不调用"
+    },
+    "ranch-title": {
+      "File": "ranch-title.png",
+      "Search": {
+        "X": 135,
+        "Y": 30,
+        "Width": 120,
+        "Height": 45
+      },
+      "Threshold": 0.9,
+      "Sha256": "453DE45F67F234B285139DEB808AE00CF5F0A2A82C9E73E2B6EB0D5937F92E47",
+      "Source": "录屏素材\\家园\\step5：点击奇波牧场，进入牧场，同样点击一键收取的图标.jpg",
+      "SourceSha256": "DAEE80C9350AC14C5EFC1858CD0BEA3BAF58E3157EA6736D399434F4CD8B4103",
+      "SourceCrop": {
+        "X": 155,
+        "Y": 42,
+        "Width": 80,
+        "Height": 24
+      },
+      "Version": "1.0.0"
+    },
+    "ranch-claim": {
+      "File": "ranch-claim.png",
+      "Search": {
+        "X": 1325,
+        "Y": 910,
+        "Width": 135,
+        "Height": 130
+      },
+      "Threshold": 0.84,
+      "Sha256": "2EDCB4C44C710C6AC4EB797F1623F1593B8210E1A5D2F66D3BC65DBB8EBE24C1",
+      "Source": "录屏素材\\家园\\step5：点击奇波牧场，进入牧场，同样点击一键收取的图标.jpg",
+      "SourceSha256": "DAEE80C9350AC14C5EFC1858CD0BEA3BAF58E3157EA6736D399434F4CD8B4103",
+      "SourceCrop": {
+        "X": 1348,
+        "Y": 928,
+        "Width": 90,
+        "Height": 96
+      },
+      "Version": "1.0.0"
+    },
+    "home-reward": {
+      "File": "home-reward.png",
+      "Search": {
+        "X": 885,
+        "Y": 322,
+        "Width": 145,
+        "Height": 60
+      },
+      "Threshold": 0.86,
+      "Sha256": "B3D025C89412D4ACBB9975C55C9AE07936014A5122F91D9C2E7F05546FADCF13",
+      "Source": "录屏素材\\家园\\step4：收取成功后点击右上角的X回到建筑管理，然后再点击左上角的建筑管理回到家园中枢.jpg",
+      "SourceSha256": "1FE37A79E3171B55130A2BE8BF8F39BF8EE76F9A86F8DB1635C0ED949E9060F9",
+      "SourceCrop": {
+        "X": 913,
+        "Y": 339,
+        "Width": 91,
+        "Height": 28
+      },
+      "Version": "1.0.0"
+    },
+    "home-reward-close": {
+      "File": "home-reward-close.png",
+      "Search": {
+        "X": 1816,
+        "Y": 223,
+        "Width": 80,
+        "Height": 82
+      },
+      "Threshold": 0.88,
+      "Sha256": "57299FA6337CB330187589490116EBE52FF9A3626D3C4E90DB10465E4D9EED57",
+      "Source": "录屏素材\\家园\\step4：收取成功后点击右上角的X回到建筑管理，然后再点击左上角的建筑管理回到家园中枢.jpg",
+      "SourceSha256": "1FE37A79E3171B55130A2BE8BF8F39BF8EE76F9A86F8DB1635C0ED949E9060F9",
+      "SourceCrop": {
+        "X": 1836,
+        "Y": 243,
+        "Width": 39,
+        "Height": 42
+      },
+      "Version": "1.0.0"
+    },
+    "mail-empty-message": {
+      "File": "mail-empty-message.png",
+      "Search": {
+        "X": 820,
+        "Y": 525,
+        "Width": 285,
+        "Height": 62
+      },
+      "Threshold": 0.9,
+      "Sha256": "8084F40F38D38D2BC8F0F135A4C51107F409F638F6BA5B0AB939120647CE177A",
+      "Source": "录屏素材\\邮件\\无可领取邮件提示.jpg",
+      "SourceSha256": "7737876FD1484CA9956376E0F4AE9EDBCFC2E7BDC96F69B3E680E9F9FDAB6450",
+      "SourceCrop": {
+        "X": 850,
+        "Y": 545,
+        "Width": 220,
+        "Height": 28
+      },
+      "Version": "1.1.0"
+    },
+    "mail-empty-confirm": {
+      "File": "mail-empty-confirm.png",
+      "Search": {
+        "X": 1210,
+        "Y": 640,
+        "Width": 100,
+        "Height": 70
+      },
+      "Threshold": 0.9,
+      "Sha256": "B71CB276014D2736D6261D2DE99D1CA2F83E6917B9BCE4F2DBF8A5FE29F0C656",
+      "Source": "录屏素材\\邮件\\无可领取邮件提示.jpg",
+      "SourceSha256": "7737876FD1484CA9956376E0F4AE9EDBCFC2E7BDC96F69B3E680E9F9FDAB6450",
+      "SourceCrop": {
+        "X": 1233,
+        "Y": 661,
+        "Width": 49,
+        "Height": 28
+      },
+      "Version": "1.1.0"
+    },
+    "home-dining": {
+      "File": "home-dining.png",
+      "Search": {
+        "X": 150,
+        "Y": 680,
+        "Width": 150,
+        "Height": 70
+      },
+      "Threshold": 0.86,
+      "Sha256": "5F612E1006160FE1845F8FE3BC4BC2C06A527502B51851FA930A22DDE4BF2243",
+      "Source": "录屏素材/家园/step2：进入家园中枢，点击建筑管理.jpg",
+      "SourceSha256": "54CD4561D567D3C79C97A6CD125C1922B6D6408B0D77859A4E1416C05D49BB39",
+      "SourceCrop": {
+        "X": 178,
+        "Y": 702,
+        "Width": 92,
+        "Height": 29
+      },
+      "Version": "1.2.0"
+    },
+    "dining-title": {
+      "File": "dining-title.png",
+      "Search": {
+        "X": 60,
+        "Y": 150,
+        "Width": 160,
+        "Height": 70
+      },
+      "Threshold": 0.9,
+      "Sha256": "AB4D712A6FA694CF32526F101A60C3726FE04D79752D0041AF9BDC4D1DEB006E",
+      "Source": "录屏素材/家园/餐桌添加前.jpg",
+      "SourceSha256": "95B8758CD183F5F7C572457E335FB7A6BBD864A21A7A3FABD98FBA6556EAA182",
+      "SourceCrop": {
+        "X": 80,
+        "Y": 170,
+        "Width": 117,
+        "Height": 30
+      },
+      "Version": "1.2.0"
+    },
+    "dining-satiety": {
+      "File": "dining-satiety.png",
+      "Search": {
+        "X": 915,
+        "Y": 225,
+        "Width": 90,
+        "Height": 35
+      },
+      "Threshold": 0.87,
+      "Sha256": "88C46EFDD67D1C46906A1C97B29F8D2ED43A76F60E67B407F278E3C825FCE631",
+      "Source": "录屏素材/家园/餐桌添加前.jpg",
+      "SourceSha256": "95B8758CD183F5F7C572457E335FB7A6BBD864A21A7A3FABD98FBA6556EAA182",
+      "SourceCrop": {
+        "X": 934,
+        "Y": 236,
+        "Width": 51,
+        "Height": 20
+      },
+      "Version": "1.2.0"
+    },
+    "dining-close": {
+      "File": "dining-close.png",
+      "Search": {
+        "X": 1780,
+        "Y": 20,
+        "Width": 75,
+        "Height": 70
+      },
+      "Threshold": 0.88,
+      "Sha256": "35FB014B4B1558708BF836AF2070EE583C19BF4B0AB41189CD103D99874A64CC",
+      "Source": "录屏素材/家园/餐桌添加前.jpg",
+      "SourceSha256": "95B8758CD183F5F7C572457E335FB7A6BBD864A21A7A3FABD98FBA6556EAA182",
+      "SourceCrop": {
+        "X": 1797,
+        "Y": 36,
+        "Width": 42,
+        "Height": 40
+      },
+      "Version": "1.2.0"
+    },
+    "dining-add": {
+      "File": "dining-add.png",
+      "Search": {
+        "X": 1585,
+        "Y": 916,
+        "Width": 95,
+        "Height": 90
+      },
+      "Threshold": 0.86,
+      "Sha256": "15521DB87563EEDBA7ED2C96FC0EB2395162A2DCCA294780474DDAA0C0E1FF72",
+      "Source": "录屏素材/家园/餐桌添加前.jpg",
+      "SourceSha256": "95B8758CD183F5F7C572457E335FB7A6BBD864A21A7A3FABD98FBA6556EAA182",
+      "SourceCrop": {
+        "X": 1608,
+        "Y": 936,
+        "Width": 46,
+        "Height": 47
+      },
+      "Version": "1.2.0"
+    },
+    "buildings-production": {
+      "File": "buildings-production.png",
+      "Search": {
+        "X": 1555,
+        "Y": 175,
+        "Width": 150,
+        "Height": 75
+      },
+      "Threshold": 0.9,
+      "Sha256": "CA6CADEB7EBFF1759CFC82EBAF8C3C8DCC8DD2E202860A920EFDEED9AFE8989E",
+      "Source": "录屏素材/家园/step3：进入建筑管理后点击左下角的一键收取.jpg",
+      "SourceSha256": "4E7C75DD67D2E9DBE81CC7023D3D195B9830372EE6F0F497108C9B9E3C952AF7",
+      "SourceCrop": {
+        "X": 1579,
+        "Y": 195,
+        "Width": 101,
+        "Height": 32
+      },
+      "Version": "1.3.0"
+    },
+    "buildings-claim-label": {
+      "File": "buildings-claim-label.png",
+      "Search": {
+        "X": 28,
+        "Y": 773,
+        "Width": 140,
+        "Height": 65
+      },
+      "Threshold": 0.88,
+      "Sha256": "F58D29A46943C0B0A6F2AC8C356595B923CB2B340D8473A6E65818A3FCC3B25B",
+      "Source": "录屏素材/家园/step3：进入建筑管理后点击左下角的一键收取.jpg",
+      "SourceSha256": "4E7C75DD67D2E9DBE81CC7023D3D195B9830372EE6F0F497108C9B9E3C952AF7",
+      "SourceCrop": {
+        "X": 48,
+        "Y": 793,
+        "Width": 99,
+        "Height": 27
+      },
+      "Version": "1.3.0",
+      "Purpose": "固定一键收取文字；由HomeCenterTask在当前匹配中心下方98px点击宝箱区域，原图为(97,904)"
+    },
+    "home-level-title": {
+      "File": "home-level-title.png",
+      "Search": {
+        "X": 850,
+        "Y": 327,
+        "Width": 220,
+        "Height": 65
+      },
+      "Threshold": 0.9,
+      "Sha256": "6E889DF1C319C473E29D76BF319EEE07AD58BF6D272E11B7D6A897080529910A",
+      "Source": "录屏素材/家园/家园等级提升.jpg",
+      "SourceSha256": "B80D049BD6418D3C963C8A88413B0B8E3EDCFDE6A7312F9B9DD1D10867ED3603",
+      "SourceCrop": {
+        "X": 880,
+        "Y": 347,
+        "Width": 164,
+        "Height": 29
+      },
+      "Version": "1.4.0",
+      "Purpose": "家园等级提升专属标题，排除等级及经验；当前匹配中心下方480px为空白关闭点"
+    },
+    "home-level-rewards": {
+      "File": "home-level-rewards.png",
+      "Search": {
+        "X": 893,
+        "Y": 531,
+        "Width": 134,
+        "Height": 65
+      },
+      "Threshold": 0.88,
+      "Sha256": "1EAF0C28B4E3D89589423974EF537E5EF1FEAB5392F0D84A8B5B349FB1B98D77",
+      "Source": "录屏素材/家园/家园等级提升.jpg",
+      "SourceSha256": "B80D049BD6418D3C963C8A88413B0B8E3EDCFDE6A7312F9B9DD1D10867ED3603",
+      "SourceCrop": {
+        "X": 920,
+        "Y": 551,
+        "Width": 80,
+        "Height": 25
+      },
+      "Version": "1.4.0",
+      "Purpose": "升级奖励固定文字，与家园等级提升标题共同确认弹窗，排除奖励数量"
+    },
+    "ranch-basket-empty": {
+      "File": "ranch-basket-empty.png",
+      "Search": {
+        "X": 1325,
+        "Y": 910,
+        "Width": 135,
+        "Height": 130
+      },
+      "Threshold": 0.9,
+      "Sha256": "5BA58E2156A6EFCB9CEBB127A5148ECC1EFCF89FF5A756B49CF3B409BA5C6100",
+      "Source": "AzurAssistant.Tests/fixtures/ranch-empty-live.png",
+      "SourceSha256": "C719D229571B586E57BB0CDABB611CAB8CB4231B7488B31A27EA117D42A4196F",
+      "SourceCrop": {
+        "X": 1350,
+        "Y": 946,
+        "Width": 88,
+        "Height": 70
+      },
+      "Version": "1.6.0",
+      "Purpose": "牧场空篮子正面证据，与牧场标题共同使用；不从有产出篮子未命中推断为空"
+    }
+  },
+  "AssetVersion": "1.6.0"
+}

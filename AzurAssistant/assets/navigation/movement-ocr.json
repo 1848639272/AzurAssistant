@@ -1,0 +1,31 @@
+{
+  "SchemaVersion": 1,
+  "Version": "1.2.0",
+  "Region": {
+    "X": 740,
+    "Y": 115,
+    "Width": 435,
+    "Height": 42
+  },
+  "Scale": 2,
+  "MinimumConfidence": 0.9,
+  "Sources": [
+    {
+      "File": "录屏素材/地图测试/切换移动模式/切换到奔跑模式.jpg",
+      "Sha256": "7155ca96ff6c26d3d4b68acd8426dce61137306cde53a802c78ae4a7cb2a249f"
+    },
+    {
+      "File": "录屏素材/地图测试/切换移动模式/切换到步行模式.jpg",
+      "Sha256": "8ee5db9f555ecbb9fc7810c8df8f126aca2337a0f3483251b4bb3a49cb8650c5"
+    },
+    {
+      "File": "AzurAssistant.Tests/fixtures/navigation/motion-2026-10-06/walk-toast-live.png",
+      "Sha256": "da19f0323451662929e08fcae7f69ef30a4a649aad3b00a64a16ca741f0f3460"
+    },
+    {
+      "File": "AzurAssistant.Tests/fixtures/navigation/heading-2026-10-07/run-toast-stone.png",
+      "Sha256": "4055da4e31d05eb35eec7f40e54aed038ccfe7512cb5e6ce2578549f3c03afdc"
+    }
+  ],
+  "Purpose": "限定文字ROI读取当前状态前8字及其独立置信度；原图不足时分离白字重读，不解析后半句目标或匹配半透明背景。"
+}

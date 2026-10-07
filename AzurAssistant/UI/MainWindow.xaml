@@ -1,0 +1,518 @@
+<Window x:Class="AzurAssistant.UI.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:ui="clr-namespace:AzurAssistant.UI"
+ Title="AzurAssistant" Icon="/AzurAssistant;component/assets/branding/app.ico" Width="1180" Height="820" MinWidth="980" MinHeight="780"
+ WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackground}" Foreground="{DynamicResource Ink}" FontFamily="Microsoft YaHei UI, Segoe UI" FontSize="13"
+ UseLayoutRounding="True" Loaded="OnLoaded" Closing="OnClosing" PreviewMouseDown="OnWindowMouseDown">
+ <Window.Resources>
+  <ui:DifficultyLabelConverter x:Key="DifficultyLabel" />
+  <DataTemplate x:Key="DifficultyTemplate">
+   <TextBlock Text="{Binding Converter={StaticResource DifficultyLabel}}" FontFamily="Segoe UI, Microsoft YaHei UI" />
+  </DataTemplate>
+  <DataTemplate x:Key="StoryChapterTemplate">
+   <TextBlock Text="{Binding Name}" />
+  </DataTemplate>
+  <Style x:Key="NavigationItem" TargetType="RadioButton">
+   <Setter Property="Cursor" Value="Hand" /><Setter Property="Margin" Value="0,0,0,6" />
+   <Setter Property="Foreground" Value="{DynamicResource NavigationInk}" /><Setter Property="Padding" Value="14,13" />
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RadioButton">
+    <Border x:Name="NavigationTile" Background="Transparent" CornerRadius="8" Padding="{TemplateBinding Padding}">
+     <ContentPresenter />
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="NavigationTile" Property="Background" Value="{DynamicResource HoverBackground}" /></Trigger>
+     <Trigger Property="IsChecked" Value="True"><Setter TargetName="NavigationTile" Property="Background" Value="{DynamicResource SelectedBackground}" /><Setter Property="Foreground" Value="{DynamicResource NavigationSelectedInk}" /><Setter Property="FontWeight" Value="SemiBold" /></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="NavigationTile" Property="BorderBrush" Value="{DynamicResource Accent}" /><Setter TargetName="NavigationTile" Property="BorderThickness" Value="1" /></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="FeatureOption" TargetType="CheckBox">
+   <Setter Property="Foreground" Value="{DynamicResource Ink}" /><Setter Property="FontSize" Value="13" />
+   <Setter Property="Cursor" Value="Hand" /><Setter Property="VerticalContentAlignment" Value="Center" />
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox">
+    <Grid Background="Transparent">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="20" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+     <Border x:Name="OptionBox" Width="18" Height="18" VerticalAlignment="Center" Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorderBrush}" BorderThickness="1" CornerRadius="4">
+      <TextBlock x:Name="OptionCheck" Text="&#xE73E;" FontFamily="Segoe Fluent Icons" FontSize="12" Foreground="{DynamicResource AccentForeground}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
+     </Border>
+     <ContentPresenter Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center" />
+    </Grid>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsChecked" Value="True"><Setter TargetName="OptionBox" Property="Background" Value="{DynamicResource Accent}" /><Setter TargetName="OptionBox" Property="BorderBrush" Value="{DynamicResource Accent}" /><Setter TargetName="OptionCheck" Property="Visibility" Value="Visible" /></Trigger>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="OptionBox" Property="BorderBrush" Value="{DynamicResource Accent}" /></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="OptionBox" Property="BorderThickness" Value="2" /></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4" /></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="TaskSettingsToggleStyle" TargetType="ToggleButton">
+   <Setter Property="Cursor" Value="Hand" /><Setter Property="Width" Value="30" /><Setter Property="Height" Value="26" />
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
+    <Border x:Name="ToggleTile" Background="Transparent" CornerRadius="5">
+     <Path x:Name="Chevron" Data="M 0,0 L 5,5 L 10,0" Stroke="{DynamicResource HandleInk}" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" />
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsChecked" Value="True"><Setter TargetName="Chevron" Property="RenderTransform"><Setter.Value><RotateTransform Angle="180" /></Setter.Value></Setter><Setter TargetName="Chevron" Property="Stroke" Value="{DynamicResource Accent}" /></Trigger>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ToggleTile" Property="Background" Value="{DynamicResource HoverBackground}" /></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ToggleTile" Property="BorderBrush" Value="{DynamicResource Accent}" /><Setter TargetName="ToggleTile" Property="BorderThickness" Value="1" /></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="PrimaryAction" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+   <Setter Property="ContentTemplate"><Setter.Value><DataTemplate><TextBlock Text="{Binding}" Foreground="{DynamicResource AccentForeground}" /></DataTemplate></Setter.Value></Setter>
+   <Setter Property="Background" Value="{DynamicResource Accent}" /><Setter Property="BorderBrush" Value="{DynamicResource Accent}" /><Setter Property="Foreground" Value="{DynamicResource AccentForeground}" /><Setter Property="Padding" Value="16,9" />
+  </Style>
+  <DataTemplate x:Key="DailyCommissionSettingsTemplate">
+<StackPanel Margin="0,16,0,2">
+              <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,14" />
+          <TextBlock Text="日常委托" FontWeight="SemiBold" Margin="0,0,0,6" />
+          <TextBlock Text="委托类型" FontSize="11" Margin="0,0,0,5" />
+          <ComboBox x:Name="DailyCategoryBox" ItemsSource="{Binding DailyCategoryChoices}" SelectedItem="{Binding DailyCategory}" Padding="8,6" Margin="0,0,0,12" AutomationProperties.Name="日常委托类型" />
+          <Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="120" /></Grid.ColumnDefinitions>
+           <StackPanel Margin="0,0,12,0"><TextBlock Text="副本" FontSize="11" Margin="0,0,0,5" />
+            <ComboBox x:Name="DailyDungeonBox" ItemsSource="{Binding DailyDungeonChoices}" SelectedItem="{Binding DailyDungeon}" Padding="8,6" AutomationProperties.Name="日常委托副本" />
+           </StackPanel>
+           <StackPanel Grid.Column="1"><TextBlock x:Name="DailyDifficultyLabel" Text="难度" FontSize="11" Margin="0,0,0,5" />
+            <ComboBox x:Name="DailyDifficultyBox" ItemsSource="{Binding DailyDifficulties}" SelectedItem="{Binding DailyDifficulty}" ItemTemplate="{StaticResource DifficultyTemplate}" Padding="8,6" AutomationProperties.Name="日常委托难度" />
+           </StackPanel>
+          </Grid>
+          <TextBlock Text="指定队伍名称（留空保持当前队伍）" Margin="0,12,0,6" FontSize="11" />
+          <TextBox x:Name="DailyCommissionTeamBox" Text="{Binding CommissionTeam, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" Padding="8,6" AutomationProperties.Name="委托队伍名称" />
+          <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+           <CheckBox x:Name="DailyClaimLimitOption" Content="限制领取次数" Style="{StaticResource FeatureOption}" IsChecked="{Binding DailyClaimLimitEnabled}" VerticalAlignment="Center" Margin="0,0,12,0" />
+           <TextBox x:Name="DailyClaimLimitBox" Style="{StaticResource CompactTextBox}" Width="90" Text="{Binding DailyClaimLimitText, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding DailyClaimLimitEnabled}" MaxLength="3" AutomationProperties.Name="日常委托最多领取次数" />
+          </StackPanel>
+          <TextBlock Text="按领取份数计算，例如 5 次为 3 倍 + 2 倍；未勾选按剩余体力计算" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+          <TextBlock Text="{Binding CommissionNote}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
+          <TextBlock Text="{Binding CommissionError}" Foreground="{DynamicResource WarningInk}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+          <Button x:Name="DailySaveCommissionButton" Content="保存设置" Click="OnSaveCommissions" HorizontalAlignment="Left" Padding="12,8" Margin="0,8,0,0" />
+             </StackPanel>
+  </DataTemplate>
+  <DataTemplate x:Key="WeeklyCommissionSettingsTemplate">
+<StackPanel Margin="0,16,0,2">
+              <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,14" />
+          <TextBlock Text="往厄残影" FontWeight="SemiBold" Margin="0,0,0,6" />
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="120" /></Grid.ColumnDefinitions>
+           <StackPanel Margin="0,0,12,0"><TextBlock Text="副本" FontSize="11" Margin="0,0,0,5" />
+            <ComboBox x:Name="WeeklyDungeonBox" ItemsSource="{Binding WeeklyDungeonChoices}" SelectedItem="{Binding WeeklyDungeon}" Padding="8,6" AutomationProperties.Name="往厄残影副本" />
+           </StackPanel>
+           <StackPanel Grid.Column="1"><TextBlock x:Name="WeeklyDifficultyLabel" Text="难度" FontSize="11" Margin="0,0,0,5" />
+            <ComboBox x:Name="WeeklyDifficultyBox" ItemsSource="{Binding SixDifficulties}" SelectedItem="{Binding WeeklyDifficulty}" ItemTemplate="{StaticResource DifficultyTemplate}" Padding="8,6" AutomationProperties.Name="往厄残影难度" />
+           </StackPanel>
+          </Grid>
+          <TextBlock Text="{Binding WeeklyProgressText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" />
+          <Button x:Name="ResetWeeklyButton" Content="重置周本记录" Click="OnResetWeekly" IsEnabled="{Binding CanConfigure}" HorizontalAlignment="Left" Padding="10,6" Margin="0,7,0,5" />
+          <TextBlock Text="指定队伍名称（留空保持当前队伍）" Margin="0,12,0,6" FontSize="11" />
+          <TextBox x:Name="WeeklyCommissionTeamBox" Text="{Binding CommissionTeam, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" Padding="8,6" AutomationProperties.Name="委托队伍名称" />
+          <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+           <CheckBox x:Name="WeeklyClaimLimitOption" Content="限制领取次数" Style="{StaticResource FeatureOption}" IsChecked="{Binding WeeklyClaimLimitEnabled}" VerticalAlignment="Center" Margin="0,0,12,0" />
+           <TextBox x:Name="WeeklyClaimLimitBox" Style="{StaticResource CompactTextBox}" Width="90" Text="{Binding WeeklyClaimLimitText, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding WeeklyClaimLimitEnabled}" MaxLength="3" AutomationProperties.Name="往厄残影最多领取次数" />
+          </StackPanel>
+          <TextBlock Text="按领取份数计算，并受本周剩余次数限制" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+          <TextBlock Text="{Binding CommissionNote}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
+          <TextBlock Text="{Binding CommissionError}" Foreground="{DynamicResource WarningInk}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+          <Button x:Name="WeeklySaveCommissionButton" Content="保存设置" Click="OnSaveCommissions" HorizontalAlignment="Left" Padding="12,8" Margin="0,8,0,0" />
+             </StackPanel>
+  </DataTemplate>
+  <DataTemplate x:Key="CrisisCommissionSettingsTemplate">
+<StackPanel Margin="0,16,0,2">
+              <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,14" />
+          <TextBlock Text="危机讨伐" FontWeight="SemiBold" Margin="0,0,0,6" />
+          <StackPanel Orientation="Horizontal" Margin="0,2,0,12">
+           <TextBlock x:Name="CrisisDifficultyLabel" Text="难度" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" />
+           <ComboBox x:Name="CrisisDifficultyBox" Width="120" ItemsSource="{Binding SixDifficulties}" SelectedItem="{Binding CrisisDifficulty}" ItemTemplate="{StaticResource DifficultyTemplate}" Padding="8,6" AutomationProperties.Name="危机讨伐难度" />
+          </StackPanel>
+          <TextBlock Text="{Binding CrisisOrderDescription}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,0,10" />
+          <Grid>
+           <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <StackPanel Margin="0,0,20,0">
+          <CheckBox x:Name="CrisisSpecialEnabledOption" Content="刷取惊喜副本" Style="{StaticResource FeatureOption}" IsChecked="{Binding CrisisSpecialEnabled}" Margin="0,0,0,10" />
+          <StackPanel Visibility="{Binding CrisisSpecialEnabled, Converter={StaticResource BoolVisibility}}">
+           <TextBlock Text="惊喜副本 · 蓝色异辉晶钥石" FontSize="11" Margin="0,0,0,5" />
+           <ComboBox x:Name="CrisisSpecialBox" ItemsSource="{Binding SpecialDungeonChoices}" SelectedItem="{Binding CrisisSpecialChoice}" Padding="8,6" Margin="0,0,0,8" AutomationProperties.Name="危机讨伐惊喜副本" />
+           <StackPanel Visibility="{Binding CrisisUsesCustomSpecial, Converter={StaticResource BoolVisibility}}" Margin="0,0,0,10">
+            <TextBlock Text="自定义副本名称" FontSize="11" Margin="0,0,0,5" />
+            <TextBox x:Name="CrisisCustomNameBox" Text="{Binding CrisisSpecial, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" Padding="8,6" AutomationProperties.Name="危机讨伐自定义惊喜副本名称" />
+            <TextBlock Text="{Binding CrisisCustomNameHint}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+           </StackPanel>
+           <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+            <CheckBox x:Name="CrisisSpecialClaimLimitOption" Content="限制领取次数" Style="{StaticResource FeatureOption}" IsChecked="{Binding CrisisSpecialClaimLimitEnabled}" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <TextBox x:Name="CrisisSpecialClaimLimitBox" Style="{StaticResource CompactTextBox}" Width="90" Text="{Binding CrisisSpecialClaimLimitText, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CrisisSpecialClaimLimitEnabled}" MaxLength="3" AutomationProperties.Name="惊喜副本最多领取次数" />
+           </StackPanel>
+           <TextBlock Text="每次领取消耗 1 个蓝色异辉晶钥石" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" />
+          </StackPanel>
+           </StackPanel>
+           <StackPanel Grid.Column="1">
+          <CheckBox x:Name="CrisisNormalEnabledOption" Content="刷取普通副本" Style="{StaticResource FeatureOption}" IsChecked="{Binding CrisisNormalEnabled}" Margin="0,0,0,10" />
+          <StackPanel Visibility="{Binding CrisisNormalEnabled, Converter={StaticResource BoolVisibility}}">
+           <TextBlock Text="普通副本 · 黄色晶钥石" FontSize="11" Margin="0,0,0,5" />
+           <ComboBox x:Name="CrisisNormalBox" ItemsSource="{Binding CrisisDungeonChoices}" SelectedItem="{Binding CrisisNormal}" Padding="8,6" AutomationProperties.Name="危机讨伐普通副本" />
+           <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+            <CheckBox x:Name="CrisisNormalClaimLimitOption" Content="限制领取次数" Style="{StaticResource FeatureOption}" IsChecked="{Binding CrisisNormalClaimLimitEnabled}" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <TextBox x:Name="CrisisNormalClaimLimitBox" Style="{StaticResource CompactTextBox}" Width="90" Text="{Binding CrisisNormalClaimLimitText, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CrisisNormalClaimLimitEnabled}" MaxLength="3" AutomationProperties.Name="普通副本最多领取次数" />
+           </StackPanel>
+           <TextBlock Text="每次领取消耗 1 个黄色晶钥石" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" />
+          </StackPanel>
+           </StackPanel>
+          </Grid>
+          <TextBlock Text="{Binding CommissionNote}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
+          <TextBlock Text="{Binding CommissionError}" Foreground="{DynamicResource WarningInk}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+          <Button x:Name="CrisisSaveCommissionButton" Content="保存设置" Click="OnSaveCommissions" HorizontalAlignment="Left" Padding="12,8" Margin="0,8,0,0" />
+             </StackPanel>
+  </DataTemplate>
+  <DataTemplate x:Key="StoryCommissionSettingsTemplate">
+   <StackPanel Margin="0,16,0,2">
+    <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,14" />
+    <TextBlock Text="主线委托" FontWeight="SemiBold" Margin="0,0,0,6" />
+    <TextBlock Text="章节" FontSize="11" Margin="0,0,0,5" />
+    <ComboBox x:Name="StoryChapterBox" ItemsSource="{Binding StoryChapterChoices}" ItemTemplate="{StaticResource StoryChapterTemplate}" SelectedValuePath="Number" SelectedValue="{Binding StoryChapter}" Padding="8,6" Margin="0,0,0,12" AutomationProperties.Name="主线委托章节" />
+    <TextBlock Text="关卡" FontSize="11" Margin="0,0,0,5" />
+    <ComboBox x:Name="StoryDungeonBox" ItemsSource="{Binding StoryDungeonChoices}" SelectedItem="{Binding StoryDungeon}" Padding="8,6" AutomationProperties.Name="主线委托关卡" />
+    <TextBlock Text="指定队伍名称（留空保持当前队伍）" Margin="0,12,0,6" FontSize="11" />
+    <TextBox x:Name="StoryCommissionTeamBox" Text="{Binding StoryTeam, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" Padding="8,6" AutomationProperties.Name="主线委托队伍名称" />
+    <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+     <CheckBox x:Name="StoryClaimLimitOption" Content="限制领取次数" Style="{StaticResource FeatureOption}" IsChecked="{Binding StoryClaimLimitEnabled}" VerticalAlignment="Center" Margin="0,0,12,0" />
+     <TextBox x:Name="StoryClaimLimitBox" Style="{StaticResource CompactTextBox}" Width="90" Text="{Binding StoryClaimLimitText, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding StoryClaimLimitEnabled}" MaxLength="3" AutomationProperties.Name="主线委托最多领取次数" />
+    </StackPanel>
+    <TextBlock Text="按领取份数计算，例如 5 次为 3 倍 + 2 倍；未勾选按剩余体力计算" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+    <TextBlock Text="{Binding CommissionNote}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
+    <TextBlock Text="{Binding CommissionError}" Foreground="{DynamicResource WarningInk}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+    <Button x:Name="StorySaveCommissionButton" Content="保存设置" Click="OnSaveCommissions" HorizontalAlignment="Left" Padding="12,8" Margin="0,8,0,0" />
+   </StackPanel>
+  </DataTemplate>
+ </Window.Resources>
+ <Grid x:Name="DailyDragSurface" AllowDrop="True" PreviewDragEnter="OnDailyPreviewDragOver" PreviewDragOver="OnDailyPreviewDragOver" PreviewDragLeave="OnDailyPreviewDragLeave" PreviewDrop="OnDailyPreviewDrop" DragEnter="OnDailyDragOutside" DragOver="OnDailyDragOutside" Drop="OnDailyDragOutside" QueryContinueDrag="OnDailyQueryContinueDrag">
+  <Grid.ColumnDefinitions><ColumnDefinition Width="206" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+  <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+   <Grid Margin="18,30,18,22">
+    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+    <StackPanel>
+     <Button x:Name="MascotButton" Width="80" Height="80" HorizontalAlignment="Left" Margin="4,0,0,12"
+             Click="OnChangeMascotPose" ToolTip="点击切换菜鸡动作" AutomationProperties.Name="菜鸡：小跑，点击切换动作">
+      <Button.Style>
+       <Style TargetType="Button">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+         <Border x:Name="Tile" CornerRadius="18" Background="{DynamicResource MascotBackground}" BorderBrush="{DynamicResource MascotBorderBrush}" BorderThickness="1"
+                 RenderTransformOrigin="0.5,0.5">
+          <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+         </Border>
+         <ControlTemplate.Triggers>
+          <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Tile" Property="Background" Value="{DynamicResource MascotHoverBackground}" /></Trigger>
+          <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Tile" Property="BorderBrush" Value="{DynamicResource Accent}" /></Trigger>
+          <Trigger Property="IsPressed" Value="True">
+           <Setter TargetName="Tile" Property="Background" Value="{DynamicResource MascotPressedBackground}" />
+           <Setter TargetName="Tile" Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="0.96" ScaleY="0.96" /></Setter.Value></Setter>
+          </Trigger>
+         </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+       </Style>
+      </Button.Style>
+      <Image x:Name="MascotImage" Source="/AzurAssistant;component/assets/branding/cabbird-64.png" Width="76" Height="76"
+             RenderOptions.BitmapScalingMode="NearestNeighbor" RenderTransformOrigin="0.5,0.5">
+       <Image.RenderTransform><ScaleTransform x:Name="MascotScale" /></Image.RenderTransform>
+      </Image>
+     </Button>
+     <TextBlock Text="蔚蓝助手" FontSize="19" FontWeight="SemiBold" Margin="4,0,0,6" />
+     <TextBlock Text="蓝色星原：旅谣自动化辅助" Foreground="{DynamicResource Muted}" FontSize="11" Margin="4,0,0,0" />
+    </StackPanel>
+    <StackPanel Grid.Row="1" Margin="0,30,0,0">
+     <RadioButton x:Name="HomeNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="home" Checked="OnNavigate" IsChecked="{Binding IsHomePage, Mode=OneWay}" AutomationProperties.Name="主页">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE80F;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="主页" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
+     <RadioButton x:Name="DailyNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="daily" Checked="OnNavigate" IsChecked="{Binding IsDailyPage, Mode=OneWay}" AutomationProperties.Name="一条龙">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8FD;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="一条龙" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
+     <RadioButton x:Name="RealtimeNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="realtime" Checked="OnNavigate" IsChecked="{Binding IsRealtimePage, Mode=OneWay}" AutomationProperties.Name="实时辅助">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE945;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="实时辅助" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
+     <RadioButton x:Name="MapNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="navigation" Checked="OnNavigate" IsChecked="{Binding IsNavigationPage, Mode=OneWay}" AutomationProperties.Name="导航测试">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE707;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="导航测试" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
+     <RadioButton x:Name="RoutesNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="routes" Checked="OnNavigate" IsChecked="{Binding IsRoutesPage, Mode=OneWay}" AutomationProperties.Name="路线管理">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8AB;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="路线管理" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
+     <RadioButton x:Name="SettingsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="settings" Checked="OnNavigate" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" AutomationProperties.Name="设置">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
+    </StackPanel>
+    <StackPanel Grid.Row="3" Margin="5,0,0,0">
+     <Border Background="{DynamicResource DividerBrush}" Height="1" Margin="0,0,0,16" />
+     <TextBlock Text="AZUR ASSISTANT" Foreground="{DynamicResource Subtle}" FontSize="10" FontWeight="SemiBold" />
+     <TextBlock Text="v0.1.0 beta" Foreground="{DynamicResource Subtle}" FontSize="11" Margin="0,6,0,0" />
+    </StackPanel>
+   </Grid>
+  </Border>
+  <Grid Grid.Column="1" Margin="30,28,30,18">
+   <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" MinHeight="180" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+   <Grid Margin="0,0,0,20">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <TextBlock Text="{Binding PageTitle}" FontSize="28" FontWeight="SemiBold" />
+    <TextBlock x:Name="SettingsRestartHint" Grid.Column="1" Text="修改设置需重启助手生效" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource Muted}" FontSize="11" VerticalAlignment="Center" Margin="18,0,16,0" TextTrimming="CharacterEllipsis" />
+    <Border Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="16" Padding="12,7">
+     <StackPanel Orientation="Horizontal">
+      <Ellipse Width="7" Height="7" Margin="0,0,7,0"><Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Fill" Value="{DynamicResource InactiveInk}" /><Style.Triggers><DataTrigger Binding="{Binding IsLive}" Value="True"><Setter Property="Fill" Value="{DynamicResource SuccessInk}" /></DataTrigger><DataTrigger Binding="{Binding IsFaulted}" Value="True"><Setter Property="Fill" Value="{DynamicResource WarningInk}" /></DataTrigger></Style.Triggers></Style></Ellipse.Style></Ellipse>
+      <TextBlock Text="{Binding StateText}" FontSize="12" />
+     </StackPanel>
+    </Border>
+   </Grid>
+   <Border Grid.Row="1" Style="{StaticResource Card}" Padding="20,16" Margin="0,0,0,16" Visibility="{Binding IsHomePage, Converter={StaticResource BoolVisibility}}">
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="48" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+     <Border Width="38" Height="38" CornerRadius="10" Background="{DynamicResource SelectedBackground}" VerticalAlignment="Top"><TextBlock Text="&#xE7F4;" FontFamily="Segoe Fluent Icons" FontSize="20" Foreground="{DynamicResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+     <StackPanel Grid.Column="1" Margin="8,0,15,0"><TextBlock Text="AzurPromilia.exe" FontWeight="SemiBold" FontSize="15" /><TextBlock Text="{Binding Message}" Foreground="{DynamicResource Muted}" Margin="0,6,0,0" FontSize="12" TextWrapping="Wrap" /></StackPanel>
+     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+      <Button Content="停止预览" Click="OnStop" IsEnabled="{Binding CanStop}" Padding="14,10" Margin="0,0,8,0" />
+      <Button Content="{Binding ConnectLabel}" Click="OnConnect" IsEnabled="{Binding CanConnect}" Style="{StaticResource PrimaryAction}" Padding="18,10" />
+     </StackPanel>
+    </Grid>
+   </Border>
+   <Border x:Name="FeatureCard" Grid.Row="2" Style="{StaticResource Card}" Margin="0,0,0,16" Padding="22,18">
+    <Grid>
+     <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,6,0">
+      <Grid>
+       <StackPanel x:Name="HomePage" Visibility="{Binding IsHomePage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="功能" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,16" />
+        <Grid Margin="0,0,0,14">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+         <StackPanel Margin="0,0,14,0"><TextBlock Text="日常一条龙" FontSize="14" FontWeight="SemiBold" /><TextBlock Text="{Binding DailySelectionText}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,7,0,0" TextWrapping="Wrap" /></StackPanel>
+         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="配置" Click="OnNavigate" Tag="daily" Padding="14,9" Margin="0,0,8,0" /><Button x:Name="StartDailyButton" Content="开始" Click="OnStartDaily" IsEnabled="{Binding CanStartDaily}" Style="{StaticResource PrimaryAction}" AutomationProperties.Name="开始日常一条龙" /></StackPanel>
+        </Grid>
+        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,14" />
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+         <StackPanel Margin="0,0,14,0"><TextBlock Text="实时辅助" FontSize="14" FontWeight="SemiBold" /><TextBlock Text="{Binding RealtimeSelectionText}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,7,0,0" TextWrapping="Wrap" /></StackPanel>
+         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="配置" Click="OnNavigate" Tag="realtime" Padding="14,9" Margin="0,0,8,0" /><Button x:Name="StartRealtimeButton" Content="开始" Click="OnStartRealtime" IsEnabled="{Binding CanStartRealtime}" Style="{StaticResource PrimaryAction}" AutomationProperties.Name="开始实时辅助" /></StackPanel>
+        </Grid>
+       </StackPanel>
+       <StackPanel x:Name="DailyPage" Visibility="{Binding IsDailyPage, Converter={StaticResource BoolVisibility}}">
+        <Grid Margin="0,0,0,12"><TextBlock Text="日常一条龙" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" /><Button x:Name="DailyPageStartButton" Content="运行一条龙" Click="OnStartDaily" IsEnabled="{Binding CanStartDaily}" Style="{StaticResource PrimaryAction}" HorizontalAlignment="Right" /></Grid>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,10" Margin="0,0,0,7">
+         <CheckBox x:Name="LaunchGameOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding LaunchGame}" AutomationProperties.Name="启动游戏"><StackPanel><TextBlock Text="启动游戏" FontWeight="SemiBold" /><TextBlock Text="{Binding LaunchPathHint}" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding LaunchPathHint}" /></StackPanel></CheckBox>
+        </Border>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,11" Margin="0,0,0,7"><CheckBox x:Name="EnterGameOption" Content="进入游戏" Style="{StaticResource FeatureOption}" IsChecked="{Binding EnterGame}" /></Border>
+        <TextBlock Text="拖动右侧手柄调整执行顺序" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,10" />
+        <ItemsControl x:Name="DailyTaskList" ItemsSource="{Binding OrderedDailyTasks}">
+         <ItemsControl.ItemTemplate><DataTemplate>
+          <Border x:Name="DailyDropZone" Margin="0,5" Background="Transparent" AllowDrop="True" DragEnter="OnDailyDragOver" DragOver="OnDailyDragOver" DragLeave="OnDailyDragLeave" Drop="OnDailyDrop">
+           <Grid>
+            <Border x:Name="DailyTaskTile" Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,11">
+             <StackPanel>
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+               <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Style="{StaticResource FeatureOption}" AutomationProperties.AutomationId="{Binding Id}" />
+               <ToggleButton x:Name="TaskSettingsToggle" Grid.Column="1" IsChecked="{Binding IsExpanded}" Visibility="{Binding HasSettings, Converter={StaticResource BoolVisibility}}" Style="{StaticResource TaskSettingsToggleStyle}" ToolTip="展开或收起此任务设置" AutomationProperties.Name="展开或收起任务设置" />
+               <Border x:Name="TaskDragHandle" Grid.Column="2" Background="Transparent" Padding="14,0" Cursor="SizeAll" ToolTip="拖动排序" PreviewMouseLeftButtonDown="OnDailyDragStart" PreviewMouseMove="OnDailyDragMove"><TextBlock Text="☰" Foreground="{DynamicResource HandleInk}" FontSize="16" VerticalAlignment="Center" /></Border>
+              </Grid>
+              <ContentControl Content="{Binding Owner}" Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibility}}">
+               <ContentControl.Style><Style TargetType="ContentControl"><Style.Triggers>
+                <DataTrigger Binding="{Binding Id}" Value="daily-commissions"><Setter Property="ContentTemplate" Value="{StaticResource DailyCommissionSettingsTemplate}" /></DataTrigger>
+                <DataTrigger Binding="{Binding Id}" Value="weekly-echoes"><Setter Property="ContentTemplate" Value="{StaticResource WeeklyCommissionSettingsTemplate}" /></DataTrigger>
+                <DataTrigger Binding="{Binding Id}" Value="crisis-raids"><Setter Property="ContentTemplate" Value="{StaticResource CrisisCommissionSettingsTemplate}" /></DataTrigger>
+                <DataTrigger Binding="{Binding Id}" Value="story-commissions"><Setter Property="ContentTemplate" Value="{StaticResource StoryCommissionSettingsTemplate}" /></DataTrigger>
+               </Style.Triggers></Style></ContentControl.Style>
+              </ContentControl>
+             </StackPanel>
+            </Border>
+            <Border x:Name="DropBefore" Height="3" CornerRadius="1.5" Background="{DynamicResource DropIndicatorBrush}" Margin="10,0" VerticalAlignment="Top" IsHitTestVisible="False" Visibility="Collapsed"><Border.RenderTransform><TranslateTransform Y="-6.5" /></Border.RenderTransform></Border>
+            <Border x:Name="DropAfter" Height="3" CornerRadius="1.5" Background="{DynamicResource DropIndicatorBrush}" Margin="10,0" VerticalAlignment="Bottom" IsHitTestVisible="False" Visibility="Collapsed"><Border.RenderTransform><TranslateTransform Y="6.5" /></Border.RenderTransform></Border>
+           </Grid>
+          </Border>
+         </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Border x:Name="ExitGameRow" Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,11" Margin="0,5,0,0">
+         <StackPanel>
+          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+           <CheckBox x:Name="ExitGameOption" Content="关闭游戏" Style="{StaticResource FeatureOption}" IsChecked="{Binding ExitGame}" ToolTip="一条龙结束后关闭游戏" />
+           <ToggleButton x:Name="ExitGameSettingsToggle" Grid.Column="1" IsChecked="{Binding ExitGameSettingsExpanded}"
+            Style="{StaticResource TaskSettingsToggleStyle}" ToolTip="展开或收起关闭游戏设置" AutomationProperties.Name="展开或收起关闭游戏设置" />
+          </Grid>
+          <StackPanel x:Name="ExitGameSettingsPanel" Visibility="{Binding ExitGameSettingsExpanded, Converter={StaticResource BoolVisibility}}" Margin="0,16,0,2">
+           <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,14" />
+           <StackPanel Orientation="Horizontal">
+            <TextBlock Text="关闭前等待时间（秒）" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <TextBox x:Name="ExitGameDelayBox" Style="{StaticResource CompactTextBox}" Width="120" Text="{Binding ExitGameDelayText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="关闭前等待时间（秒）" />
+            <TextBlock Text="0–3600 秒" Foreground="{DynamicResource Muted}" FontSize="11" VerticalAlignment="Center" Margin="12,0,0,0" />
+           </StackPanel>
+           <TextBlock x:Name="ExitGameDelayErrorText" Text="{Binding ExitGameDelayError}" Foreground="{DynamicResource WarningInk}" FontSize="11" TextWrapping="Wrap"
+            Visibility="{Binding HasExitGameDelayError, Converter={StaticResource BoolVisibility}}" Margin="0,6,0,0" />
+           <CheckBox x:Name="CloseAssistantAfterExitGameOption" Content="游戏关闭后同时关闭蔚蓝助手" Style="{StaticResource FeatureOption}"
+            IsChecked="{Binding CloseAssistantAfterExitGame}" Margin="0,14,0,0" />
+          </StackPanel>
+         </StackPanel>
+        </Border>
+       </StackPanel>
+       <StackPanel x:Name="RealtimePage" Visibility="{Binding IsRealtimePage, Converter={StaticResource BoolVisibility}}">
+        <Grid Margin="0,0,0,12"><TextBlock Text="辅助选项" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" /><Button x:Name="RealtimePageStartButton" Content="运行实时辅助" Click="OnStartRealtime" IsEnabled="{Binding CanStartRealtime}" Style="{StaticResource PrimaryAction}" HorizontalAlignment="Right" /></Grid>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,10" Margin="0,0,0,8"><CheckBox x:Name="AutoSkipDialogueOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoSkipDialogue}" AutomationProperties.Name="自动跳过对话"><StackPanel><TextBlock Text="自动跳过对话" FontWeight="SemiBold" /><TextBlock Text="识别剧情画面后点击快进箭头" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,4,0,0" /></StackPanel></CheckBox></Border>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,10"><CheckBox x:Name="AutoPickupOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoPickup}" AutomationProperties.Name="自动拾取采集物"><StackPanel><TextBlock Text="自动拾取采集物" FontWeight="SemiBold" /><TextBlock Text="识别采集提示后按 F，剧情期间暂停采集" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,4,0,0" /></StackPanel></CheckBox></Border>
+       </StackPanel>
+       <StackPanel x:Name="NavigationPage" Visibility="{Binding IsNavigationPage, Converter={StaticResource BoolVisibility}}">
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="16,12" Margin="0,0,0,18">
+         <StackPanel>
+          <TextBlock Text="角色坐标" FontSize="12" Foreground="{DynamicResource Muted}" />
+          <TextBlock x:Name="NavigationMapLabel" Text="{Binding NavigationMapText}" FontSize="15" FontWeight="SemiBold" Margin="0,7,0,0" />
+          <TextBlock x:Name="NavigationCoordinateLabel" Text="{Binding NavigationCoordinateText}" FontSize="23" FontWeight="SemiBold" Margin="0,7,0,5" ToolTip="角色箭头朝向：北0°，东90°，南180°，西270°" />
+          <TextBlock Text="{Binding NavigationObservationText}" FontSize="11" Foreground="{DynamicResource Muted}" />
+          <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+           <Button x:Name="NavigationObserveButton" Content="开始定位" Click="OnNavigationObserve" IsEnabled="{Binding CanStartNavigation}" Padding="14,8" />
+           <Button Content="填入观测坐标" Click="OnUseObservedCoordinate" Padding="14,8" Margin="8,0,0,0" />
+          </StackPanel>
+         </StackPanel>
+        </Border>
+        <TextBlock Text="前往传送点" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <Grid Margin="0,0,0,18"><Grid.ColumnDefinitions><ColumnDefinition Width="160" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+         <ComboBox x:Name="NavigationMapSelector" ItemsSource="{Binding NavigationMaps}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedTeleportMap}" IsEnabled="{Binding CanConfigure}" Margin="0,0,10,0" AutomationProperties.Name="目标地图" />
+         <ComboBox x:Name="NavigationTeleportSelector" Grid.Column="1" ItemsSource="{Binding TeleportChoices}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedTeleport}" IsEnabled="{Binding CanConfigure}" Margin="0,0,12,0" AutomationProperties.Name="导航传送点" />
+         <Button x:Name="NavigationTeleportButton" Grid.Column="2" Content="传送" Click="OnNavigationTeleport" IsEnabled="{Binding CanStartNavigation}" Padding="18,8" />
+        </Grid>
+        <TextBlock Text="前往指定坐标" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <WrapPanel VerticalAlignment="Center">
+         <TextBlock Text="X" VerticalAlignment="Center" Margin="0,0,8,0" />
+         <TextBox x:Name="NavigationXBox" Text="{Binding NavigationX, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CompactTextBox}" Width="100" MaxLength="9" AutomationProperties.Name="目标X坐标" />
+         <TextBlock Text="Y" VerticalAlignment="Center" Margin="14,0,8,0" />
+         <TextBox x:Name="NavigationYBox" Text="{Binding NavigationY, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CompactTextBox}" Width="100" MaxLength="9" AutomationProperties.Name="目标Y坐标" />
+         <Button x:Name="NavigationMoveButton" Content="前往坐标" Click="OnNavigationMove" IsEnabled="{Binding CanMoveToCoordinate}" Padding="14,8" Margin="14,0,0,0" />
+        </WrapPanel>
+        <TextBlock Text="坐标属于角色当前地图。左上角为 (0, 0)，X 向右、Y 向下；夏露露村 0–2047，两张大地图 0–8191。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,10,0,0" />
+        <TextBlock Text="持续定位时先停止任务，再传送或移动。单点测试限起点 250 像素内，暂不绕障；多点行走请使用路线管理。角度：北0°、东90°。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,7,0,0" />
+       </StackPanel>
+       <StackPanel x:Name="RoutesPage" Visibility="{Binding IsRoutesPage, Converter={StaticResource BoolVisibility}}">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+         <Button x:Name="RouteRecordButton" Content="路线录制" Click="OnBeginRouteRecording" IsEnabled="{Binding CanBeginRoute}" Style="{StaticResource PrimaryAction}" />
+         <Button x:Name="RouteImportButton" Content="路线导入" Click="OnImportRoute" IsEnabled="{Binding CanBeginRoute}" Margin="10,0,0,0" />
+        </StackPanel>
+        <TextBlock Text="{Binding RouteMessage}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,14" />
+        <StackPanel x:Name="RouteRecordingPanel" Visibility="{Binding IsRecordingRoute, Converter={StaticResource BoolVisibility}}">
+         <TextBlock Text="{Binding RecordingMapText}" FontWeight="SemiBold" Margin="0,0,0,10" />
+         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+          <Button x:Name="RouteCaptureButton" Content="记录当前点" Click="OnCaptureRoutePoint" IsEnabled="{Binding CanCaptureRoutePoint}" />
+          <Button Content="取消录制" Click="OnCancelRouteRecording" IsEnabled="{Binding CanCaptureRoutePoint}" Margin="10,0,0,0" />
+         </StackPanel>
+         <ItemsControl ItemsSource="{Binding RecordedPoints}" IsEnabled="{Binding CanCaptureRoutePoint}">
+          <ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,0,0,6">
+           <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="115" /><ColumnDefinition Width="115" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+           <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" Margin="0,0,10,0" AutomationProperties.Name="点位名称" />
+           <TextBlock Grid.Column="1" Text="{Binding X, StringFormat=X {0:F2}}" VerticalAlignment="Center" />
+           <TextBlock Grid.Column="2" Text="{Binding Y, StringFormat=Y {0:F2}}" VerticalAlignment="Center" />
+           <Button Grid.Column="3" Content="移除" Click="OnRemoveRoutePoint" Padding="10,5" />
+          </Grid></DataTemplate></ItemsControl.ItemTemplate>
+         </ItemsControl>
+         <TextBlock Text="路线名称" FontWeight="SemiBold" Margin="0,12,0,7" />
+         <TextBox x:Name="RouteNameBox" Text="{Binding RouteName, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" IsEnabled="{Binding CanCaptureRoutePoint}" />
+         <CheckBox x:Name="RouteAutoPickupBox" Content="运行时开启自动拾取辅助" IsChecked="{Binding RouteAutoPickup}" IsEnabled="{Binding CanCaptureRoutePoint}" Margin="0,12,0,12" />
+         <Button x:Name="RouteSaveButton" Content="完成并保存路线" Click="OnSaveRecordedRoute" IsEnabled="{Binding CanSaveRoute}" HorizontalAlignment="Left" Style="{StaticResource PrimaryAction}" Margin="0,0,0,20" />
+        </StackPanel>
+        <TextBlock Text="已保存路线" FontSize="15" FontWeight="SemiBold" Margin="0,4,0,10" />
+        <ComboBox x:Name="RouteSelector" ItemsSource="{Binding SavedRoutes}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedRoute}" IsEnabled="{Binding CanBeginRoute}" />
+        <TextBlock Text="{Binding SelectedRouteDescription}" Foreground="{DynamicResource Muted}" Margin="0,9,0,10" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+         <Button x:Name="RouteRunButton" Content="运行路线" Click="OnRunRoute" IsEnabled="{Binding CanRunRoute}" Style="{StaticResource PrimaryAction}" />
+         <Button Content="导出 JSON" Click="OnExportRoute" IsEnabled="{Binding CanRunRoute}" Margin="10,0,0,0" />
+        </StackPanel>
+        <ItemsControl ItemsSource="{Binding SelectedRoutePoints}"><ItemsControl.ItemTemplate><DataTemplate>
+         <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="115" /><ColumnDefinition Width="115" /></Grid.ColumnDefinitions>
+          <TextBlock Text="{Binding Name}" /><TextBlock Grid.Column="1" Text="{Binding X, StringFormat=X {0:F2}}" /><TextBlock Grid.Column="2" Text="{Binding Y, StringFormat=Y {0:F2}}" />
+         </Grid>
+        </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        <TextBlock Text="同地图路线依次前往各点。开头跳跃一次，途中自动转向前进；请在转弯和障碍附近补点，当前不自动绕障。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
+       </StackPanel>
+       <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />
+        <Grid Margin="0,0,0,20"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+         <Border Background="{DynamicResource TileBackground}" BorderBrush="{DynamicResource InputBorderBrush}" BorderThickness="1" CornerRadius="7" Padding="10,9" Margin="0,0,8,0"><TextBox x:Name="GameExecutablePathBox" Text="{Binding GameExecutablePath, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent" Padding="0" FontSize="12" VerticalContentAlignment="Center" ToolTip="{Binding GameExecutablePath}" AutomationProperties.Name="游戏启动文件路径" /></Border>
+         <Button x:Name="ChooseGameExecutableButton" Grid.Column="1" Content="选择文件" Click="OnChooseGameExecutable" Padding="14,9" />
+        </Grid>
+        <CheckBox x:Name="AutoConnectOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoConnect}" Content="启动助手后自动连接游戏画面" Margin="0,0,0,18" />
+        <CheckBox x:Name="AutoRunDailyOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoRunDaily}" Content="启动助手后自动运行一条龙" Margin="0,0,0,18" />
+        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,4,0,20" />
+        <CheckBox x:Name="LowPerformanceModeOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding LowPerformanceMode}" Margin="0,0,0,18">
+         <StackPanel><TextBlock Text="低配模式" FontWeight="SemiBold" /><TextBlock Text="低配设备可开启，降低任务执行速度" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
+        </CheckBox>
+        <CheckBox x:Name="DisablePreviewOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding DisablePreview}" Margin="0,0,0,18">
+         <StackPanel><TextBlock Text="关闭画面预览" FontWeight="SemiBold" /><TextBlock Text="关闭后隐藏首页画面预览" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
+        </CheckBox>
+        <CheckBox x:Name="DarkModeOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding DarkMode}">
+         <StackPanel><TextBlock Text="深色模式" FontWeight="SemiBold" /><TextBlock Text="使用深色背景与浅色文字" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
+        </CheckBox>
+        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
+        <TextBlock Text="任务快捷键" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="支持自定义快捷键" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,0,12" />
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+         <TextBlock Text="暂停 / 继续" VerticalAlignment="Center" Margin="0,0,20,10" />
+         <TextBox x:Name="PauseHotkeyBox" Grid.Column="1" Tag="pause" Text="{Binding PauseHotkeyText, Mode=OneWay}" IsReadOnly="True" IsReadOnlyCaretVisible="False" Style="{StaticResource CompactTextBox}" Width="160" Margin="0,0,0,10" AutomationProperties.Name="暂停或继续快捷键" ToolTip="可单独使用 F 键，或同时按住 Ctrl / Alt；可附加 Shift" PreviewKeyDown="OnHotkeyKeyDown" GotKeyboardFocus="OnHotkeyFocusChanged" LostKeyboardFocus="OnHotkeyFocusChanged" />
+         <TextBlock Grid.Row="1" Text="停止所有任务" VerticalAlignment="Center" Margin="0,0,20,0" />
+         <TextBox x:Name="StopHotkeyBox" Grid.Row="1" Grid.Column="1" Tag="stop" Text="{Binding StopHotkeyText, Mode=OneWay}" IsReadOnly="True" IsReadOnlyCaretVisible="False" Style="{StaticResource CompactTextBox}" Width="160" AutomationProperties.Name="停止所有任务快捷键" ToolTip="可单独使用 F 键，或同时按住 Ctrl / Alt；可附加 Shift" PreviewKeyDown="OnHotkeyKeyDown" GotKeyboardFocus="OnHotkeyFocusChanged" LostKeyboardFocus="OnHotkeyFocusChanged" />
+        </Grid>
+        <TextBlock x:Name="HotkeyValidationMessage" Text="{Binding HotkeyError}" Visibility="{Binding HasHotkeyError, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource WarningInk}" FontSize="11" TextWrapping="Wrap" Margin="0,9,0,0" />
+        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
+        <TextBlock Text="程序更新" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
+        <CheckBox x:Name="AutoUpdateOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoUpdate}" Margin="0,0,0,14">
+         <StackPanel><TextBlock Text="自动更新" FontWeight="SemiBold" /><TextBlock Text="每天首次启动时检查，有更新时提醒" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
+        </CheckBox>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+         <TextBlock Text="更新源" VerticalAlignment="Center" Margin="0,0,12,0" />
+         <ComboBox x:Name="UpdateSourceBox" Width="120" SelectedIndex="0" IsEnabled="{Binding CanCheckUpdates}" AutomationProperties.Name="更新源"><ComboBoxItem Content="GitHub" /></ComboBox>
+         <Button x:Name="CheckUpdatesButton" Content="检查更新" Click="OnCheckUpdates" IsEnabled="{Binding CanCheckUpdates}" Padding="14,7" Margin="12,0,0,0" />
+         <Button Content="取消" Click="OnCancelUpdate" Visibility="{Binding IsUpdateBusy, Converter={StaticResource BoolVisibility}}" Padding="14,7" Margin="8,0,0,0" />
+        </StackPanel>
+        <TextBlock Text="{Binding UpdateStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" />
+       </StackPanel>
+      </Grid>
+     </ScrollViewer>
+     <StackPanel Grid.Row="1" Margin="0,14,0,0">
+      <TextBlock Text="{Binding SettingsError}" Visibility="{Binding HasSettingsError, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource WarningInk}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+      <Grid>
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+       <TextBlock Text="{Binding TaskStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" />
+       <StackPanel Grid.Column="1" Orientation="Horizontal">
+        <Button Content="以管理员重启" Click="OnRestartElevated" Visibility="{Binding RequiresElevation, Converter={StaticResource BoolVisibility}}" Padding="12,7" Margin="0,0,8,0" />
+        <Button x:Name="CancelTaskButton" Content="停止任务" Click="OnCancelTask" IsEnabled="{Binding CanStopTask}" Padding="14,7" ToolTip="{Binding StopTaskTooltip}" />
+       </StackPanel>
+      </Grid>
+     </StackPanel>
+    </Grid>
+   </Border>
+   <Grid x:Name="ConsolePanels" Grid.Row="3" Height="252" Visibility="{Binding IsHomePage, Converter={StaticResource BoolVisibility}}">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*" />
+     <ColumnDefinition x:Name="PreviewGapColumn"><ColumnDefinition.Style><Style TargetType="ColumnDefinition"><Setter Property="Width" Value="20" /><Style.Triggers><DataTrigger Binding="{Binding ShowPreview}" Value="False"><Setter Property="Width" Value="0" /></DataTrigger></Style.Triggers></Style></ColumnDefinition.Style></ColumnDefinition>
+     <ColumnDefinition x:Name="PreviewColumn"><ColumnDefinition.Style><Style TargetType="ColumnDefinition"><Setter Property="Width" Value="300" /><Style.Triggers><DataTrigger Binding="{Binding ShowPreview}" Value="False"><Setter Property="Width" Value="0" /></DataTrigger></Style.Triggers></Style></ColumnDefinition.Style></ColumnDefinition>
+    </Grid.ColumnDefinitions>
+    <Border x:Name="LogPanel" Style="{StaticResource Card}" Padding="20,18">
+     <Grid><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+      <Grid Margin="0,0,0,12"><TextBlock Text="日志" FontSize="15" FontWeight="SemiBold" /><Button Content="打开文件夹" Click="OnOpenLogs" HorizontalAlignment="Right" FontSize="10" Padding="8,4" /></Grid>
+      <Grid Grid.Row="1"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+      <TextBlock Text="{Binding LogError}" Visibility="{Binding HasLogError, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,0,0,10" TextWrapping="Wrap" />
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+       <ItemsControl ItemsSource="{Binding Logs}"><ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,13" LineHeight="19" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+      </ScrollViewer>
+      </Grid>
+     </Grid>
+    </Border>
+    <Border x:Name="PreviewPanel" Grid.Column="2" Style="{StaticResource Card}" Padding="14,14,14,12" Visibility="{Binding ShowPreview, Converter={StaticResource BoolVisibility}}">
+     <StackPanel>
+      <Grid Margin="2,0,2,12"><TextBlock Text="游戏画面" FontSize="14" FontWeight="SemiBold" /><TextBlock Text="实时预览" HorizontalAlignment="Right" Foreground="{DynamicResource Muted}" FontSize="11" VerticalAlignment="Center" /></Grid>
+      <Border Background="{DynamicResource PreviewBackground}" CornerRadius="7" Height="150" ClipToBounds="True">
+       <Grid>
+        <Image Source="{Binding PreviewImage}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" AutomationProperties.Name="游戏实时画面" />
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding ShowPlaceholder, Converter={StaticResource BoolVisibility}}">
+         <TextBlock Text="&#xE714;" FontFamily="Segoe Fluent Icons" Foreground="{DynamicResource PreviewMuted}" FontSize="28" HorizontalAlignment="Center" /><TextBlock Text="{Binding PreviewHint}" Foreground="{DynamicResource PreviewInk}" FontSize="12" Margin="0,12,0,0" />
+        </StackPanel>
+       </Grid>
+      </Border>
+      <TextBlock Text="{Binding FrameInfo}" FontSize="11" Foreground="{DynamicResource Muted}" Margin="2,12,0,0" />
+      <TextBlock Text="{Binding FrameTime}" FontSize="10" Foreground="{DynamicResource Subtle}" Margin="2,5,0,0" />
+     </StackPanel>
+    </Border>
+   </Grid>
+   <TextBlock Grid.Row="4" Text="画面仅在本机显示" Visibility="{Binding ShowPreviewFootnote, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource Subtle}" FontSize="10" HorizontalAlignment="Right" Margin="0,14,2,0" />
+  </Grid>
+  <Canvas x:Name="DailyDragOverlay" Grid.ColumnSpan="2" Panel.ZIndex="100" IsHitTestVisible="False" ClipToBounds="True" Visibility="Collapsed">
+   <Image x:Name="DailyDragImage" Opacity="0.65" Stretch="Fill">
+    <Image.Effect><DropShadowEffect Color="#28464D" BlurRadius="12" ShadowDepth="3" Opacity="0.22" /></Image.Effect>
+   </Image>
+  </Canvas>
+ </Grid>
+</Window>
