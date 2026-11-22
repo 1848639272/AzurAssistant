@@ -556,6 +556,25 @@
         </StackPanel>
         <TextBlock Text="{Binding FlowSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
         <TextBlock Text="{Binding FlowStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,20" />
+        <TextBlock Text="任务编排（队列）" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="把一条龙、实时辅助、流程、轮椅方案串成一条队列依次执行；每项可设时间预算（分钟，0=不限），失败时可以选择停下或继续。放在程序目录的 chains 文件夹，可导入导出。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <ComboBox x:Name="ChainBox" Width="260" ItemsSource="{Binding Chains}" DisplayMemberPath="Name" SelectionChanged="OnChainSelectionChanged" Margin="0,0,8,0" AutomationProperties.Name="任务队列列表" />
+         <Button Content="运行队列" Click="OnRunChain" Padding="12,6" Margin="0,0,8,0" Style="{StaticResource PrimaryAction}" IsEnabled="{Binding CanRunChain}" />
+         <Button Content="导入队列…" Click="OnImportChain" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="导出" Click="OnExportChain" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="删除" Click="OnDeleteChain" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="刷新" Click="OnRefreshChains" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding ChainSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
+        <TextBlock Text="{Binding ChainStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <ItemsControl ItemsSource="{Binding ChainSteps}">
+         <ItemsControl.ItemTemplate><DataTemplate>
+          <TextBlock FontSize="11" Margin="0,1" Foreground="{DynamicResource Muted}">
+           <Run Text="{Binding Name, Mode=OneWay}" /><Run Text="  " /><Run Text="{Binding Seconds, StringFormat={}{0:F0}s, Mode=OneWay}" /><Run Text="  " /><Run Text="{Binding Message, Mode=OneWay}" />
+          </TextBlock>
+         </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
         <TextBlock Text="把“走到某个坐标 → 执行某个动作 → 再走到下一个坐标”串成流水线，可导入导出分享给别人。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
          <Button x:Name="WheelchairNewButton" Content="新建方案" Click="OnBeginWheelchairDraft" IsEnabled="{Binding CanBeginWheelchair}" Style="{StaticResource PrimaryAction}" />

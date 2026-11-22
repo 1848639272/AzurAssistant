@@ -684,6 +684,37 @@ public partial class MainWindow : Window
         _ = Dispatcher.BeginInvoke(Close);
     }
 
+    // ---- 任务编排 ----
+    private void OnChainSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        => ViewModel.SelectChain(ChainBox.SelectedIndex);
+
+    private async void OnRunChain(object sender, RoutedEventArgs e) => await ViewModel.RunSelectedChainAsync();
+    private void OnRefreshChains(object sender, RoutedEventArgs e) => ViewModel.RefreshChains();
+
+    private void OnImportChain(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog { Title = "导入任务队列", Filter = "队列 JSON (*.json)|*.json", CheckFileExists = true };
+        if (dialog.ShowDialog(this) == true) ViewModel.ImportChain(dialog.FileName);
+    }
+
+    private void OnExportChain(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedChain is not { } chain) { ViewModel.Report("请先选择一个队列。"); return; }
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出任务队列", Filter = "队列 JSON (*.json)|*.json", FileName = chain.Name + ".json",
+        };
+        if (dialog.ShowDialog(this) == true) ViewModel.ExportSelectedChain(dialog.FileName);
+    }
+
+    private void OnDeleteChain(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedChain is not { } chain) return;
+        if (MessageBox.Show(this, $"确定删除队列「{chain.Name}」吗？", "任务编排",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        ViewModel.DeleteSelectedChain();
+    }
+
     // ---- 流程 ----
     private void OnRunFlow(object sender, RoutedEventArgs e) => ViewModel.RunSelectedFlow();
     private void OnRefreshFlows(object sender, RoutedEventArgs e) => ViewModel.RefreshFlows();
