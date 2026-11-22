@@ -696,13 +696,22 @@
              <TextBlock Text="{Binding WhenText}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />
              <TextBlock Grid.Column="1" Text="{Binding TaskName}" VerticalAlignment="Center" FontSize="11" TextTrimming="CharacterEllipsis" />
              <TextBlock Grid.Column="2" Text="{Binding Reason}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" TextTrimming="CharacterEllipsis" Margin="6,0" />
-             <TextBlock Grid.Column="3" Text="{Binding SizeText}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />
+             <TextBlock Grid.Column="3" Text="{Binding SizeText}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,8,0" />
+             <Button Grid.Column="4" Content="复测" Click="OnRegressionOnFrame" Padding="10,4" FontSize="11" />
             </Grid>
            </Border>
           </DataTemplate></ItemsControl.ItemTemplate>
          </ItemsControl>
         </ScrollViewer>
 
+        <TextBlock Text="{Binding RegressionSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6" />
+        <ScrollViewer MaxHeight="160" VerticalScrollBarVisibility="Auto" Margin="0,0,0,18">
+         <ItemsControl ItemsSource="{Binding RegressionProbes}">
+          <ItemsControl.ItemTemplate><DataTemplate>
+           <TextBlock Text="{Binding Text}" FontFamily="Consolas, Microsoft YaHei UI" FontSize="11" Margin="0,1" />
+          </DataTemplate></ItemsControl.ItemTemplate>
+         </ItemsControl>
+        </ScrollViewer>
         <TextBlock Text="运行报表" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
         <TextBlock Text="{Binding RunReportSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

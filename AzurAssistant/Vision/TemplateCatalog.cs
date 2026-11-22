@@ -55,6 +55,13 @@ public sealed class TemplateCatalog
         }
     }
 
+    /// <summary>Ids declared by the manifest, in declaration order.</summary>
+    public IReadOnlyCollection<string> Ids => _manifest.Templates.Keys;
+
+    /// <summary>Configured threshold for one template.</summary>
+    public double ThresholdFor(string id) => _manifest.Templates.TryGetValue(id, out var definition)
+        ? definition.Threshold
+        : throw new ArgumentException($"未知模板：{id}", nameof(id));
     public void ValidateFrame(FrameSnapshot frame)
     {
         if (frame.Width != _manifest.ReferenceWidth || frame.Height != _manifest.ReferenceHeight)

@@ -722,11 +722,26 @@ public partial class MainWindow : Window
         ViewModel.DeleteFailureFrames();
     }
 
+    private void OnRegressionOnFrame(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: FailureFrameRow row }) return;
+        ViewModel.RunRegressionOnFrame(row);
+    }
+
     private void OnOpenFailureFrame(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
+        // The per-row 复测 button raises its own click; do not also open the image.
+        if (e.OriginalSource is DependencyObject source && FindAncestor<Button>(source) is not null) return;
         if (sender is not FrameworkElement { DataContext: FailureFrameRow row }) return;
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(row.ImagePath) { UseShellExecute = true }); }
         catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { ViewModel.Report("打开失败帧失败：" + ex.Message); }
+    }
+
+    private static T? FindAncestor<T>(DependencyObject node) where T : DependencyObject
+    {
+        for (var current = node; current is not null; current = System.Windows.Media.VisualTreeHelper.GetParent(current))
+            if (current is T match) return match;
+        return null;
     }
 
     private void OnRefreshRunHistory(object sender, RoutedEventArgs e) => ViewModel.RefreshRunHistory();

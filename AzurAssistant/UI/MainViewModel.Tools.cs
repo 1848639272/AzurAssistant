@@ -25,6 +25,8 @@ public sealed partial class MainViewModel
     public ObservableCollection<LanguagePack> LanguagePacks { get; } = [];
     public ObservableCollection<FailureFrameRow> FailureFrames { get; } = [];
     public ObservableCollection<RunRecord> RunHistory { get; } = [];
+    public ObservableCollection<TemplateProbe> RegressionProbes { get; } = [];
+    private string _regressionSummary = "";
 
     public LanguagePack? SelectedLanguagePack
     {
@@ -184,6 +186,26 @@ public sealed partial class MainViewModel
         RefreshFailureFrames();
         DebugStatus = $"已删除 {removed} 个失败帧。";
     }
+
+    /// <summary>Scores every template against a saved failure frame, so a broken template is obvious.</summary>
+    public void RunRegressionOnFrame(FailureFrameRow row)
+    {
+        RegressionProbes.Clear();
+        var frame = TemplateRegression.LoadImage(row.ImagePath);
+        if (frame is null)
+        {
+            _regressionSummary = "无法读取这一帧图片：" + row.ImagePath;
+            Notify(nameof(RegressionSummary));
+            return;
+        }
+        var report = TemplateRegression.Run(Path.Combine(AppContext.BaseDirectory, "assets"), frame);
+        foreach (var probe in report.Probes) RegressionProbes.Add(probe);
+        _regressionSummary = $"复测 {Path.GetFileName(row.ImagePath)}：{report.Summary}";
+        Notify(nameof(RegressionSummary));
+        Report(_regressionSummary);
+    }
+
+    public string RegressionSummary => _regressionSummary;
 
     // ---- 运行报表 ----
     public void RefreshRunHistory()
