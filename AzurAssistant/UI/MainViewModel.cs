@@ -509,6 +509,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
             if (page == "wheelchair") LoadWheelchairPlans();
             if (page == "schedule") RefreshSchedulePage();
             if (page == "tools") { RefreshLanguagePacks(); RefreshFailureFrames(); RefreshRunHistory(); }
+            if (page == "growth") LoadGrowthData();
             return false;
         }
         catch (Exception ex)

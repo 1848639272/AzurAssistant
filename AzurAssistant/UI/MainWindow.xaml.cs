@@ -678,6 +678,21 @@ public partial class MainWindow : Window
         _ = Dispatcher.BeginInvoke(Close);
     }
 
+    // ---- 养成计算 ----
+    private async void OnUpdateGrowthData(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show(this, "将从 promilia.wiki 下载最新养成数据并覆盖本地缓存，是否继续？", "养成数据",
+                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        await ViewModel.UpdateGrowthDataAsync(null);
+    }
+
+    private void OnImportGrowthData(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog { Title = "导入养成数据 JSON", Filter = "JSON (*.json)|*.json", CheckFileExists = true };
+        if (dialog.ShowDialog(this) != true) return;
+        ViewModel.ImportGrowthData(dialog.FileName);
+    }
+
     // ---- 工具与诊断 ----
     private void OnRefreshLanguagePacks(object sender, RoutedEventArgs e) => ViewModel.RefreshLanguagePacks();
 

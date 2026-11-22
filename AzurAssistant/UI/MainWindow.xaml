@@ -654,10 +654,61 @@
         <TextBlock Text="说明：到点时如果已有任务在运行，本次会跳过并记日志；助手中途退出不会补跑错过的任务。定时任务保存在程序目录的 schedule.json。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,6,0,0" />
        </StackPanel>
        <StackPanel x:Name="GrowthPage" Visibility="{Binding IsGrowthPage, Converter={StaticResource BoolVisibility}}">
-        <TextBlock Text="养成计算" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,10" />
-        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="16,14">
-         <TextBlock Text="这个页面先占位，内容待补充。" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" />
+        <TextBlock Text="养成计算" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+         <TextBlock Text="{Binding GrowthVersionText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,12,0" />
+         <Button Content="更新数据（promilia.wiki）" Click="OnUpdateGrowthData" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="导入本地 JSON…" Click="OnImportGrowthData" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding GrowthStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
+
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,0,14">
+         <StackPanel>
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="220" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="类型" VerticalAlignment="Center" />
+           <ComboBox Grid.Column="1" ItemsSource="{Binding GrowthModules}" SelectedItem="{Binding SelectedGrowthModule}" Margin="0,0,12,0" AutomationProperties.Name="养成类型" />
+          </Grid>
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="对象" VerticalAlignment="Center" />
+           <ComboBox Grid.Column="1" ItemsSource="{Binding GrowthEntries}" SelectedItem="{Binding SelectedGrowthEntry}" DisplayMemberPath="Title" AutomationProperties.Name="养成对象" />
+          </Grid>
+          <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="120" /><ColumnDefinition Width="90" /><ColumnDefinition Width="120" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="从" VerticalAlignment="Center" />
+           <TextBox Grid.Column="1" Text="{Binding GrowthFromLevel}" Margin="0,0,10,0" AutomationProperties.Name="当前等级" />
+           <TextBlock Grid.Column="2" Text="级　已有经验" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="3" Text="{Binding GrowthOwnedExp}" Margin="0,0,10,0" AutomationProperties.Name="当前经验" />
+           <TextBox Grid.Column="4" Text="{Binding GrowthFromRank}" AutomationProperties.Name="当前阶级" />
+           <TextBlock Grid.Column="5" Text="阶（源脉/角色阶级）" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" Margin="8,0,0,0" />
+          </Grid>
+          <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="120" /><ColumnDefinition Width="90" /><ColumnDefinition Width="120" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="到" VerticalAlignment="Center" />
+           <TextBox Grid.Column="1" Text="{Binding GrowthToLevel}" Margin="0,0,10,0" AutomationProperties.Name="目标等级" />
+           <TextBlock Grid.Column="2" Text="级" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="3" Text="{Binding GrowthToRank}" Margin="0,0,10,0" AutomationProperties.Name="目标阶级" />
+           <TextBlock Grid.Column="4" Text="阶" VerticalAlignment="Center" FontSize="11" />
+           <TextBlock Grid.Column="5" Text="（升阶材料按阶级区间累加）" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" Margin="8,0,0,0" />
+          </Grid>
+          <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding GrowthIncludeRunes}" Margin="0,0,0,4" AutomationProperties.Name="计入符文材料"><StackPanel><TextBlock Text="计入符文（星光）材料" FontWeight="SemiBold" /><TextBlock Text="每个阶级有 5 个符文的微粒与尤尼消耗" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+         </StackPanel>
         </Border>
+
+        <TextBlock Text="{Binding GrowthSummary}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <TextBlock Text="{Binding GrowthCrystalText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <TextBlock Text="缺口清单（「拥有」可改，自动算还差多少）" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,6" />
+        <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
+         <ItemsControl ItemsSource="{Binding GrowthMaterials}">
+          <ItemsControl.ItemTemplate><DataTemplate>
+           <Border Background="{DynamicResource TileBackground}" CornerRadius="7" Padding="10,6" Margin="0,0,0,5">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="200" /><ColumnDefinition Width="110" /><ColumnDefinition Width="120" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+             <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="12" />
+             <TextBlock Grid.Column="1" Text="{Binding Need, StringFormat=需要 {0:N0}}" VerticalAlignment="Center" FontSize="11" />
+             <TextBox Grid.Column="2" Text="{Binding Owned}" Margin="0,0,10,0" FontSize="11" AutomationProperties.Name="拥有数量" />
+             <TextBlock Grid.Column="3" Text="{Binding Suggestion}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />
+            </Grid>
+           </Border>
+          </DataTemplate></ItemsControl.ItemTemplate>
+         </ItemsControl>
+        </ScrollViewer>
        </StackPanel>
        <StackPanel x:Name="GachaPage" Visibility="{Binding IsGachaPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="抽卡分析" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,10" />
