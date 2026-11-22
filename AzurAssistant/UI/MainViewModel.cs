@@ -16,7 +16,7 @@ namespace AzurAssistant.UI;
 
 public sealed partial class MainViewModel(CapturePreviewService preview, DailyLogStore? log = null, TaskRunner? runner = null, IGameTask? task = null,
     Action? restartElevated = null, AutomationController? automation = null, bool runDailyFromCommandLine = false,
-    Func<bool>? restartAssistant = null, string? routesDirectory = null, string? actionsDirectory = null, string? wheelchairDirectory = null) : INotifyPropertyChanged
+    Func<bool>? restartAssistant = null, string? routesDirectory = null, string? actionsDirectory = null, string? wheelchairDirectory = null, string? schedulePath = null) : INotifyPropertyChanged
 {
     private FrameSnapshot? _displayedFrame;
     private PreviewSnapshot? _lastSnapshot;

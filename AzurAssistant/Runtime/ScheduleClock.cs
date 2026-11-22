@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.IO;
+using System.Media;
 
 namespace AzurAssistant.Runtime;
 
@@ -12,8 +14,7 @@ public static class ScheduleClock
         time = default;
         if (string.IsNullOrWhiteSpace(text)) return false;
         var trimmed = text.Trim();
-        if (!TimeSpan.TryParseExact(trimmed.Length <= 4 ? trimmed : trimmed, ["h\\:mm", "hh\\:mm"], CultureInfo.InvariantCulture, out var parsed))
-            return false;
+        if (!TimeSpan.TryParseExact(trimmed, ["h\\:mm", "hh\\:mm"], CultureInfo.InvariantCulture, out var parsed)) return false;
         if (parsed < TimeSpan.Zero || parsed >= TimeSpan.FromDays(1)) return false;
         time = parsed;
         return true;
@@ -26,17 +27,17 @@ public static class ScheduleClock
         return string.Equals(text, "daily", StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>Next fire time, or null when the schedule is disabled or its configuration is invalid.</summary>
-    public static DateTimeOffset? Next(AssistantSettings settings, DateTimeOffset now, DateTimeOffset? lastRun)
+    /// <summary>Next fire time for one task, or null when it is disabled or misconfigured.</summary>
+    public static DateTimeOffset? Next(ScheduleTask task, DateTimeOffset now, DateTimeOffset? lastRun)
     {
-        if (!settings.ScheduleEnabled) return null;
-        if (!TryParseMode(settings.ScheduleMode, out var mode)) return null;
+        if (!task.Enabled) return null;
+        if (!TryParseMode(task.Mode, out var mode)) return null;
         if (mode == ScheduleModeKind.Interval)
         {
-            var interval = TimeSpan.FromMinutes(Math.Clamp(settings.ScheduleIntervalMinutes, 1, 1440));
+            var interval = TimeSpan.FromMinutes(Math.Clamp(task.IntervalMinutes, 1, 1440));
             return (lastRun is { } previous && previous <= now ? previous : now) + interval;
         }
-        if (!TryParseTime(settings.ScheduleTime, out var time)) return null;
+        if (!TryParseTime(task.Time, out var time)) return null;
         var candidate = new DateTimeOffset(now.Year, now.Month, now.Day, time.Hours, time.Minutes, 0, now.Offset);
         // A run already happened at or after today's slot: wait for tomorrow's slot.
         if (lastRun is { } last && last.Date >= now.Date && candidate <= last) candidate = candidate.AddDays(1);
@@ -44,15 +45,28 @@ public static class ScheduleClock
         return candidate;
     }
 
-    public static string Describe(AssistantSettings settings)
+    public static string Describe(ScheduleTask task)
     {
-        if (!settings.ScheduleEnabled) return "未启用";
-        if (!TryParseMode(settings.ScheduleMode, out var mode)) return "配置无效";
+        if (!task.Enabled) return "已停用";
+        if (!TryParseMode(task.Mode, out var mode)) return "配置无效";
         if (mode == ScheduleModeKind.Interval)
         {
-            var minutes = Math.Clamp(settings.ScheduleIntervalMinutes, 1, 1440);
-            return minutes % 60 == 0 ? $"每 {minutes / 60} 小时一次" : $"每 {minutes} 分钟一次";
+            var minutes = Math.Clamp(task.IntervalMinutes, 1, 1440);
+            return minutes % 60 == 0 ? $"每 {minutes / 60} 小时" : $"每 {minutes} 分钟";
         }
-        return TryParseTime(settings.ScheduleTime, out var time) ? $"每天 {time.Hours:00}:{time.Minutes:00}" : "时刻无效";
+        return TryParseTime(task.Time, out var time) ? $"每天 {time.Hours:00}:{time.Minutes:00}" : "时刻无效";
     }
+
+    /// <summary>Startup chime presets, selectable separately for start and finish.</summary>
+    public static IReadOnlyList<string> SoundPresets { get; } = ["chime", "soft", "deep", "double"];
+
+    public static string SoundLabel(string? preset) => preset switch
+    {
+        "soft" => "柔和",
+        "deep" => "低沉",
+        "double" => "双响",
+        _ => "清脆",
+    };
+
+    public static string NormalizeSound(string? preset) => SoundPresets.Contains(preset) ? preset! : "chime";
 }

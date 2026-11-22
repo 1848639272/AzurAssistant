@@ -1,4 +1,4 @@
-﻿namespace AzurAssistant.Runtime;
+namespace AzurAssistant.Runtime;
 
 public sealed record AssistantSettings
 {
@@ -37,4 +37,8 @@ public sealed record AssistantSettings
     /// <summary>"daily" 或 "route:名称" / "action:名称" / "wheelchair:名称"。</summary>
     public string ScheduleTarget { get; init; } = "daily";
     public bool ScheduleSound { get; init; } = true;
+    /// <summary>开始提示音预设：chime / soft / deep / double。</summary>
+    public string ScheduleStartSound { get; init; } = "chime";
+    /// <summary>结束提示音预设：chime / soft / deep / double。</summary>
+    public string ScheduleEndSound { get; init; } = "soft";
 }

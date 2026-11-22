@@ -1,4 +1,4 @@
-﻿using AzurAssistant.Platform;
+using AzurAssistant.Platform;
 using AzurAssistant.Runtime;
 using AzurAssistant.UI;
 using AzurAssistant.Features.StartJourney;
@@ -62,7 +62,8 @@ public static class Bootstrapper
             catch (System.ComponentModel.Win32Exception ex) { log.Write($"管理员重启未完成：{ex.Message}"); }
         }, automation, runDailyFromCommandLine, restartAssistant: () => AssistantRestarter.TryRestart(log.Write),
             actionsDirectory: Path.Combine(dataDirectory, "actions"),
-            wheelchairDirectory: Path.Combine(dataDirectory, "wheelchair")));
+            wheelchairDirectory: Path.Combine(dataDirectory, "wheelchair"),
+            schedulePath: Path.Combine(dataDirectory, "schedule.json")));
         try
         {
             var source = JsonSerializer.Deserialize<UpdateSource>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "update-source.json")))!;

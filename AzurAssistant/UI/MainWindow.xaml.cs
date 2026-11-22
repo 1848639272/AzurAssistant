@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Media;
@@ -134,8 +135,40 @@ public partial class MainWindow : Window
         ThemePalette.Apply(this, ViewModel.DarkMode);
         ViewModel.Refresh();
     }
-    private void OnApplyScheduleTiming(object sender, RoutedEventArgs e) => ViewModel.ApplyScheduleTiming();
-    private void OnRunScheduleNow(object sender, RoutedEventArgs e) => ViewModel.RunScheduleNow();
+    private void OnAddScheduleTask(object sender, RoutedEventArgs e) => ViewModel.AddScheduleTask();
+    private void OnRemoveScheduleTask(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: ScheduleTaskDraft draft }) ViewModel.RemoveScheduleTask(draft);
+    }
+    private void OnSaveScheduleTasks(object sender, RoutedEventArgs e) => ViewModel.SaveScheduleTasks();
+    private void OnRunSelectedSchedule(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: ScheduleTaskDraft draft }) ViewModel.SelectedScheduleDraft = draft;
+        ViewModel.RunSelectedScheduleNow();
+    }
+    private void OnRunFirstSchedule(object sender, RoutedEventArgs e) => ViewModel.RunFirstScheduleNow();
+    private void OnPreviewStartSound(object sender, RoutedEventArgs e) => ViewModel.PreviewStartSound();
+    private void OnPreviewEndSound(object sender, RoutedEventArgs e) => ViewModel.PreviewEndSound();
+    private void OnOpenPackFolder(object sender, RoutedEventArgs e) => OpenFolder(Path.Combine(AppContext.BaseDirectory, "语言包"));
+    private void OnOpenScriptFolder(object sender, RoutedEventArgs e) => OpenFolder(Path.Combine(AppContext.BaseDirectory, "脚本"));
+    private void OnOpenLanguageHelp(object sender, RoutedEventArgs e)
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "语言包", "README.txt");
+        if (!File.Exists(path)) { ViewModel.Report("找不到 语言包\\README.txt"); return; }
+        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        { ViewModel.Report("无法打开说明文件：" + path); }
+    }
+    private void OpenFolder(string path)
+    {
+        try
+        {
+            Directory.CreateDirectory(path);
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or IOException or UnauthorizedAccessException)
+        { ViewModel.Report("无法打开目录：" + path); }
+    }
     private void OnOpenGitHub(object sender, RoutedEventArgs e) => OpenExternal("https://github.com/1848639272/AzurAssistant");
     private void OnOpenIssues(object sender, RoutedEventArgs e) => OpenExternal("https://github.com/1848639272/AzurAssistant/issues");
     private void OnCopyQqGroup(object sender, RoutedEventArgs e)

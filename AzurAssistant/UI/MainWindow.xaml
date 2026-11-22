@@ -324,13 +324,26 @@
          <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
          <StackPanel Margin="0,0,14,0"><TextBlock Text="实时辅助" FontSize="14" FontWeight="SemiBold" /><TextBlock Text="{Binding RealtimeSelectionText}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,7,0,0" TextWrapping="Wrap" /></StackPanel>
          <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="配置" Click="OnNavigate" Tag="realtime" Padding="14,9" Margin="0,0,8,0" /><Button x:Name="StartRealtimeButton" Content="开始" Click="OnStartRealtime" IsEnabled="{Binding CanStartRealtime}" Style="{StaticResource PrimaryAction}" AutomationProperties.Name="开始实时辅助" /></StackPanel>
-        </Grid>
+         </Grid>
         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,14" />
         <Grid>
          <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
          <StackPanel Margin="0,0,14,0"><TextBlock Text="定时执行" FontSize="14" FontWeight="SemiBold" /><TextBlock Text="{Binding ScheduleSummary}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,7,0,0" TextWrapping="Wrap" /></StackPanel>
-         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="配置" Click="OnNavigate" Tag="schedule" Padding="14,9" Margin="0,0,8,0" /><Button x:Name="RunScheduleNowButton" Content="立即执行" Click="OnRunScheduleNow" Style="{StaticResource PrimaryAction}" AutomationProperties.Name="立即执行定时任务" /></StackPanel>
+         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="配置" Click="OnNavigate" Tag="schedule" Padding="14,9" Margin="0,0,8,0" /><Button x:Name="RunScheduleNowButton" Content="立即执行" Click="OnRunFirstSchedule" Style="{StaticResource PrimaryAction}" AutomationProperties.Name="立即执行定时任务" /></StackPanel>
         </Grid>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="12,8" Margin="0,12,0,0">
+         <ScrollViewer MaxHeight="128" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <ItemsControl ItemsSource="{Binding ScheduleSummaries}">
+           <ItemsControl.ItemTemplate><DataTemplate>
+            <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="130" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+             <TextBlock Grid.Column="1" Text="{Binding Detail}" Foreground="{DynamicResource Muted}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="8,0" />
+             <TextBlock Grid.Column="2" Text="{Binding NextText}" Foreground="{DynamicResource Subtle}" FontSize="11" />
+            </Grid>
+           </DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+         </ScrollViewer>
+        </Border>
        </StackPanel>
        <StackPanel x:Name="DailyPage" Visibility="{Binding IsDailyPage, Converter={StaticResource BoolVisibility}}">
         <Grid Margin="0,0,0,12"><TextBlock Text="日常一条龙" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" /><Button x:Name="DailyPageStartButton" Content="运行一条龙" Click="OnStartDaily" IsEnabled="{Binding CanStartDaily}" Style="{StaticResource PrimaryAction}" HorizontalAlignment="Right" /></Grid>
@@ -557,33 +570,47 @@
         <TextBlock Text="运行前请让角色进入方案所属地图。方案只记录坐标和动作名称，分享给别人时对方需要先导入同名动作；导出方案会把动作引用一起带过去，但动作文件本身需要单独分享。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
        </StackPanel>
        <StackPanel x:Name="SchedulePage" Visibility="{Binding IsSchedulePage, Converter={StaticResource BoolVisibility}}">
-        <TextBlock Text="让助手在指定时间自动跑你选的任务：一条龙、某条路线、某个动作，或某个轮椅方案。到点启动、结束后响一声提示。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
-        <CheckBox x:Name="ScheduleEnabledOption" Content="启用定时执行" IsChecked="{Binding ScheduleEnabled}" FontWeight="SemiBold" Margin="0,0,0,16" AutomationProperties.Name="启用定时执行" />
-        <TextBlock Text="执行内容" FontWeight="SemiBold" Margin="0,0,0,7" />
-        <ComboBox x:Name="ScheduleTargetBox" ItemsSource="{Binding ScheduleChoices}" SelectedItem="{Binding ScheduleChoice}" DisplayMemberPath="Label" AutomationProperties.Name="定时执行内容" />
-        <TextBlock Text="触发方式" FontWeight="SemiBold" Margin="0,18,0,7" />
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-         <RadioButton x:Name="ScheduleDailyMode" GroupName="ScheduleMode" Content="每天固定时刻" IsChecked="{Binding ScheduleUseDaily}" Margin="0,0,20,0" />
-         <RadioButton x:Name="ScheduleIntervalMode" GroupName="ScheduleMode" Content="每隔一段时间" IsChecked="{Binding ScheduleUseInterval}" />
+        <TextBlock Text="可以建多条定时任务，每条自己命名：选执行内容、设每天时刻或固定间隔。到点由助手自动启动，结束会响一声提示。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
+        <ScrollViewer MaxHeight="330" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,6">
+         <ItemsControl x:Name="ScheduleTaskList" ItemsSource="{Binding ScheduleDrafts}">
+          <ItemsControl.ItemTemplate><DataTemplate>
+           <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="10,8" Margin="0,0,0,7">
+            <Grid>
+             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="150" /><ColumnDefinition Width="190" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="62" /><ColumnDefinition Width="58" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+             <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" VerticalAlignment="Center" ToolTip="是否启用" AutomationProperties.Name="启用该任务" />
+             <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="40" Margin="6,0,8,0" ToolTip="任务名称" AutomationProperties.Name="任务名称" />
+             <ComboBox Grid.Column="2" ItemsSource="{Binding DataContext.ScheduleChoices, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding Target}" SelectedValuePath="Key" DisplayMemberPath="Label" Margin="0,0,8,0" AutomationProperties.Name="执行内容" />
+             <CheckBox Grid.Column="3" Content="按间隔" IsChecked="{Binding UseInterval}" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="不勾选=每天固定时刻；勾选=每隔一段时间" AutomationProperties.Name="按间隔执行" />
+             <TextBox Grid.Column="4" Text="{Binding TimeText, UpdateSourceTrigger=PropertyChanged}" MaxLength="5" Margin="0,0,8,0" ToolTip="每天时刻 HH:mm" AutomationProperties.Name="每天时刻" />
+             <TextBox Grid.Column="5" Text="{Binding IntervalText, UpdateSourceTrigger=PropertyChanged}" MaxLength="4" Margin="0,0,8,0" ToolTip="间隔分钟 1-1440" AutomationProperties.Name="间隔分钟" />
+             <StackPanel Grid.Column="6" Orientation="Horizontal">
+              <Button Content="立即执行" Click="OnRunSelectedSchedule" Padding="10,5" Margin="0,0,6,0" />
+              <Button Content="移除" Click="OnRemoveScheduleTask" Padding="10,5" />
+             </StackPanel>
+            </Grid>
+           </Border>
+          </DataTemplate></ItemsControl.ItemTemplate>
+         </ItemsControl>
+        </ScrollViewer>
+        <TextBlock Text="列说明：第 2 列是任务名；第 3 列是要执行的内容；勾“按间隔”后填分钟数，不勾则按“每天时刻”执行。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+         <Button x:Name="AddScheduleTaskButton" Content="新增任务" Click="OnAddScheduleTask" Style="{StaticResource PrimaryAction}" />
+         <Button x:Name="SaveScheduleTasksButton" Content="保存任务" Click="OnSaveScheduleTasks" Margin="10,0,0,0" />
         </StackPanel>
+        <TextBlock Text="提示音" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <CheckBox x:Name="ScheduleSoundOption" Content="任务开始和结束时播放提示音" IsChecked="{Binding ScheduleSound}" Margin="0,0,0,10" AutomationProperties.Name="定时执行提示音" />
         <Grid Margin="0,0,0,8">
-         <Grid.ColumnDefinitions><ColumnDefinition Width="160" /><ColumnDefinition Width="120" /></Grid.ColumnDefinitions>
-         <TextBlock Text="每天时刻（HH:mm）" VerticalAlignment="Center" />
-         <TextBox x:Name="ScheduleTimeBox" Grid.Column="1" Text="{Binding ScheduleTimeText, UpdateSourceTrigger=PropertyChanged}" MaxLength="5" AutomationProperties.Name="每天执行时刻" />
+         <Grid.ColumnDefinitions><ColumnDefinition Width="90" /><ColumnDefinition Width="140" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="90" /><ColumnDefinition Width="140" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+         <TextBlock Text="开始声音" VerticalAlignment="Center" />
+         <ComboBox Grid.Column="1" ItemsSource="{Binding SoundChoices}" SelectedItem="{Binding ScheduleStartSoundChoice}" DisplayMemberPath="Label" AutomationProperties.Name="开始提示音" />
+         <Button Grid.Column="2" Content="试听" Click="OnPreviewStartSound" Padding="12,6" Margin="8,0,18,0" AutomationProperties.Name="试听开始提示音" />
+         <TextBlock Grid.Column="3" Text="结束声音" VerticalAlignment="Center" />
+         <ComboBox Grid.Column="4" ItemsSource="{Binding SoundChoices}" SelectedItem="{Binding ScheduleEndSoundChoice}" DisplayMemberPath="Label" AutomationProperties.Name="结束提示音" />
+         <Button Grid.Column="5" Content="试听" Click="OnPreviewEndSound" Padding="12,6" Margin="8,0,0,0" AutomationProperties.Name="试听结束提示音" />
         </Grid>
-        <Grid Margin="0,0,0,8">
-         <Grid.ColumnDefinitions><ColumnDefinition Width="160" /><ColumnDefinition Width="120" /></Grid.ColumnDefinitions>
-         <TextBlock Text="间隔分钟（1–1440）" VerticalAlignment="Center" />
-         <TextBox x:Name="ScheduleIntervalBox" Grid.Column="1" Text="{Binding ScheduleIntervalText, UpdateSourceTrigger=PropertyChanged}" MaxLength="4" AutomationProperties.Name="执行间隔分钟" />
-        </Grid>
-        <CheckBox x:Name="ScheduleSoundOption" Content="任务开始和结束时播放提示音" IsChecked="{Binding ScheduleSound}" Margin="0,10,0,0" AutomationProperties.Name="定时执行提示音" />
-        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-         <Button x:Name="ScheduleApplyButton" Content="应用时间设置" Click="OnApplyScheduleTiming" Style="{StaticResource PrimaryAction}" />
-         <Button Content="立即执行一次" Click="OnRunScheduleNow" Margin="10,0,0,0" />
-        </StackPanel>
-        <TextBlock Text="{Binding ScheduleNextText}" FontWeight="SemiBold" Margin="0,16,0,0" />
-        <TextBlock Text="{Binding ScheduleStatus}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,8,0,0" />
-        <TextBlock Text="说明：执行内容里的“一条龙”会用一条龙页面当前的勾选和顺序；“路线/动作/轮椅”会按名称找到对应的文件后启动。到点时如果已有任务在运行，本次会跳过并记日志。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
+        <TextBlock Text="{Binding SoundSummary}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,0,14" />
+        <TextBlock Text="{Binding ScheduleStatus}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,10" />
+        <TextBlock Text="说明：到点时如果已有任务在运行，本次会跳过并记日志；助手中途退出不会补跑错过的任务。定时任务保存在程序目录的 schedule.json。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,6,0,0" />
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />
@@ -603,6 +630,14 @@
         <CheckBox x:Name="DarkModeOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding DarkMode}" Checked="OnDarkModeChanged" Unchecked="OnDarkModeChanged">
          <StackPanel><TextBlock Text="深色模式" FontWeight="SemiBold" /><TextBlock Text="纯黑背景、白色文字、明亮灰边框；勾选后立即生效，无需重启" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
         </CheckBox>
+        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
+        <TextBlock Text="游戏语言切换（实验）" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="游戏的语言资源打包在 AssetBundle 里，无法在程序内直接切换。把语言包放进“语言包\”目录后，运行 脚本\Switch-GameLanguage.ps1 即可替换或还原（脚本会自动探测游戏目录并先备份）。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+         <Button x:Name="OpenPackFolderButton" Content="打开语言包目录" Click="OnOpenPackFolder" Style="{StaticResource PrimaryAction}" />
+         <Button x:Name="OpenScriptFolderButton" Content="打开脚本目录" Click="OnOpenScriptFolder" Margin="10,0,0,0" />
+         <Button x:Name="OpenLanguageHelpButton" Content="查看说明" Click="OnOpenLanguageHelp" Margin="10,0,0,0" />
+        </StackPanel>
         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
         <TextBlock Text="任务快捷键" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
         <TextBlock Text="支持自定义快捷键" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,0,12" />
