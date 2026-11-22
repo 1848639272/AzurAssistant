@@ -684,6 +684,47 @@ public partial class MainWindow : Window
         _ = Dispatcher.BeginInvoke(Close);
     }
 
+    // ---- 模板标注 ----
+    private void OnAnnotateTemplate(object sender, RoutedEventArgs e)
+    {
+        var frame = ViewModel.FailureFrames.FirstOrDefault()?.ImagePath;
+        if (frame is null)
+        {
+            var pick = new OpenFileDialog { Title = "选择一张画面截图", Filter = "图片 (*.png;*.jpg)|*.png;*.jpg", CheckFileExists = true };
+            if (pick.ShowDialog(this) != true) return;
+            frame = pick.FileName;
+        }
+        var window = new TemplateAnnotatorWindow(frame, ViewModel.TemplatePackDirectories) { Owner = this };
+        if (window.ShowDialog() == true)
+        {
+            ViewModel.Report("模板标注：" + window.ResultMessage);
+            MessageBox.Show(this, window.ResultMessage, "模板标注", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+    // ---- 配置档 ----
+    private void OnSaveProfile(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SaveCurrentProfile();
+    }
+
+    private void OnApplyProfile(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show(this, $"将把配置档「{ViewModel.SelectedProfile?.Name}」覆盖到当前数据（现有数据会先备份），继续吗？",
+                "应用配置档", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        if (!ViewModel.ApplySelectedProfile(out var message)) { MessageBox.Show(this, message, "配置档", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+        if (MessageBox.Show(this, message + "\n\n现在重启助手吗？", "配置档", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes) == MessageBoxResult.Yes)
+            ViewModel.TryRestartAssistant();
+    }
+
+    private void OnDeleteProfile(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedProfile is null) return;
+        if (MessageBox.Show(this, $"确定删除配置档「{ViewModel.SelectedProfile.Name}」吗？", "配置档",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        ViewModel.DeleteSelectedProfile();
+    }
+
     // ---- 养成计算 ----
     private async void OnUpdateGrowthData(object sender, RoutedEventArgs e)
     {

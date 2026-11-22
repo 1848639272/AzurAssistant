@@ -736,7 +736,8 @@
         <TextBlock Text="游戏更新后模板可能失效：下载新的模板包 zip（或从 update-source.json 的 TemplatePackUrl 拉取），会先逐个校验再替换，旧文件自动备份到 assets_backup_时间戳。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
          <Button Content="选择模板包 zip…" Click="OnInstallTemplatePackFile" Padding="12,6" Margin="0,0,8,0" />
-         <Button Content="从配置地址更新" Click="OnInstallTemplatePackFromSource" Padding="12,6" />
+         <Button Content="从配置地址更新" Click="OnInstallTemplatePackFromSource" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="模板标注…" Click="OnAnnotateTemplate" Padding="12,6" />
         </StackPanel>
         <TextBlock Text="{Binding TemplatePackSourceText}" Foreground="{DynamicResource Muted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,6" />
         <TextBlock Text="{Binding TemplateStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18" />
@@ -771,6 +772,18 @@
           </DataTemplate></ItemsControl.ItemTemplate>
          </ItemsControl>
         </ScrollViewer>
+        <TextBlock Text="配置档" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="把当前设置、定时任务、动作录制、轮椅方案整体存成一份配置档，换账号或换设备时一键切回。应用时会先把现有数据备份到 profiles\_backup_时间戳。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <ComboBox Width="220" ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" DisplayMemberPath="Name" Margin="0,0,8,0" AutomationProperties.Name="配置档列表" />
+         <Button Content="应用" Click="OnApplyProfile" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="删除" Click="OnDeleteProfile" Padding="12,6" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+         <TextBox Width="220" Text="{Binding ProfileName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" AutomationProperties.Name="配置档名称" ToolTip="新配置档的名字" />
+         <Button Content="保存当前" Click="OnSaveProfile" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding ProfileStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18" />
         <TextBlock Text="运行报表" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
         <TextBlock Text="{Binding RunReportSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

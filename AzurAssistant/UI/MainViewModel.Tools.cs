@@ -28,6 +28,9 @@ public sealed partial class MainViewModel
     public ObservableCollection<TemplateProbe> RegressionProbes { get; } = [];
     private string _regressionSummary = "";
     private string _templateStatus = "";
+    private string _profileName = "";
+    private string _profileStatus = "";
+    private ProfileInfo? _selectedProfile;
 
     public LanguagePack? SelectedLanguagePack
     {
@@ -211,6 +214,20 @@ public sealed partial class MainViewModel
     // ---- 模板热更新 ----
     public string TemplateStatus { get => _templateStatus; private set { _templateStatus = value; Notify(); } }
 
+    /// <summary>Asset packs (folders with recognition.json) that a template can be added to.</summary>
+    public IReadOnlyList<string> TemplatePackDirectories
+    {
+        get
+        {
+            var root = Path.Combine(AppContext.BaseDirectory, "assets");
+            if (!Directory.Exists(root)) return [];
+            return Directory.GetDirectories(root)
+                .Where(directory => File.Exists(Path.Combine(directory, "recognition.json")))
+                .OrderBy(directory => directory, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+    }
+
     public string TemplatePackSourceText
     {
         get
@@ -228,6 +245,70 @@ public sealed partial class MainViewModel
         TemplateStatus = result.Message;
         Report("模板包：" + result.Message);
     }
+
+    // ---- 配置档 ----
+    public ObservableCollection<ProfileInfo> Profiles { get; } = [];
+
+    private string DataDirectory => Path.GetDirectoryName(SoundsDirectory) ?? AppContext.BaseDirectory;
+
+    public string ProfileName
+    {
+        get => _profileName;
+        set { _profileName = value ?? ""; Notify(); }
+    }
+
+    public ProfileInfo? SelectedProfile
+    {
+        get => _selectedProfile;
+        set { if (!ReferenceEquals(_selectedProfile, value)) { _selectedProfile = value; Notify(); } }
+    }
+
+    public string ProfileStatus { get => _profileStatus; private set { _profileStatus = value; Notify(); } }
+
+    public void RefreshProfiles()
+    {
+        var store = new ProfileStore(DataDirectory);
+        Profiles.Clear();
+        foreach (var profile in store.List()) Profiles.Add(profile);
+        SelectedProfile ??= Profiles.FirstOrDefault();
+        ProfileStatus = Profiles.Count == 0
+            ? "还没有配置档。填个名字点「保存当前」即可把当前设置/定时任务/动作/轮椅方案存成一份。"
+            : $"共 {Profiles.Count} 份配置档。";
+    }
+
+    public void SaveCurrentProfile()
+    {
+        var store = new ProfileStore(DataDirectory);
+        if (!store.Save(ProfileName)) { ProfileStatus = store.Error ?? "保存失败。"; return; }
+        ProfileStatus = $"已保存配置档「{ProfileName.Trim()}」。";
+        RefreshProfiles();
+    }
+
+    /// <summary>Applies a profile and reports whether a restart is required (it always is).</summary>
+    public bool ApplySelectedProfile(out string message)
+    {
+        message = "";
+        if (SelectedProfile is null) { message = "请先选择一个配置档。"; ProfileStatus = message; return false; }
+        var store = new ProfileStore(DataDirectory);
+        if (!store.Apply(SelectedProfile.Name, out var backup)) { message = store.Error ?? "应用失败。"; ProfileStatus = message; return false; }
+        message = $"已应用配置档「{SelectedProfile.Name}」，原数据备份在 {Path.GetFileName(backup)}。重启助手后生效。";
+        ProfileStatus = message;
+        return true;
+    }
+
+    public void DeleteSelectedProfile()
+    {
+        if (SelectedProfile is null) { ProfileStatus = "请先选择一个配置档。"; return; }
+        var name = SelectedProfile.Name;
+        var store = new ProfileStore(DataDirectory);
+        if (!store.Delete(name)) { ProfileStatus = store.Error ?? "删除失败。"; return; }
+        _selectedProfile = null;
+        ProfileStatus = $"已删除配置档「{name}」。";
+        RefreshProfiles();
+    }
+
+    /// <summary>Restarts the assistant through the same path the settings page uses.</summary>
+    public bool TryRestartAssistant() => restartAssistant?.Invoke() == true;
 
     // ---- 运行报表 ----
     public void RefreshRunHistory()

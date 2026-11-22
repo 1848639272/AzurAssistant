@@ -1,0 +1,43 @@
+<Window x:Class="AzurAssistant.UI.TemplateAnnotatorWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="模板标注" Width="1180" Height="780" WindowStartupLocation="CenterOwner"
+ Background="{DynamicResource WindowBackground}" Foreground="{DynamicResource Ink}"
+ FontFamily="Microsoft YaHei UI, Segoe UI" FontSize="13">
+ <Grid Margin="14">
+  <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="300" /></Grid.ColumnDefinitions>
+  <Border Grid.Column="0" Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}"
+          BorderThickness="1" CornerRadius="8" Margin="0,0,12,0">
+   <ScrollViewer x:Name="ImageScroller" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+    <Grid x:Name="ImageHost" HorizontalAlignment="Left" VerticalAlignment="Top">
+     <Image x:Name="FrameImage" Stretch="None" />
+     <Canvas x:Name="Overlay" Background="Transparent"
+             MouseLeftButtonDown="OnSelectStart" MouseMove="OnSelectMove" MouseLeftButtonUp="OnSelectEnd" />
+    </Grid>
+   </ScrollViewer>
+  </Border>
+  <StackPanel Grid.Column="1">
+   <TextBlock Text="模板标注" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6" />
+   <TextBlock Text="在左边的画面上拖出一个框（要认的特征），然后填名字保存。保存后会自动写入该资产包的 recognition.json 并校验。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
+
+   <TextBlock Text="资产包" FontSize="12" Margin="0,0,0,4" />
+   <ComboBox x:Name="PackBox" Margin="0,0,0,10" AutomationProperties.Name="资产包" />
+
+   <TextBlock Text="模板名（字母/数字/-_）" FontSize="12" Margin="0,0,0,4" />
+   <TextBox x:Name="IdBox" Margin="0,0,0,10" AutomationProperties.Name="模板名" />
+
+   <TextBlock Text="阈值 0.5–0.99" FontSize="12" Margin="0,0,0,4" />
+   <TextBox x:Name="ThresholdBox" Text="0.80" Margin="0,0,0,10" AutomationProperties.Name="阈值" />
+
+   <TextBlock Text="选区（画面坐标）" FontSize="12" Margin="0,0,0,4" />
+   <TextBlock x:Name="SelectionText" Text="尚未选择" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,0,10" AutomationProperties.Name="选区" />
+
+   <TextBlock x:Name="StatusText" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" AutomationProperties.Name="标注状态" />
+
+   <StackPanel Orientation="Horizontal">
+    <Button Content="保存模板" Click="OnSave" Padding="14,7" Margin="0,0,8,0" Style="{StaticResource PrimaryAction}" />
+    <Button Content="取消" Click="OnCancel" Padding="14,7" />
+   </StackPanel>
+  </StackPanel>
+ </Grid>
+</Window>
