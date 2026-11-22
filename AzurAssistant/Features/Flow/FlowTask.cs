@@ -37,7 +37,6 @@ public sealed class FlowTask(INavigationRecognizer recognizer, FlowDefinition fl
         private NavigationMap? _map;
         private CoordinateMover? _mover;
         private ActionPlayer? _player;
-        private bool _missingMapReported;
 
         public void Log(string message) => context.Log(message);
 

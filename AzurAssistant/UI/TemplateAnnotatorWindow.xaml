@@ -18,7 +18,15 @@
   </Border>
   <StackPanel Grid.Column="1">
    <TextBlock Text="模板标注" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6" />
-   <TextBlock Text="在左边的画面上拖出一个框（要认的特征），然后填名字保存。保存后会自动写入该资产包的 recognition.json 并校验。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
+   <TextBlock Text="作用：从这张截图上抠一个「特征」存成模板，让助手以后能在画面里认出它。游戏更新后图标变了、或想自己加识别点，都用它。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6" />
+   <TextBlock FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,12">
+    <Run Text="① 在左边画面按住左键拖框，框住要认的图标/按钮/文字（别框纯色，会提示“太平了”）" /><LineBreak />
+    <Run Text="② 选资产包（模板写进哪个功能目录）" /><LineBreak />
+    <Run Text="③ 填模板名（字母/数字/-_，重名会覆盖）" /><LineBreak />
+    <Run Text="④ 填阈值（0.5–0.99，图标 0.80、文字 0.85 起步）" /><LineBreak />
+    <Run Text="⑤ 保存 → 自动裁图、算 SHA-256、写 recognition.json 并重新加载校验" /><LineBreak />
+    <Run Text="⑥ 回到「识别调试（失败帧）」对同一帧点「复测」，得分接近 1.000 即为成功" />
+   </TextBlock>
 
    <TextBlock Text="资产包" FontSize="12" Margin="0,0,0,4" />
    <ComboBox x:Name="PackBox" Margin="0,0,0,10" AutomationProperties.Name="资产包" />

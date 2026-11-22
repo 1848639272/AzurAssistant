@@ -545,7 +545,7 @@
        </StackPanel>
        <StackPanel x:Name="WheelchairPage" Visibility="{Binding IsWheelchairPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="流程（移动 / 点击 / 动作 / 等待 / 循环 / 条件）" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
-        <TextBlock Text="流程是可以嵌套的自动化脚本：按顺序移动到坐标、点击、播放录制动作、等待某个模板出现，并且支持「循环 N 次」「重复直到看到 X」「如果看到 X 才执行」。放在程序目录的 flows 文件夹，可导入导出分享。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <TextBlock Text="流程是可以嵌套的自动化脚本：按顺序移动/点击/播放动作/等待识别，并支持「循环 N 次」「重复直到看到 X」「如果看到 X 才执行」。放在程序目录的 flows 文件夹，可导入导出分享。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
          <ComboBox Width="260" ItemsSource="{Binding Flows}" SelectedItem="{Binding SelectedFlow}" DisplayMemberPath="Name" Margin="0,0,8,0" AutomationProperties.Name="流程列表" />
          <Button Content="运行" Click="OnRunFlow" Padding="12,6" Margin="0,0,8,0" Style="{StaticResource PrimaryAction}" />
@@ -554,10 +554,10 @@
          <Button Content="删除" Click="OnDeleteFlow" Padding="12,6" Margin="0,0,8,0" />
          <Button Content="刷新" Click="OnRefreshFlows" Padding="12,6" />
         </StackPanel>
-        <TextBlock Text="{Binding FlowSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
+        <TextBlock Text="步骤写法：move{x,y} · click{x,y} · action{action} · delay{durationMs} · wait{template,durationMs} · loop{repeat 或 template + body} · if{template + body}；可选 pack（资产包，默认 daily）、negate（反向判断）、body（子步骤）。完整说明见 流程编排说明.txt" Foreground="{DynamicResource Muted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,4" />        <TextBlock Text="{Binding FlowSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
         <TextBlock Text="{Binding FlowStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,20" />
         <TextBlock Text="任务编排（队列）" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
-        <TextBlock Text="把一条龙、实时辅助、流程、轮椅方案串成一条队列依次执行；每项可设时间预算（分钟，0=不限），失败时可以选择停下或继续。放在程序目录的 chains 文件夹，可导入导出。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <TextBlock Text="队列把 一条龙 / 实时辅助 / 流程 / 轮椅方案 串起来依次执行；每项可设时间预算（分钟，0=不限），失败时可选停下或继续。放在程序目录的 chains 文件夹，可导入导出。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
          <ComboBox x:Name="ChainBox" Width="260" ItemsSource="{Binding Chains}" DisplayMemberPath="Name" SelectionChanged="OnChainSelectionChanged" Margin="0,0,8,0" AutomationProperties.Name="任务队列列表" />
          <Button Content="运行队列" Click="OnRunChain" Padding="12,6" Margin="0,0,8,0" Style="{StaticResource PrimaryAction}" IsEnabled="{Binding CanRunChain}" />
@@ -566,7 +566,7 @@
          <Button Content="删除" Click="OnDeleteChain" Padding="12,6" Margin="0,0,8,0" />
          <Button Content="刷新" Click="OnRefreshChains" Padding="12,6" />
         </StackPanel>
-        <TextBlock Text="{Binding ChainSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
+        <TextBlock Text="每项字段：kind（daily / realtime / flow / wheelchair）、ref（流程或轮椅方案的名字，flow 与 wheelchair 必填）、budgetMinutes（时间预算，0=不限）；顶层 stopOnFailure=false 表示某项失败也继续。完整说明见 任务编排说明.txt" Foreground="{DynamicResource Muted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,4" />        <TextBlock Text="{Binding ChainSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
         <TextBlock Text="{Binding ChainStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
         <ItemsControl ItemsSource="{Binding ChainSteps}">
          <ItemsControl.ItemTemplate><DataTemplate>
@@ -764,7 +764,7 @@
         <TextBlock Text="{Binding DiagnosticsStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18" />
 
         <TextBlock Text="模板热更新" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
-        <TextBlock Text="游戏更新后模板可能失效：下载新的模板包 zip（或从 update-source.json 的 TemplatePackUrl 拉取），会先逐个校验再替换，旧文件自动备份到 assets_backup_时间戳。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <TextBlock Text="模板=一张小截图+搜索区域+阈值；游戏更新后图标变了，模板就对不上，表现为流程卡住或报「未找到 xxx」。热更新只换识别素材、不换程序：装一份新的素材包（zip）即可，装前会逐个校验 SHA-256，装坏的包一个文件都不会替换，旧素材自动备份到 assets_backup_时间戳。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
          <Button Content="选择模板包 zip…" Click="OnInstallTemplatePackFile" Padding="12,6" Margin="0,0,8,0" />
          <Button Content="从配置地址更新" Click="OnInstallTemplatePackFromSource" Padding="12,6" Margin="0,0,8,0" />
@@ -773,7 +773,7 @@
         <TextBlock Text="{Binding TemplatePackSourceText}" Foreground="{DynamicResource Muted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,6" />
         <TextBlock Text="{Binding TemplateStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18" />
         <TextBlock Text="识别调试（失败帧）" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
-        <TextBlock Text="任务失败时会自动保存最后一帧和原因。这里可以看是哪个模板没认出来，双击打开图片。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <TextBlock Text="任务失败时会自动保存最后一帧和原因。点「复测」会用这一帧重跑全部模板并列出得分与阈值——得分远低于阈值说明模板失效（用「模板标注…」重做），接近阈值说明可以把阈值调低一点。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
          <Button Content="刷新" Click="OnRefreshFailureFrames" Padding="12,6" Margin="0,0,8,0" />
          <Button Content="全部删除" Click="OnDeleteFailureFrames" Padding="12,6" />

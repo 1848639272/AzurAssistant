@@ -5,9 +5,12 @@ using AzurAssistant.Platform;
 
 namespace AzurAssistant.UI;
 
-/// <summary>Bottom-right notification that fades in, waits, and closes itself.</summary>
+/// <summary>Bottom-right notification that fades in, waits, and closes itself. Fits any resolution and DPI.</summary>
 public partial class ToastWindow : Window
 {
+    private const double PreferredWidth = 360;
+    private const double MinimumWidth = 200;
+    private const double Edge = 16;
     private readonly DispatcherTimer _close;
 
     public ToastWindow()
@@ -30,14 +33,23 @@ public partial class ToastWindow : Window
         _close.Start();
     }
 
-    /// <summary>Bottom-right corner of the monitor, above the taskbar area.</summary>
+    /// <summary>Bottom-right corner of the monitor work area, sized so it never exceeds the screen.</summary>
     public void PlaceOn(DisplayMonitor? monitor)
     {
         if (monitor is null) return;
-        Left = monitor.X + monitor.Width - ActualWidth - 24;
-        Top = monitor.Y + monitor.Height - ActualHeight - 72;
-        if (Left < monitor.X) Left = monitor.X + 8;
-        if (Top < monitor.Y) Top = monitor.Y + 8;
+        var workWidth = monitor.DipWorkWidth;
+        var workHeight = monitor.DipWorkHeight;
+        var width = Math.Clamp(workWidth - Edge * 2, MinimumWidth, PreferredWidth);
+        if (Math.Abs(Width - width) > 0.5) Width = width;
+        MaxHeight = Math.Max(120, workHeight - Edge * 3);
+        UpdateLayout();
+
+        var actualWidth = ActualWidth > 0 ? ActualWidth : width;
+        var actualHeight = ActualHeight > 0 ? ActualHeight : 90;
+        Left = monitor.DipWorkX + workWidth - actualWidth - Edge;
+        Top = monitor.DipWorkY + workHeight - actualHeight - Edge;
+        if (Left < monitor.DipWorkX) Left = monitor.DipWorkX;
+        if (Top < monitor.DipWorkY) Top = monitor.DipWorkY;
     }
 
     private void FadeOutAndClose()

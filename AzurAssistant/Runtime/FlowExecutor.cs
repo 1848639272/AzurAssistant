@@ -122,7 +122,7 @@ public sealed class FlowExecutor(IFlowHost host, TimeSpan? overallTimeout = null
 
     private async Task RunIfAsync(FlowStep step, int depth, CancellationToken token, Action count)
     {
-        var visible = await host.TemplateVisibleAsync(step.Pack, step.Template, token).ConfigureAwait(false);
+        var visible = await host.TemplateVisibleAsync(step.Pack, step.Template!, token).ConfigureAwait(false);
         var matches = visible != step.Negate;
         host.Log($"条件 {Describe(step)} → {(matches ? "成立" : "跳过")}");
         if (!matches) return;
