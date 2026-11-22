@@ -27,6 +27,7 @@ public sealed partial class MainViewModel
     public ObservableCollection<RunRecord> RunHistory { get; } = [];
     public ObservableCollection<TemplateProbe> RegressionProbes { get; } = [];
     private string _regressionSummary = "";
+    private string _templateStatus = "";
 
     public LanguagePack? SelectedLanguagePack
     {
@@ -206,6 +207,27 @@ public sealed partial class MainViewModel
     }
 
     public string RegressionSummary => _regressionSummary;
+
+    // ---- 模板热更新 ----
+    public string TemplateStatus { get => _templateStatus; private set { _templateStatus = value; Notify(); } }
+
+    public string TemplatePackSourceText
+    {
+        get
+        {
+            var url = TemplatePackUpdater.SourceUrl();
+            return string.IsNullOrWhiteSpace(url) ? "update-source.json 里没有配置 TemplatePackUrl" : url;
+        }
+    }
+
+    public async Task InstallTemplatePackAsync(string source)
+    {
+        TemplateStatus = "正在安装模板包…";
+        var updater = new TemplatePackUpdater(Path.Combine(AppContext.BaseDirectory, "assets"));
+        var result = await updater.InstallAsync(source, CancellationToken.None);
+        TemplateStatus = result.Message;
+        Report("模板包：" + result.Message);
+    }
 
     // ---- 运行报表 ----
     public void RefreshRunHistory()

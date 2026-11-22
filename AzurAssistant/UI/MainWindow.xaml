@@ -681,6 +681,14 @@
         <Button Content="导出诊断包…" Click="OnExportDiagnosticBundle" Padding="12,6" Margin="0,0,0,8" HorizontalAlignment="Left" />
         <TextBlock Text="{Binding DiagnosticsStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18" />
 
+        <TextBlock Text="模板热更新" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="游戏更新后模板可能失效：下载新的模板包 zip（或从 update-source.json 的 TemplatePackUrl 拉取），会先逐个校验再替换，旧文件自动备份到 assets_backup_时间戳。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <Button Content="选择模板包 zip…" Click="OnInstallTemplatePackFile" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="从配置地址更新" Click="OnInstallTemplatePackFromSource" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding TemplatePackSourceText}" Foreground="{DynamicResource Muted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,6" />
+        <TextBlock Text="{Binding TemplateStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18" />
         <TextBlock Text="识别调试（失败帧）" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
         <TextBlock Text="任务失败时会自动保存最后一帧和原因。这里可以看是哪个模板没认出来，双击打开图片。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

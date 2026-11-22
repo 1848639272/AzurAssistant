@@ -712,6 +712,31 @@ public partial class MainWindow : Window
             MessageBox.Show(this, "诊断包已导出：\n" + dialog.FileName, "蔚蓝助手", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
+    private async void OnInstallTemplatePackFile(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog { Title = "选择模板包", Filter = "Zip 压缩包 (*.zip)|*.zip", CheckFileExists = true };
+        if (dialog.ShowDialog(this) != true) return;
+        await InstallTemplatePackAsync(dialog.FileName);
+    }
+
+    private async void OnInstallTemplatePackFromSource(object sender, RoutedEventArgs e)
+    {
+        var url = TemplatePackUpdater.SourceUrl();
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            ViewModel.Report("update-source.json 里没有配置 TemplatePackUrl，请改用「选择模板包 zip…」。");
+            return;
+        }
+        await InstallTemplatePackAsync(url);
+    }
+
+    private async Task InstallTemplatePackAsync(string source)
+    {
+        if (MessageBox.Show(this, "即将替换识别模板（会先自动备份原文件）。确定继续吗？", "模板热更新",
+                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        await ViewModel.InstallTemplatePackAsync(source);
+    }
+
     private void OnRefreshFailureFrames(object sender, RoutedEventArgs e) => ViewModel.RefreshFailureFrames();
 
     private void OnDeleteFailureFrames(object sender, RoutedEventArgs e)
