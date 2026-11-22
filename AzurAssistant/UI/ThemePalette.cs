@@ -7,6 +7,7 @@ namespace AzurAssistant.UI;
 /// Window-scoped semantic colours shared by the production UI and independent WPF hosts.
 /// Brushes are mutable on purpose: opacity sliders only rewrite their alpha in place, so dragging a slider repaints
 /// instead of rebuilding the whole resource dictionary (which used to stall the UI on every tick).
+/// The accent colour can be overridden by the user and re-derives the accent foreground and the selected tint.
 /// </summary>
 public sealed class ThemePalette : ResourceDictionary
 {
@@ -36,20 +37,23 @@ public sealed class ThemePalette : ResourceDictionary
     private int _uiOpacity = 100;
     private int _textOpacity = 100;
     private int _backgroundOpacity = 100;
+    private Color _accent;
+    private Color _selectedBase;
 
-    public ThemePalette() : this(false, 100, 100, 100) { }
+    public ThemePalette() : this(false, 100, 100, 100, null) { }
 
-    private ThemePalette(bool dark, int uiOpacity, int textOpacity, int backgroundOpacity)
+    private ThemePalette(bool dark, int uiOpacity, int textOpacity, int backgroundOpacity, Color? accent)
     {
         Dark = dark;
-        AddBrush("WindowBackground", dark ? "#000000" : "#F6F8FA");
-        AddBrush("SidebarBackground", dark ? "#0A0A0A" : "#EFF3F5");
-        AddBrush("CardBackground", dark ? "#121212" : "#FFFFFF");
-        AddBrush("TileBackground", dark ? "#1C1C1C" : "#F7FAFA");
-        AddBrush("InputBackground", dark ? "#0D0D0D" : "#FFFFFF");
-        AddBrush("BorderBrush", dark ? "#6E6E6E" : "#E1E7EB");
+        // Deliberate contrast between the window fill and the surfaces, so the background slider is visible in both themes.
+        AddBrush("WindowBackground", dark ? "#000000" : "#E7EDF0");
+        AddBrush("SidebarBackground", dark ? "#0D0D0D" : "#DFE7EB");
+        AddBrush("CardBackground", dark ? "#1B1B1B" : "#FFFFFF");
+        AddBrush("TileBackground", dark ? "#262626" : "#F2F6F8");
+        AddBrush("InputBackground", dark ? "#141414" : "#FFFFFF");
+        AddBrush("BorderBrush", dark ? "#6E6E6E" : "#D2DEE4");
         AddBrush("InputBorderBrush", dark ? "#9A9A9A" : "#B5C7CA");
-        AddBrush("DividerBrush", dark ? "#4F4F4F" : "#E2ECEB");
+        AddBrush("DividerBrush", dark ? "#4F4F4F" : "#DCE6EA");
         AddBrush("Ink", dark ? "#FFFFFF" : "#243544");
         AddBrush("Muted", dark ? "#D0D0D0" : "#768591");
         AddBrush("Subtle", dark ? "#B4B4B4" : "#86959E");
@@ -57,7 +61,7 @@ public sealed class ThemePalette : ResourceDictionary
         AddBrush("AccentForeground", dark ? "#102824" : "#FFFFFF");
         AddBrush("NavigationInk", dark ? "#DADADA" : "#667B86");
         AddBrush("NavigationSelectedInk", dark ? "#8BE4D7" : "#16776F");
-        AddBrush("HoverBackground", dark ? "#2A2A2A" : "#E4EEEF");
+        AddBrush("HoverBackground", dark ? "#2E2E2E" : "#E4EEEF");
         AddBrush("SelectedBackground", dark ? "#234740" : "#DCEDEB");
         AddBrush("HandleInk", dark ? "#C4C4C4" : "#82959D");
         AddBrush("WarningInk", dark ? "#F3B679" : "#B06F40");
@@ -71,6 +75,10 @@ public sealed class ThemePalette : ResourceDictionary
         AddBrush("PreviewBackground", dark ? "#0C1216" : "#172733");
         AddBrush("PreviewInk", dark ? "#C3D3DC" : "#A6B8C1");
         AddBrush("PreviewMuted", dark ? "#93ABB8" : "#718995");
+
+        _accent = (Color)_colors["Accent"];
+        _selectedBase = (Color)_colors["SelectedBackground"];
+        if (accent is { } custom) ApplyAccentColors(custom);
         UpdateOpacity(uiOpacity, textOpacity, backgroundOpacity);
     }
 
@@ -78,15 +86,21 @@ public sealed class ThemePalette : ResourceDictionary
 
     public Color BaseColor(string key) => _colors.TryGetValue(key, out var color) ? color : Colors.Transparent;
 
+    public Color AccentColor => _accent;
+
     /// <summary>Creates a palette and pushes it into the scope's resources; returns it for later in-place updates.</summary>
-    public static ThemePalette Apply(FrameworkElement scope, bool dark, int uiOpacity = 100, int textOpacity = 100, int backgroundOpacity = 100)
+    public static ThemePalette Apply(FrameworkElement scope, bool dark, int uiOpacity = 100, int textOpacity = 100,
+        int backgroundOpacity = 100, Color? accent = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        var palette = new ThemePalette(dark, Clamp(uiOpacity), Clamp(textOpacity), Clamp(backgroundOpacity));
+        var palette = new ThemePalette(dark, Clamp(uiOpacity), Clamp(textOpacity), Clamp(backgroundOpacity), accent);
         palette._scope = scope;
         foreach (var (key, brush) in palette._brushes) scope.Resources[key] = brush;
         return palette;
     }
+
+    public static ThemePalette Create(bool dark, int uiOpacity = 100, int textOpacity = 100, int backgroundOpacity = 100, Color? accent = null)
+        => new(dark, Clamp(uiOpacity), Clamp(textOpacity), Clamp(backgroundOpacity), accent);
 
     /// <summary>Rewrites the alpha of every grouped brush in place; consumers repaint without re-resolving resources.</summary>
     public void UpdateOpacity(int uiOpacity, int textOpacity, int backgroundOpacity)
@@ -99,6 +113,32 @@ public sealed class ThemePalette : ResourceDictionary
         foreach (var key in ChromeKeys) SetAlpha(key, _uiOpacity);
     }
 
+    /// <summary>Re-derives the accent, its readable foreground and the selected tint from the user's colour.</summary>
+    public void UpdateAccent(Color accent)
+    {
+        ApplyAccentColors(accent);
+        SetAlpha("Accent", _uiOpacity);
+        SetAlpha("AccentForeground", _uiOpacity);
+        SetAlpha("DropIndicatorBrush", _uiOpacity);
+        SetAlpha("SelectedBackground", _backgroundOpacity);
+    }
+
+    private void ApplyAccentColors(Color accent)
+    {
+        _accent = accent;
+        _colors["Accent"] = accent;
+        // Keep labels readable on any accent the user picks.
+        var luminance = 0.299 * accent.R + 0.587 * accent.G + 0.114 * accent.B;
+        _colors["AccentForeground"] = luminance > 140 ? Color.FromRgb(16, 40, 36) : Colors.White;
+        _colors["SelectedBackground"] = Blend(_selectedBase, accent, 0.35);
+        _colors["DropIndicatorBrush"] = accent;
+    }
+
+    private static Color Blend(Color from, Color to, double ratio)
+    {
+        byte Mix(byte a, byte b) => (byte)Math.Round(a + (b - a) * ratio);
+        return Color.FromArgb(from.A, Mix(from.R, to.R), Mix(from.G, to.G), Mix(from.B, to.B));
+    }
 
     private static int Clamp(int value) => Math.Clamp(value, 0, 100);
 

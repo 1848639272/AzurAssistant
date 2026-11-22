@@ -137,7 +137,6 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _appearanceCommit = new() { Interval = TimeSpan.FromMilliseconds(350) };
     private ThemePalette? _palette;
     private bool _appearanceQueued;
-    private bool _swapReported;
     private void OnDarkModeChanged(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded) return;
@@ -189,24 +188,33 @@ public partial class MainWindow : Window
 
     private void OnClearBackground(object sender, RoutedEventArgs e) => ViewModel.ClearBackgroundImage();
 
+    private void OnResetAccent(object sender, RoutedEventArgs e)
+    {
+        ViewModel.ResetAccent();
+        QueueAppearanceUpdate();
+    }
+
+    /// <summary>Full rebuild: first apply and dark-mode switches (the base colours change).</summary>
     /// <summary>Full rebuild: first apply and dark-mode switches (the base colours change).</summary>
     private void ApplyAppearance()
     {
         try
         {
+            // One palette per window; every later slider tick mutates these very brushes in place.
             _palette = ThemePalette.Apply(this, ViewModel.DarkMode, ViewModel.UiOpacityPercent,
-                ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
+                ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent, ViewModel.AccentValue);
             ApplyWindowChrome();
-            }
+        }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
         { ViewModel.Report("应用外观失败：" + ex.Message); }
     }
 
-    /// <summary>Slider path: only alpha changes, so the existing brushes are rewritten in place.</summary>
+    /// <summary>Slider path: only alpha (or the accent colour) changes, so the existing brushes are rewritten.</summary>
     private void ApplyAppearanceFast()
     {
         if (_palette is null) { ApplyAppearance(); return; }
         _palette.UpdateOpacity(ViewModel.UiOpacityPercent, ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
+        _palette.UpdateAccent(ViewModel.AccentValue);
     }
 
     [DllImport("dwmapi.dll")]
@@ -217,8 +225,9 @@ public partial class MainWindow : Window
     {
         var handle = new WindowInteropHelper(this).Handle;
         if (handle == IntPtr.Zero) return;
-        var palette = ThemePalette.Apply(this, ViewModel.DarkMode, ViewModel.UiOpacityPercent,
-            ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
+        // Never create a new palette here: that used to orphan the live one and froze the sliders.
+        var palette = _palette;
+        if (palette is null) return;
         static int ToColorRef(System.Windows.Media.Color color) => color.R | (color.G << 8) | (color.B << 16);
         var caption = ToColorRef(palette.BaseColor("CardBackground"));
         var border = ToColorRef(palette.BaseColor("BorderBrush"));

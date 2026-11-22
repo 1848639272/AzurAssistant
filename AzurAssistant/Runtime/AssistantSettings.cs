@@ -16,6 +16,8 @@ public sealed record AssistantSettings
     public int TextOpacity { get; init; } = 100;
     /// <summary>背景表面（卡片、输入框、侧栏）透明度百分比 0–100。</summary>
     public int BackgroundOpacity { get; init; } = 100;
+    /// <summary>界面强调色（#RRGGBB），空表示使用主题默认色。</summary>
+    public string AccentColor { get; init; } = "";
     /// <summary>自定义背景图（绝对路径），空表示不使用。</summary>
     public string BackgroundImagePath { get; init; } = "";
     /// <summary>"stretch"=拉伸铺满；"fit"=保持比例，留白。</summary>

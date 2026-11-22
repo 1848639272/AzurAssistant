@@ -70,6 +70,8 @@ public sealed class SettingsStore
         foreach (var (name, level) in new[] { ("界面", value.UiOpacity), ("文字", value.TextOpacity), ("背景", value.BackgroundOpacity) })
             if (level is < 0 or > 100) throw new InvalidDataException($"{name}透明度应在 0–100 之间。");
         if (value.BackgroundImagePath is null || value.BackgroundImagePath.Length > 32767) throw new InvalidDataException("背景图路径无效。");
+        if (value.AccentColor is null || (value.AccentColor.Length > 0 && !System.Text.RegularExpressions.Regex.IsMatch(value.AccentColor, "^#[0-9A-Fa-f]{6}$")))
+            throw new InvalidDataException("界面颜色格式无效（应形如 #1E90FF）。");
         if (value.BackgroundImageMode is not ("stretch" or "fit")) throw new InvalidDataException("背景图处理方式无效。");
         if (!HotkeyBinding.TryParsePair(value.PauseHotkey, value.StopHotkey, out _, out _, out var error))
             throw new InvalidDataException(error);

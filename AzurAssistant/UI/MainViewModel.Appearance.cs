@@ -38,7 +38,7 @@ public sealed partial class MainViewModel
 
 
     public bool HasPendingAppearance => _pendingUi.HasValue || _pendingText.HasValue
-        || _pendingBackground.HasValue;
+        || _pendingBackground.HasValue || _accentRed.HasValue || _accentGreen.HasValue || _accentBlue.HasValue;
 
     private void SetPending(ref int? field, int value, params string[] names)
     {
@@ -53,13 +53,27 @@ public sealed partial class MainViewModel
     public void CommitAppearance()
     {
         if (!HasPendingAppearance) return;
+        var accent = _accentRed.HasValue || _accentGreen.HasValue || _accentBlue.HasValue;
+        var colour = AccentValue;
         var updated = Settings with
         {
             UiOpacity = _pendingUi ?? Settings.UiOpacity,
             TextOpacity = _pendingText ?? Settings.TextOpacity,
             BackgroundOpacity = _pendingBackground ?? Settings.BackgroundOpacity,
+            AccentColor = accent ? $"#{colour.R:X2}{colour.G:X2}{colour.B:X2}" : Settings.AccentColor,
         };
         _pendingUi = _pendingText = _pendingBackground = null;
+        _accentRed = _accentGreen = _accentBlue = null;
+        if (!SaveSettings(updated))
+        {
+            Notify(nameof(UiOpacityPercent));
+            Notify(nameof(TextOpacityPercent));
+            Notify(nameof(BackgroundOpacityPercent));
+            Notify(nameof(AccentRed));
+            Notify(nameof(AccentGreen));
+            Notify(nameof(AccentBlue));
+            Notify(nameof(AccentValue));
+        }
         Notify(nameof(HasPendingAppearance));
     }
 
@@ -155,6 +169,99 @@ public sealed partial class MainViewModel
     {
         if (Settings.BackgroundImageMode == mode) return;
         SaveAppearance(Settings with { BackgroundImageMode = mode });
+    }
+
+
+    // ---- 界面颜色（按红绿蓝三原色配比） ----
+    private int? _accentRed;
+    private int? _accentGreen;
+    private int? _accentBlue;
+
+    /// <summary>Theme default accent, used when the user has not picked a colour.</summary>
+    public System.Windows.Media.Color DefaultAccent => DarkMode
+        ? System.Windows.Media.Color.FromRgb(0x62, 0xD2, 0xC2)
+        : System.Windows.Media.Color.FromRgb(0x17, 0x8C, 0x84);
+
+    public System.Windows.Media.Color AccentValue
+    {
+        get
+        {
+            // Pending slider values win, so dragging previews live before the debounced save lands.
+            var baseColour = FromStoredOrDefault();
+            return System.Windows.Media.Color.FromRgb(
+                (byte)(_accentRed ?? baseColour.R),
+                (byte)(_accentGreen ?? baseColour.G),
+                (byte)(_accentBlue ?? baseColour.B));
+        }
+    }
+
+    public int AccentRed
+    {
+        get => _accentRed ?? FromStoredOrDefault().R;
+        set => SetAccentChannel(ref _accentRed, value, nameof(AccentRed));
+    }
+
+    public int AccentGreen
+    {
+        get => _accentGreen ?? FromStoredOrDefault().G;
+        set => SetAccentChannel(ref _accentGreen, value, nameof(AccentGreen));
+    }
+
+    public int AccentBlue
+    {
+        get => _accentBlue ?? FromStoredOrDefault().B;
+        set => SetAccentChannel(ref _accentBlue, value, nameof(AccentBlue));
+    }
+
+    public string AccentHexText => $"#{AccentValue.R:X2}{AccentValue.G:X2}{AccentValue.B:X2}";
+
+    public System.Windows.Media.Brush AccentPreview
+    {
+        get
+        {
+            var brush = new System.Windows.Media.SolidColorBrush(AccentValue);
+            brush.Freeze();
+            return brush;
+        }
+    }
+
+    private System.Windows.Media.Color FromStoredOrDefault()
+    {
+        var stored = Settings.AccentColor;
+        if (stored is { Length: 7 } && stored[0] == '#')
+        {
+            try { return (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(stored)!; }
+            catch (FormatException) { }
+        }
+        return DefaultAccent;
+    }
+
+    private void SetAccentChannel(ref int? field, int value, string name)
+    {
+        var clamped = Math.Clamp(value, 0, 255);
+        if (field == clamped) return;
+        field = clamped;
+        Notify(name);
+        Notify(nameof(AccentHexText));
+        Notify(nameof(AccentPreview));
+        Notify(nameof(AccentValue));
+        Notify(nameof(HasPendingAppearance));
+    }
+
+    /// <summary>Restores the theme accent for the current light/dark mode.</summary>
+    public void ResetAccent()
+    {
+        var fallback = DefaultAccent;
+        _accentRed = fallback.R;
+        _accentGreen = fallback.G;
+        _accentBlue = fallback.B;
+        Notify(nameof(AccentRed));
+        Notify(nameof(AccentGreen));
+        Notify(nameof(AccentBlue));
+        Notify(nameof(AccentHexText));
+        Notify(nameof(AccentPreview));
+        Notify(nameof(AccentValue));
+        Notify(nameof(HasPendingAppearance));
     }
 
     private void SaveAppearance(AssistantSettings settings)

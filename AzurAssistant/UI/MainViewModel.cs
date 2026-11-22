@@ -62,7 +62,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         get => _selectedPage;
         set
         {
-            if (value is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "actions" or "wheelchair" or "schedule" or "growth" or "feedback" or "settings") || value == _selectedPage) return;
+            if (value is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "actions" or "wheelchair" or "schedule" or "growth" or "gacha" or "feedback" or "settings") || value == _selectedPage) return;
             _selectedPage = value;
             Notify(string.Empty);
         }
@@ -76,9 +76,10 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     public bool IsWheelchairPage => SelectedPage == "wheelchair";
     public bool IsSchedulePage => SelectedPage == "schedule";
     public bool IsGrowthPage => SelectedPage == "growth";
+    public bool IsGachaPage => SelectedPage == "gacha";
     public bool IsFeedbackPage => SelectedPage == "feedback";
     public bool IsSettingsPage => SelectedPage == "settings";
-    public string PageTitle => SelectedPage switch { "daily" => "一条龙", "realtime" => "实时辅助", "navigation" => "导航测试", "routes" => "路线管理", "actions" => "动作录制", "wheelchair" => "轮椅功能", "schedule" => "定时执行", "growth" => "养成计算", "feedback" => "问题反馈", "settings" => "设置", _ => "控制台" };
+    public string PageTitle => SelectedPage switch { "daily" => "一条龙", "realtime" => "实时辅助", "navigation" => "导航测试", "routes" => "路线管理", "actions" => "动作录制", "wheelchair" => "轮椅功能", "schedule" => "定时执行", "growth" => "养成计算", "gacha" => "抽卡分析", "feedback" => "问题反馈", "settings" => "设置", _ => "控制台" };
     public bool CanConfigure => !IsBusy && !IsRestarting && !IsUpdateBusy;
     public bool IsUpdateBusy { get; private set; }
     public string UpdateStatus { get; private set; } = "GitHub 更新仓库尚未配置";
@@ -486,7 +487,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     /// <returns>True only after a replacement assistant was started and this window may close.</returns>
     public async Task<bool> NavigateAsync(string page, Func<Task<bool>> confirmRestart)
     {
-        if (_navigating || page is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "actions" or "wheelchair" or "schedule" or "growth" or "feedback" or "settings") || page == SelectedPage) return false;
+        if (_navigating || page is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "actions" or "wheelchair" or "schedule" or "growth" or "gacha" or "feedback" or "settings") || page == SelectedPage) return false;
         _navigating = true;
         try
         {

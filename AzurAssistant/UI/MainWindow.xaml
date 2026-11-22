@@ -250,6 +250,9 @@
      <RadioButton x:Name="GrowthNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="growth" Checked="OnNavigate" IsChecked="{Binding IsGrowthPage, Mode=OneWay}" AutomationProperties.Name="养成计算">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="养成计算" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
+      <RadioButton x:Name="GachaNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="gacha" Checked="OnNavigate" IsChecked="{Binding IsGachaPage, Mode=OneWay}" AutomationProperties.Name="抽卡分析">
+       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D2;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="抽卡分析" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+      </RadioButton>
      <RadioButton x:Name="SettingsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="settings" Checked="OnNavigate" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" AutomationProperties.Name="设置">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
@@ -651,6 +654,12 @@
          <TextBlock Text="这个页面先占位，内容待补充。" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" />
         </Border>
        </StackPanel>
+       <StackPanel x:Name="GachaPage" Visibility="{Binding IsGachaPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="抽卡分析" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,10" />
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="16,14">
+         <TextBlock Text="这个页面先占位，内容待补充。" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" />
+        </Border>
+       </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />
         <Grid Margin="0,0,0,20"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
@@ -671,6 +680,17 @@
         </CheckBox>
         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
         <TextBlock Text="外观与透明度" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,0,12">
+         <StackPanel>
+          <TextBlock Text="预览：这三行分别受三个滑杆控制" FontSize="12" />
+          <TextBlock Text="这段说明文字跟随「文字」滑杆；下面分隔线跟随「界面元素」；本卡片的底色跟随「背景表面」。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,10" />
+          <Border Height="1" Background="{DynamicResource DividerBrush}" />
+          <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+           <Button Content="强调色按钮" Style="{StaticResource PrimaryAction}" Padding="12,6" IsHitTestVisible="False" />
+           <Border Width="18" Height="18" CornerRadius="9" Background="{Binding AccentPreview}" Margin="12,0,0,0" VerticalAlignment="Center" />
+          </StackPanel>
+         </StackPanel>
+        </Border>
         <TextBlock Text="三个滑杆分别控制：界面元素（边框/分隔线/强调色）、文字、背景表面（卡片/输入框/侧栏）。拖动即时生效，松手后自动保存。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
         <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
          <TextBlock Text="界面元素" VerticalAlignment="Center" />
@@ -687,6 +707,28 @@
          <Slider Grid.Column="1" Minimum="0" Maximum="100" IsSnapToTickEnabled="False" SmallChange="1" Value="{Binding BackgroundOpacityPercent}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="背景透明度" />
          <TextBlock Grid.Column="2" Text="{Binding BackgroundOpacityText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
         </Grid>
+        <TextBlock Text="界面颜色" FontSize="14" FontWeight="SemiBold" Margin="0,4,0,8" />
+        <TextBlock Text="按红/绿/蓝三原色配比调出主色，会应用到按钮、选中项、滑杆填充、分隔提示等强调元素。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+         <TextBlock Text="红" VerticalAlignment="Center" />
+         <Slider Grid.Column="1" Minimum="0" Maximum="255" SmallChange="1" IsSnapToTickEnabled="False" Value="{Binding AccentRed}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="界面颜色红" />
+         <TextBlock Grid.Column="2" Text="{Binding AccentRed}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
+        </Grid>
+        <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+         <TextBlock Text="绿" VerticalAlignment="Center" />
+         <Slider Grid.Column="1" Minimum="0" Maximum="255" SmallChange="1" IsSnapToTickEnabled="False" Value="{Binding AccentGreen}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="界面颜色绿" />
+         <TextBlock Grid.Column="2" Text="{Binding AccentGreen}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
+        </Grid>
+        <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+         <TextBlock Text="蓝" VerticalAlignment="Center" />
+         <Slider Grid.Column="1" Minimum="0" Maximum="255" SmallChange="1" IsSnapToTickEnabled="False" Value="{Binding AccentBlue}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="界面颜色蓝" />
+         <TextBlock Grid.Column="2" Text="{Binding AccentBlue}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
+        </Grid>
+        <StackPanel Orientation="Horizontal" Margin="0,2,0,18">
+         <Border Width="52" Height="26" CornerRadius="6" Background="{Binding AccentPreview}" BorderBrush="{DynamicResource InputBorderBrush}" BorderThickness="1" />
+         <TextBlock Text="{Binding AccentHexText}" VerticalAlignment="Center" Margin="10,0,16,0" Foreground="{DynamicResource Muted}" FontFamily="Consolas, Segoe UI" />
+         <Button Content="恢复默认颜色" Click="OnResetAccent" Padding="12,6" />
+        </StackPanel>
         <TextBlock Text="背景图" FontSize="14" FontWeight="SemiBold" Margin="0,4,0,8" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
          <Button x:Name="ChooseBackgroundButton" Content="选择背景图…" Click="OnImportBackground" Style="{StaticResource PrimaryAction}" />
