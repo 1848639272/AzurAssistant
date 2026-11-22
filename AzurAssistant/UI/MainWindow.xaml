@@ -218,11 +218,17 @@
      <TextBlock Text="蓝色星原：旅谣自动化辅助" Foreground="{DynamicResource Muted}" FontSize="11" Margin="4,0,0,0" />
     </StackPanel>
     <StackPanel Grid.Row="1" Margin="0,30,0,0">
+     <RadioButton x:Name="FeedbackNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="feedback" Checked="OnNavigate" IsChecked="{Binding IsFeedbackPage, Mode=OneWay}" AutomationProperties.Name="问题反馈">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE939;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="问题反馈" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
      <RadioButton x:Name="HomeNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="home" Checked="OnNavigate" IsChecked="{Binding IsHomePage, Mode=OneWay}" AutomationProperties.Name="主页">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE80F;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="主页" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
      <RadioButton x:Name="DailyNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="daily" Checked="OnNavigate" IsChecked="{Binding IsDailyPage, Mode=OneWay}" AutomationProperties.Name="一条龙">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8FD;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="一条龙" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
+     <RadioButton x:Name="ScheduleNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="schedule" Checked="OnNavigate" IsChecked="{Binding IsSchedulePage, Mode=OneWay}" AutomationProperties.Name="定时执行">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE823;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="定时执行" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
      <RadioButton x:Name="RealtimeNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="realtime" Checked="OnNavigate" IsChecked="{Binding IsRealtimePage, Mode=OneWay}" AutomationProperties.Name="实时辅助">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE945;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="实时辅助" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
@@ -278,6 +284,34 @@
      <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,6,0">
       <Grid>
+       <StackPanel x:Name="FeedbackPage" Visibility="{Binding IsFeedbackPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="遇到问题先看这里" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,10" />
+        <TextBlock Text="反馈时把这些一起发出来，定位会快很多：" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Margin="0,0,0,16">
+         <TextBlock Text="· 程序目录 logs\ 里当天的日志文件（最重要）" FontSize="12" TextWrapping="Wrap" Margin="0,2" />
+         <TextBlock Text="· 出问题时的截图（包括助手窗口和游戏画面）" FontSize="12" TextWrapping="Wrap" Margin="0,2" />
+         <TextBlock Text="· 游戏分辨率、是否开 HDR、全屏还是无边框" FontSize="12" TextWrapping="Wrap" Margin="0,2" />
+         <TextBlock Text="· 你做了什么操作、期望什么结果、实际发生了什么" FontSize="12" TextWrapping="Wrap" Margin="0,2" />
+        </StackPanel>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,12" Margin="0,0,0,10">
+         <StackPanel>
+          <TextBlock Text="GitHub 仓库 / Issues" FontWeight="SemiBold" />
+          <TextBlock Text="https://github.com/1848639272/AzurAssistant" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,10" />
+          <StackPanel Orientation="Horizontal">
+           <Button x:Name="OpenGitHubButton" Content="打开 GitHub 仓库" Click="OnOpenGitHub" Style="{StaticResource PrimaryAction}" />
+           <Button x:Name="OpenIssuesButton" Content="打开 Issues 反馈" Click="OnOpenIssues" Margin="10,0,0,0" />
+          </StackPanel>
+         </StackPanel>
+        </Border>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,12">
+         <StackPanel>
+          <TextBlock Text="QQ 群" FontWeight="SemiBold" />
+          <TextBlock Text="群号：1129014322（口令与更新一般发在群里）" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,6,0,10" TextWrapping="Wrap" />
+          <Button x:Name="CopyQqButton" Content="复制群号" Click="OnCopyQqGroup" Padding="14,9" />
+         </StackPanel>
+        </Border>
+        <TextBlock Text="提示：本程序是个人维护的第三方辅助，反馈请尽量描述清楚，不要只发一句“不能用”。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
+       </StackPanel>
        <StackPanel x:Name="HomePage" Visibility="{Binding IsHomePage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="功能" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,16" />
         <Grid Margin="0,0,0,14">
@@ -290,6 +324,12 @@
          <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
          <StackPanel Margin="0,0,14,0"><TextBlock Text="实时辅助" FontSize="14" FontWeight="SemiBold" /><TextBlock Text="{Binding RealtimeSelectionText}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,7,0,0" TextWrapping="Wrap" /></StackPanel>
          <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="配置" Click="OnNavigate" Tag="realtime" Padding="14,9" Margin="0,0,8,0" /><Button x:Name="StartRealtimeButton" Content="开始" Click="OnStartRealtime" IsEnabled="{Binding CanStartRealtime}" Style="{StaticResource PrimaryAction}" AutomationProperties.Name="开始实时辅助" /></StackPanel>
+        </Grid>
+        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,14" />
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+         <StackPanel Margin="0,0,14,0"><TextBlock Text="定时执行" FontSize="14" FontWeight="SemiBold" /><TextBlock Text="{Binding ScheduleSummary}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,7,0,0" TextWrapping="Wrap" /></StackPanel>
+         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="配置" Click="OnNavigate" Tag="schedule" Padding="14,9" Margin="0,0,8,0" /><Button x:Name="RunScheduleNowButton" Content="立即执行" Click="OnRunScheduleNow" Style="{StaticResource PrimaryAction}" AutomationProperties.Name="立即执行定时任务" /></StackPanel>
         </Grid>
        </StackPanel>
        <StackPanel x:Name="DailyPage" Visibility="{Binding IsDailyPage, Converter={StaticResource BoolVisibility}}">
@@ -421,7 +461,23 @@
           <TextBlock Text="{Binding Name}" /><TextBlock Grid.Column="1" Text="{Binding X, StringFormat=X {0:F2}}" /><TextBlock Grid.Column="2" Text="{Binding Y, StringFormat=Y {0:F2}}" />
          </Grid>
         </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
-        <TextBlock Text="同地图路线依次前往各点。开头跳跃一次，途中自动转向前进；请在转弯和障碍附近补点，当前不自动绕障。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
+        <TextBlock Text="同地图路线依次前往各点。开头跳跃一次，途中自动转向前进；请在转弯和障碍附近补点，当前不自动绕障。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,16" />
+        <TextBlock Text="编辑路线（预览与修改）" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="一条路线就是从 A 点走到 B 点、再走到 C 点。下表每行是一个点位：名称自己看得懂就行；X/Y 是地图坐标（左上角 0,0，X 向右、Y 向下，和导航测试页同一套）。改完点“保存修改”直接覆盖这条路线。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <TextBlock Text="{Binding RoutePreviewText}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" Foreground="{DynamicResource Subtle}" />
+        <ItemsControl ItemsSource="{Binding EditableRoutePoints}">
+         <ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,0,0,6">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="90" /><ColumnDefinition Width="90" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+          <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" Margin="0,0,8,0" AutomationProperties.Name="点位名称" />
+          <TextBox Grid.Column="1" Text="{Binding XText, UpdateSourceTrigger=PropertyChanged}" MaxLength="12" Margin="0,0,8,0" AutomationProperties.Name="点位X坐标" />
+          <TextBox Grid.Column="2" Text="{Binding YText, UpdateSourceTrigger=PropertyChanged}" MaxLength="12" Margin="0,0,8,0" AutomationProperties.Name="点位Y坐标" />
+          <Button Grid.Column="3" Content="移除" Click="OnRemoveEditedRoutePoint" Padding="10,5" />
+         </Grid></DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+         <Button x:Name="SaveEditedRouteButton" Content="保存修改" Click="OnSaveEditedRoute" IsEnabled="{Binding CanEditRoute}" Style="{StaticResource PrimaryAction}" />
+         <Button Content="追加当前坐标" Click="OnAddEditedRoutePoint" IsEnabled="{Binding CanEditRoute}" Margin="10,0,0,0" />
+        </StackPanel>
        </StackPanel>
        <StackPanel x:Name="ActionsPage" Visibility="{Binding IsActionsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="录制你自己的真实键鼠操作，再按原时序回放。录制期间助手只旁听，不会干预游戏。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
@@ -444,6 +500,20 @@
          <Button Content="重命名" Click="OnRenameAction" IsEnabled="{Binding CanPlayAction}" Margin="10,0,0,0" />
          <Button Content="删除" Click="OnDeleteAction" IsEnabled="{Binding CanPlayAction}" Margin="10,0,0,0" />
         </StackPanel>
+        <TextBlock Text="编辑选中动作（时间点与按住时长）" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
+        <TextBlock Text="每行是一次输入：“时刻”是相对动作开始的毫秒数（1000 = 1 秒）；“持续”是按下到松开的毫秒数，只对按键和点击有效。改完点“保存修改”会覆盖这个动作文件。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <TextBlock Text="{Binding ActionEditSummary}" FontWeight="SemiBold" Margin="0,0,0,10" />
+        <ItemsControl ItemsSource="{Binding EditableActionEvents}">
+         <ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,0,0,6">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="*" /><ColumnDefinition Width="90" /><ColumnDefinition Width="90" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+          <TextBlock Text="{Binding Kind}" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="{Binding Detail}" VerticalAlignment="Center" Foreground="{DynamicResource Subtle}" />
+          <TextBox Grid.Column="2" Text="{Binding TimeText, UpdateSourceTrigger=PropertyChanged}" MaxLength="9" Margin="0,0,8,0" ToolTip="相对动作开始的毫秒数" AutomationProperties.Name="事件时刻毫秒" />
+          <TextBox Grid.Column="3" Text="{Binding DurationText, UpdateSourceTrigger=PropertyChanged}" MaxLength="6" Margin="0,0,8,0" IsEnabled="{Binding CanEditDuration}" ToolTip="按下到松开的毫秒数" AutomationProperties.Name="按住时长毫秒" />
+          <Button Grid.Column="4" Content="移除" Click="OnRemoveEditedActionRow" Padding="10,5" />
+         </Grid></DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Button x:Name="SaveEditedActionButton" Content="保存修改" Click="OnSaveEditedAction" IsEnabled="{Binding CanEditAction}" Style="{StaticResource PrimaryAction}" HorizontalAlignment="Left" Margin="0,10,0,0" />
         <TextBlock Text="回放会把游戏切到前台，并按录制时序注入键鼠：按键保持原来的按下时长，鼠标转动按原来的位移，点击落在同一客户区位置。回放期间按 F10 停止；暂停（F9）不适用于回放。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
        </StackPanel>
        <StackPanel x:Name="WheelchairPage" Visibility="{Binding IsWheelchairPage, Converter={StaticResource BoolVisibility}}">
@@ -480,10 +550,40 @@
         <TextBlock Text="{Binding SelectedWheelchairPlanSummary}" Foreground="{DynamicResource Muted}" Margin="0,9,0,10" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
          <Button x:Name="WheelchairRunButton" Content="运行方案" Click="OnRunWheelchairPlan" IsEnabled="{Binding CanRunWheelchairPlan}" Style="{StaticResource PrimaryAction}" />
+         <Button Content="编辑此方案" Click="OnEditWheelchairPlan" IsEnabled="{Binding CanRunWheelchairPlan}" Margin="10,0,0,0" />
          <Button Content="导出" Click="OnExportWheelchairPlan" IsEnabled="{Binding CanRunWheelchairPlan}" Margin="10,0,0,0" />
          <Button Content="删除" Click="OnDeleteWheelchairPlan" IsEnabled="{Binding CanRunWheelchairPlan}" Margin="10,0,0,0" />
         </StackPanel>
         <TextBlock Text="运行前请让角色进入方案所属地图。方案只记录坐标和动作名称，分享给别人时对方需要先导入同名动作；导出方案会把动作引用一起带过去，但动作文件本身需要单独分享。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
+       </StackPanel>
+       <StackPanel x:Name="SchedulePage" Visibility="{Binding IsSchedulePage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="让助手在指定时间自动跑你选的任务：一条龙、某条路线、某个动作，或某个轮椅方案。到点启动、结束后响一声提示。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
+        <CheckBox x:Name="ScheduleEnabledOption" Content="启用定时执行" IsChecked="{Binding ScheduleEnabled}" FontWeight="SemiBold" Margin="0,0,0,16" AutomationProperties.Name="启用定时执行" />
+        <TextBlock Text="执行内容" FontWeight="SemiBold" Margin="0,0,0,7" />
+        <ComboBox x:Name="ScheduleTargetBox" ItemsSource="{Binding ScheduleChoices}" SelectedItem="{Binding ScheduleChoice}" DisplayMemberPath="Label" AutomationProperties.Name="定时执行内容" />
+        <TextBlock Text="触发方式" FontWeight="SemiBold" Margin="0,18,0,7" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+         <RadioButton x:Name="ScheduleDailyMode" GroupName="ScheduleMode" Content="每天固定时刻" IsChecked="{Binding ScheduleUseDaily}" Margin="0,0,20,0" />
+         <RadioButton x:Name="ScheduleIntervalMode" GroupName="ScheduleMode" Content="每隔一段时间" IsChecked="{Binding ScheduleUseInterval}" />
+        </StackPanel>
+        <Grid Margin="0,0,0,8">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="160" /><ColumnDefinition Width="120" /></Grid.ColumnDefinitions>
+         <TextBlock Text="每天时刻（HH:mm）" VerticalAlignment="Center" />
+         <TextBox x:Name="ScheduleTimeBox" Grid.Column="1" Text="{Binding ScheduleTimeText, UpdateSourceTrigger=PropertyChanged}" MaxLength="5" AutomationProperties.Name="每天执行时刻" />
+        </Grid>
+        <Grid Margin="0,0,0,8">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="160" /><ColumnDefinition Width="120" /></Grid.ColumnDefinitions>
+         <TextBlock Text="间隔分钟（1–1440）" VerticalAlignment="Center" />
+         <TextBox x:Name="ScheduleIntervalBox" Grid.Column="1" Text="{Binding ScheduleIntervalText, UpdateSourceTrigger=PropertyChanged}" MaxLength="4" AutomationProperties.Name="执行间隔分钟" />
+        </Grid>
+        <CheckBox x:Name="ScheduleSoundOption" Content="任务开始和结束时播放提示音" IsChecked="{Binding ScheduleSound}" Margin="0,10,0,0" AutomationProperties.Name="定时执行提示音" />
+        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+         <Button x:Name="ScheduleApplyButton" Content="应用时间设置" Click="OnApplyScheduleTiming" Style="{StaticResource PrimaryAction}" />
+         <Button Content="立即执行一次" Click="OnRunScheduleNow" Margin="10,0,0,0" />
+        </StackPanel>
+        <TextBlock Text="{Binding ScheduleNextText}" FontWeight="SemiBold" Margin="0,16,0,0" />
+        <TextBlock Text="{Binding ScheduleStatus}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,8,0,0" />
+        <TextBlock Text="说明：执行内容里的“一条龙”会用一条龙页面当前的勾选和顺序；“路线/动作/轮椅”会按名称找到对应的文件后启动。到点时如果已有任务在运行，本次会跳过并记日志。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />
@@ -500,8 +600,8 @@
         <CheckBox x:Name="DisablePreviewOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding DisablePreview}" Margin="0,0,0,18">
          <StackPanel><TextBlock Text="关闭画面预览" FontWeight="SemiBold" /><TextBlock Text="关闭后隐藏首页画面预览" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
         </CheckBox>
-        <CheckBox x:Name="DarkModeOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding DarkMode}">
-         <StackPanel><TextBlock Text="深色模式" FontWeight="SemiBold" /><TextBlock Text="使用深色背景与浅色文字" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
+        <CheckBox x:Name="DarkModeOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding DarkMode}" Checked="OnDarkModeChanged" Unchecked="OnDarkModeChanged">
+         <StackPanel><TextBlock Text="深色模式" FontWeight="SemiBold" /><TextBlock Text="纯黑背景、白色文字、明亮灰边框；勾选后立即生效，无需重启" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
         </CheckBox>
         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
         <TextBlock Text="任务快捷键" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />

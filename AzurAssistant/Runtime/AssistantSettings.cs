@@ -1,4 +1,4 @@
-namespace AzurAssistant.Runtime;
+﻿namespace AzurAssistant.Runtime;
 
 public sealed record AssistantSettings
 {
@@ -28,4 +28,13 @@ public sealed record AssistantSettings
     public string DailyTaskOrder { get; init; } = "";
     public bool AutoSkipDialogue { get; init; }
     public bool AutoPickup { get; init; }
+    public bool ScheduleEnabled { get; init; }
+    /// <summary>"daily"（每天固定时刻）或 "interval"（每隔若干分钟）。</summary>
+    public string ScheduleMode { get; init; } = "daily";
+    /// <summary>每天执行的时刻，"HH:mm"。</summary>
+    public string ScheduleTime { get; init; } = "08:00";
+    public int ScheduleIntervalMinutes { get; init; } = 60;
+    /// <summary>"daily" 或 "route:名称" / "action:名称" / "wheelchair:名称"。</summary>
+    public string ScheduleTarget { get; init; } = "daily";
+    public bool ScheduleSound { get; init; } = true;
 }

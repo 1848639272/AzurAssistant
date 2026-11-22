@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using AzurAssistant.Features.Routes;
 using AzurAssistant.Features.Wheelchair;
@@ -24,6 +24,7 @@ public sealed partial class MainViewModel
     private WheelchairPlanStore WheelchairPlans => _wheelchairStore ??=
         new(wheelchairDirectory ?? Path.Combine(AppContext.BaseDirectory, "wheelchair"), NavigationMaps);
     private RouteMap? _wheelchairMap;
+    private string? _wheelchairEditingPath;
     private string _wheelchairName = "";
     private string _wheelchairStatus = "先点“新建方案”，再逐个记录坐标并给每一步选择动作。";
     private SavedWheelchairPlan? _selectedWheelchairPlan;
@@ -87,6 +88,7 @@ public sealed partial class MainViewModel
         if (!CanBeginWheelchair) return;
         WheelchairSteps.Clear();
         _wheelchairMap = null;
+        _wheelchairEditingPath = null;
         WheelchairName = "";
         IsWheelchairDrafting = true;
         SetWheelchairStatus("新建方案：让角色站在第一个点，点“记录当前坐标”，再给该步选择动作。");
@@ -147,7 +149,8 @@ public sealed partial class MainViewModel
         var plan = new WheelchairPlan(WheelchairPlan.CurrentSchema, WheelchairName.Trim(), _wheelchairMap, steps);
         try
         {
-            var path = WheelchairPlans.Save(plan);
+            // Editing an existing plan overwrites that file; a new draft gets a fresh one.
+            var path = _wheelchairEditingPath is { } editing ? Overwrite(plan, editing) : WheelchairPlans.Save(plan);
             IsWheelchairDrafting = false;
             LoadWheelchairPlans();
             SelectedWheelchairPlan = SavedWheelchairPlans.FirstOrDefault(saved => saved.Path == path) ?? SelectedWheelchairPlan;
@@ -155,6 +158,32 @@ public sealed partial class MainViewModel
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
         { SetWheelchairStatus("保存失败：" + ex.Message); }
+    }
+
+    /// <summary>Loads a saved plan into the draft editor so its steps, actions and delays can be changed.</summary>
+    public void EditSelectedWheelchairPlan()
+    {
+        if (SelectedWheelchairPlan is not { } selected || IsWheelchairDrafting) return;
+        WheelchairSteps.Clear();
+        _wheelchairMap = selected.Plan.Map;
+        _wheelchairEditingPath = selected.Path;
+        WheelchairName = selected.Plan.Name;
+        foreach (var step in selected.Plan.Steps)
+        {
+            WheelchairSteps.Add(new WheelchairStepDraft(step.Name, step.X, step.Y)
+            {
+                Action = step.Action ?? "",
+                DelayText = (step.DelayMs / 1000).ToString(),
+            });
+        }
+        IsWheelchairDrafting = true;
+        SetWheelchairStatus($"正在编辑「{selected.Plan.Name}」：改完点“保存方案”会覆盖原文件。");
+    }
+
+    private string Overwrite(WheelchairPlan plan, string path)
+    {
+        WheelchairPlans.Export(plan, path);
+        return path;
     }
 
     public void RunWheelchairPlan()

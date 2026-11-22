@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using AzurAssistant.Features.Routes;
 using AzurAssistant.Game.Navigation;
@@ -32,7 +32,7 @@ public sealed partial class MainViewModel
     public string RouteName { get => _routeName; set { _routeName = value; Notify(); Notify(nameof(CanSaveRoute)); } }
     public bool RouteAutoPickup { get => _routeAutoPickup; set { _routeAutoPickup = value; Notify(); } }
     public string RecordingMapText => _recordingMap is { } map ? $"所属地图：{MapName(map.Id)} · {map.Floor} 层" : "记录首个点位后确定所属地图";
-    public SavedRoute? SelectedRoute { get => _selectedRoute; set { _selectedRoute = value; Notify(); Notify(nameof(SelectedRouteDescription)); Notify(nameof(SelectedRoutePoints)); Notify(nameof(CanRunRoute)); } }
+    public SavedRoute? SelectedRoute { get => _selectedRoute; set { _selectedRoute = value; Notify(); Notify(nameof(SelectedRouteDescription)); Notify(nameof(SelectedRoutePoints)); Notify(nameof(CanRunRoute)); LoadRouteForEdit(); } }
     public string SelectedRouteDescription => SelectedRoute is { } selected ? $"{MapName(selected.Route.Map.Id)} · {selected.Route.Points.Count} 个点位 · 自动拾取{(selected.Route.AutoPickup ? "开启" : "关闭")}" : "尚未选择路线";
     public IReadOnlyList<RoutePoint> SelectedRoutePoints => SelectedRoute?.Route.Points ?? [];
     public bool CanBeginRoute => CanConfigure && !IsRecordingRoute && !_capturingPoint;

@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 
 namespace AzurAssistant.Runtime;
@@ -60,6 +60,10 @@ public sealed class SettingsStore
             throw new InvalidDataException("一条龙任务顺序格式无效。");
         if (value.GameExecutablePath.Length > 32767) throw new ArgumentException("游戏路径过长。");
         if (value.ExitGameDelaySeconds is < 0 or > 3600) throw new InvalidDataException("关闭游戏前的等待时间应为 0 至 3600 秒。");
+        if (value.ScheduleMode is not ("daily" or "interval")) throw new InvalidDataException("定时执行的触发方式无效。");
+        if (!Runtime.ScheduleClock.TryParseTime(value.ScheduleTime, out _)) throw new InvalidDataException("定时执行的时刻无效，格式为 HH:mm。");
+        if (value.ScheduleIntervalMinutes is < 1 or > 1440) throw new InvalidDataException("定时执行的间隔应为 1–1440 分钟。");
+        if (value.ScheduleTarget is null || value.ScheduleTarget.Length > 300) throw new InvalidDataException("定时执行的内容无效。");
         if (!HotkeyBinding.TryParsePair(value.PauseHotkey, value.StopHotkey, out _, out _, out var error))
             throw new InvalidDataException(error);
     }

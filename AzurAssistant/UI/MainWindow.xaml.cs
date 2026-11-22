@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Media;
@@ -127,6 +128,44 @@ public partial class MainWindow : Window
             MessageBoxButton.OKCancel, MessageBoxImage.Warning) != MessageBoxResult.OK) return;
         ViewModel.DeleteSelectedAction();
     }
+    private void OnDarkModeChanged(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        ThemePalette.Apply(this, ViewModel.DarkMode);
+        ViewModel.Refresh();
+    }
+    private void OnApplyScheduleTiming(object sender, RoutedEventArgs e) => ViewModel.ApplyScheduleTiming();
+    private void OnRunScheduleNow(object sender, RoutedEventArgs e) => ViewModel.RunScheduleNow();
+    private void OnOpenGitHub(object sender, RoutedEventArgs e) => OpenExternal("https://github.com/1848639272/AzurAssistant");
+    private void OnOpenIssues(object sender, RoutedEventArgs e) => OpenExternal("https://github.com/1848639272/AzurAssistant/issues");
+    private void OnCopyQqGroup(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Clipboard.SetText("1129014322");
+            ViewModel.Report("QQ 群号 1129014322 已复制。");
+        }
+        catch (Exception ex) when (ex is System.Runtime.InteropServices.COMException or InvalidOperationException)
+        { ViewModel.Report("复制失败，请手动记下群号 1129014322。"); }
+    }
+    private void OpenExternal(string url)
+    {
+        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        { ViewModel.Report("无法打开浏览器：" + url); }
+    }
+    private void OnRemoveEditedRoutePoint(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: RouteEditRow row }) ViewModel.RemoveEditedRoutePoint(row);
+    }
+    private void OnSaveEditedRoute(object sender, RoutedEventArgs e) => ViewModel.SaveEditedRoute();
+    private async void OnAddEditedRoutePoint(object sender, RoutedEventArgs e) => await ViewModel.AddEditedRoutePointAsync();
+    private void OnRemoveEditedActionRow(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: ActionEditRow row }) ViewModel.RemoveEditedActionRow(row);
+    }
+    private void OnSaveEditedAction(object sender, RoutedEventArgs e) => ViewModel.SaveEditedAction();
+    private void OnEditWheelchairPlan(object sender, RoutedEventArgs e) => ViewModel.EditSelectedWheelchairPlan();
     private void OnImportAction(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog { Title = "导入动作", Filter = "动作文件 (*.json)|*.json", CheckFileExists = true, Multiselect = false };

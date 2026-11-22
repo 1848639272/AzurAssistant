@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Threading;
 using AzurAssistant.Contracts;
@@ -46,7 +46,7 @@ public sealed partial class MainViewModel
     public SavedActionRecording? SelectedAction
     {
         get => _selectedAction;
-        set { _selectedAction = value; Notify(); Notify(nameof(SelectedActionSummary)); Notify(nameof(CanPlayAction)); }
+        set { _selectedAction = value; Notify(); Notify(nameof(SelectedActionSummary)); Notify(nameof(CanPlayAction)); LoadActionForEdit(); }
     }
 
     public string SelectedActionSummary => SelectedAction is { } selected

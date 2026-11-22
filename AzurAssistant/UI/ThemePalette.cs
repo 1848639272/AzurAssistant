@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
 namespace AzurAssistant.UI;
@@ -10,27 +10,27 @@ public sealed class ThemePalette : ResourceDictionary
 
     private ThemePalette(bool dark)
     {
-        AddBrush("WindowBackground", dark ? "#101315" : "#F6F8FA");
-        AddBrush("SidebarBackground", dark ? "#161B1E" : "#EFF3F5");
-        AddBrush("CardBackground", dark ? "#1B2226" : "#FFFFFF");
-        AddBrush("TileBackground", dark ? "#222C31" : "#F7FAFA");
-        AddBrush("InputBackground", dark ? "#141C20" : "#FFFFFF");
-        AddBrush("BorderBrush", dark ? "#35434A" : "#E1E7EB");
-        AddBrush("InputBorderBrush", dark ? "#60757F" : "#B5C7CA");
-        AddBrush("DividerBrush", dark ? "#35434A" : "#E2ECEB");
-        AddBrush("Ink", dark ? "#E8EEF1" : "#243544");
-        AddBrush("Muted", dark ? "#ADBDC5" : "#768591");
-        AddBrush("Subtle", dark ? "#98AAB4" : "#86959E");
+        AddBrush("WindowBackground", dark ? "#000000" : "#F6F8FA");
+        AddBrush("SidebarBackground", dark ? "#0A0A0A" : "#EFF3F5");
+        AddBrush("CardBackground", dark ? "#121212" : "#FFFFFF");
+        AddBrush("TileBackground", dark ? "#1C1C1C" : "#F7FAFA");
+        AddBrush("InputBackground", dark ? "#0D0D0D" : "#FFFFFF");
+        AddBrush("BorderBrush", dark ? "#6E6E6E" : "#E1E7EB");
+        AddBrush("InputBorderBrush", dark ? "#9A9A9A" : "#B5C7CA");
+        AddBrush("DividerBrush", dark ? "#4F4F4F" : "#E2ECEB");
+        AddBrush("Ink", dark ? "#FFFFFF" : "#243544");
+        AddBrush("Muted", dark ? "#D0D0D0" : "#768591");
+        AddBrush("Subtle", dark ? "#B4B4B4" : "#86959E");
         AddBrush("Accent", dark ? "#62D2C2" : "#178C84");
         AddBrush("AccentForeground", dark ? "#102824" : "#FFFFFF");
-        AddBrush("NavigationInk", dark ? "#BDCCD2" : "#667B86");
+        AddBrush("NavigationInk", dark ? "#DADADA" : "#667B86");
         AddBrush("NavigationSelectedInk", dark ? "#8BE4D7" : "#16776F");
-        AddBrush("HoverBackground", dark ? "#2C3D43" : "#E4EEEF");
+        AddBrush("HoverBackground", dark ? "#2A2A2A" : "#E4EEEF");
         AddBrush("SelectedBackground", dark ? "#234740" : "#DCEDEB");
-        AddBrush("HandleInk", dark ? "#A1B5BF" : "#82959D");
+        AddBrush("HandleInk", dark ? "#C4C4C4" : "#82959D");
         AddBrush("WarningInk", dark ? "#F3B679" : "#B06F40");
         AddBrush("SuccessInk", dark ? "#68D6AE" : "#1C9C84");
-        AddBrush("InactiveInk", dark ? "#91A0A8" : "#A6B1B9");
+        AddBrush("InactiveInk", dark ? "#9C9C9C" : "#A6B1B9");
         AddBrush("DropIndicatorBrush", dark ? "#77D0BD" : "#5D9B90");
         AddBrush("MascotBackground", dark ? "#254238" : "#E0F0E9");
         AddBrush("MascotHoverBackground", dark ? "#305544" : "#D3EADD");
