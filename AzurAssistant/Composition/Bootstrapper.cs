@@ -23,9 +23,13 @@ public static class Bootstrapper
         var nativeInput = new WindowsGameInput(() => GameWindow.Find("AzurPromilia"));
         var input = new InputCoordinator(nativeInput, timing => nativeInput.SetActivationTiming(
             timing.Scale(TimeSpan.FromSeconds(3)), timing.Scale(TimeSpan.FromMilliseconds(200)), timing.Scale(TimeSpan.FromMilliseconds(40))));
-        var runner = new TaskRunner(preview, input, log);
         var settings = new SettingsStore(settingsPath ?? Path.Combine(DataRoot(), "settings.json"));
         var dataDirectory = Path.GetDirectoryName(settingsPath ?? Path.Combine(DataRoot(), "settings.json"))!;
+        var runHistory = new RunHistoryStore(Path.Combine(dataDirectory, "runs.jsonl"));
+        var runner = new TaskRunner(preview, input, log, runHistory: runHistory);
+        var diagnostics = new DiagnosticBundle(dataDirectory, log);
+        var languagePacks = new LanguagePackService(Path.Combine(AppContext.BaseDirectory, "语言包"),
+            Path.Combine(AppContext.BaseDirectory, "脚本", "Switch-GameLanguage.ps1"));
         var commissionSettings = new CommissionSettingsStore(Path.Combine(dataDirectory, "commissions.json"));
         var weekly = new WeeklyProgressStore(Path.Combine(dataDirectory, "weekly-progress.json"));
         var features = new FeatureCatalog(commissionSettings, weekly, async (timeout, token) =>
@@ -64,7 +68,8 @@ public static class Bootstrapper
             actionsDirectory: Path.Combine(dataDirectory, "actions"),
             wheelchairDirectory: Path.Combine(dataDirectory, "wheelchair"),
             schedulePath: Path.Combine(dataDirectory, "schedule.json"),
-            soundsDirectory: Path.Combine(dataDirectory, "sounds")));
+            soundsDirectory: Path.Combine(dataDirectory, "sounds"),
+            runHistoryStore: runHistory, diagnostics: diagnostics, languagePacks: languagePacks));
         try
         {
             var source = JsonSerializer.Deserialize<UpdateSource>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "update-source.json")))!;

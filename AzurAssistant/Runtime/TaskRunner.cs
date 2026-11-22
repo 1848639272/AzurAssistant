@@ -8,8 +8,10 @@ public sealed record TaskRunOptions(TimeSpan? Timeout, Func<CancellationToken, T
     Func<TaskExecution, CancellationToken, Task>? PrepareWithExecutionAsync = null);
 
 public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator input, DailyLogStore log,
-    IFailureScreenshotStore? failureScreenshots = null)
+    IFailureScreenshotStore? failureScreenshots = null, RunHistoryStore? runHistory = null)
 {
+    private DateTimeOffset? _runStartedAt;
+    private string? _runTaskName;
     private readonly object _gate = new();
     private readonly IFailureScreenshotStore _failureScreenshots = failureScreenshots ?? new FailureScreenshotStore(log);
     private RunSession? _session;
@@ -36,6 +38,8 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
             _session?.Cancellation.Dispose();
             var session = _session = new RunSession();
             _running = true;
+            _runStartedAt = DateTimeOffset.Now;
+            _runTaskName = task.Name;
             LastResult = null;
             RequiresElevation = false;
             _run = RunAsync(task, options, session);
@@ -194,6 +198,13 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
                 completedResult = LastResult ?? new TaskResult(false, "未取得任务结果");
                 log.Write($"最终结果：{(completedResult.Success ? "成功" : "失败")}；任务={task.Name} ({task.Id})；{completedResult.Message}",
                     completedResult.Success ? LogLevel.Info : LogLevel.Error);
+                if (runHistory is not null && _runStartedAt is { } startedAt)
+                {
+                    var finished = DateTimeOffset.Now;
+                    runHistory.Append(new RunRecord(_runTaskName ?? task.Name, startedAt, finished,
+                        (finished - startedAt).TotalSeconds, completedResult.Success, completedResult.Message));
+                }
+                _runStartedAt = null;
                 _running = false;
             }
         }

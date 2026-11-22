@@ -20,6 +20,17 @@ internal static class NativeMethods
     [DllImport("user32.dll")] internal static extern nint GetForegroundWindow();
     [DllImport("dwmapi.dll")] internal static extern int DwmGetWindowAttribute(nint hwnd, int attribute, out Rect rect, int size);
     [DllImport("dwmapi.dll", EntryPoint = "DwmGetWindowAttribute")] internal static extern int GetCloaked(nint hwnd, int attribute, out int value, int size);
+    internal delegate bool EnumMonitorProc(nint monitor, nint deviceContext, nint rect, nint parameter);
+    [StructLayout(LayoutKind.Sequential)] internal struct MONITORINFO
+    {
+        public int cbSize;
+        public Rect rcMonitor;
+        public Rect rcWork;
+        public uint dwFlags;
+        public static MONITORINFO Create() => new() { cbSize = Marshal.SizeOf<MONITORINFO>() };
+    }
+    [DllImport("user32.dll")] internal static extern bool EnumDisplayMonitors(nint deviceContext, nint clip, EnumMonitorProc callback, nint parameter);
+    [DllImport("user32.dll")] internal static extern bool GetMonitorInfo(nint monitor, ref MONITORINFO info);
     [DllImport("d3d11.dll")] private static extern int D3D11CreateDevice(nint adapter, int driverType, nint software, uint flags, nint levels, uint levelCount, uint sdkVersion, out nint device, out int featureLevel, out nint context);
     [DllImport("d3d11.dll")] private static extern int CreateDirect3D11DeviceFromDXGIDevice(nint dxgi, out nint device);
     [DllImport("combase.dll", CharSet = CharSet.Unicode)] private static extern int WindowsCreateString(string value, int length, out nint hstring);

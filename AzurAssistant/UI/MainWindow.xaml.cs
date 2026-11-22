@@ -677,4 +677,77 @@ public partial class MainWindow : Window
         // A stopped session may complete synchronously; never reenter Window.Close from its Closing event.
         _ = Dispatcher.BeginInvoke(Close);
     }
+
+    // ---- 工具与诊断 ----
+    private void OnRefreshLanguagePacks(object sender, RoutedEventArgs e) => ViewModel.RefreshLanguagePacks();
+
+    private async void OnApplyLanguagePack(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedLanguagePack is not { Ready: true } pack) { ViewModel.Report("请选择一个可用的语言包。"); return; }
+        var confirm = MessageBox.Show(this,
+            $"即将把游戏语言切换为：{pack.Label}\n\n脚本会自动备份原文件，切换期间请确保游戏已关闭。是否继续？",
+            "切换游戏语言", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+        if (confirm != MessageBoxResult.Yes) return;
+        await ViewModel.ApplySelectedLanguagePackAsync();
+    }
+
+    private async void OnRestoreLanguage(object sender, RoutedEventArgs e)
+    {
+        var confirm = MessageBox.Show(this, "将从最近的备份还原游戏语言文件，是否继续？",
+            "还原语言文件", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+        if (confirm != MessageBoxResult.Yes) return;
+        await ViewModel.RestoreLanguageAsync();
+    }
+
+    private void OnExportDiagnosticBundle(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出诊断包",
+            Filter = "Zip 压缩包 (*.zip)|*.zip",
+            FileName = $"AzurAssistant-诊断-{DateTime.Now:yyyyMMdd-HHmmss}.zip",
+        };
+        if (dialog.ShowDialog(this) != true) return;
+        if (ViewModel.ExportDiagnosticBundle(dialog.FileName))
+            MessageBox.Show(this, "诊断包已导出：\n" + dialog.FileName, "蔚蓝助手", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private void OnRefreshFailureFrames(object sender, RoutedEventArgs e) => ViewModel.RefreshFailureFrames();
+
+    private void OnDeleteFailureFrames(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.FailureFrames.Count == 0) return;
+        if (MessageBox.Show(this, $"确定删除全部 {ViewModel.FailureFrames.Count} 个失败帧吗？", "蔚蓝助手",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        ViewModel.DeleteFailureFrames();
+    }
+
+    private void OnOpenFailureFrame(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: FailureFrameRow row }) return;
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(row.ImagePath) { UseShellExecute = true }); }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { ViewModel.Report("打开失败帧失败：" + ex.Message); }
+    }
+
+    private void OnRefreshRunHistory(object sender, RoutedEventArgs e) => ViewModel.RefreshRunHistory();
+
+    private void OnExportRunHistory(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出运行记录",
+            Filter = "CSV 表格 (*.csv)|*.csv",
+            FileName = $"AzurAssistant-运行记录-{DateTime.Now:yyyyMMdd-HHmmss}.csv",
+        };
+        if (dialog.ShowDialog(this) != true) return;
+        if (ViewModel.ExportRunHistory(dialog.FileName))
+            MessageBox.Show(this, "已导出：\n" + dialog.FileName, "蔚蓝助手", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private void OnClearRunHistory(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show(this, "确定清空全部运行记录吗？", "蔚蓝助手",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        ViewModel.ClearRunHistory();
+    }
 }

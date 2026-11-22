@@ -255,6 +255,9 @@
       <RadioButton x:Name="GachaNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="gacha" Checked="OnNavigate" IsChecked="{Binding IsGachaPage, Mode=OneWay}" AutomationProperties.Name="抽卡分析">
        <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE734;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="抽卡分析" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
       </RadioButton>
+      <RadioButton x:Name="ToolsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="tools" Checked="OnNavigate" IsChecked="{Binding IsToolsPage, Mode=OneWay}" AutomationProperties.Name="工具与诊断">
+       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE946;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="工具与诊断" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+      </RadioButton>
      <RadioButton x:Name="SettingsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="settings" Checked="OnNavigate" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" AutomationProperties.Name="设置">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
@@ -661,6 +664,68 @@
         <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="16,14">
          <TextBlock Text="这个页面先占位，内容待补充。" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" />
         </Border>
+       </StackPanel>
+       <StackPanel x:Name="ToolsPage" Visibility="{Binding IsToolsPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="语言包" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="把导出的语言包放进 程序目录\语言包\&lt;代码&gt;\ 后点刷新；应用前脚本会自动备份，可随时还原。切换时游戏必须关闭。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <ComboBox Width="300" ItemsSource="{Binding LanguagePacks}" SelectedItem="{Binding SelectedLanguagePack}" DisplayMemberPath="Label" Margin="0,0,10,0" AutomationProperties.Name="语言包选择" />
+         <Button Content="应用语言包" Click="OnApplyLanguagePack" Padding="12,6" Margin="0,0,8,0" IsEnabled="{Binding CanApplyLanguagePack}" />
+         <Button Content="还原备份" Click="OnRestoreLanguage" Padding="12,6" Margin="0,0,8,0" IsEnabled="{Binding CanApplyLanguagePack}" />
+         <Button Content="刷新列表" Click="OnRefreshLanguagePacks" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding LanguageStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18" />
+
+        <TextBlock Text="诊断包" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="把日志、设置、模板清单、最近失败帧和系统信息打包成一个 zip，方便反馈问题。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <Button Content="导出诊断包…" Click="OnExportDiagnosticBundle" Padding="12,6" Margin="0,0,0,8" HorizontalAlignment="Left" />
+        <TextBlock Text="{Binding DiagnosticsStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18" />
+
+        <TextBlock Text="识别调试（失败帧）" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="任务失败时会自动保存最后一帧和原因。这里可以看是哪个模板没认出来，双击打开图片。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <Button Content="刷新" Click="OnRefreshFailureFrames" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="全部删除" Click="OnDeleteFailureFrames" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding DebugStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto" Margin="0,0,0,18">
+         <ItemsControl ItemsSource="{Binding FailureFrames}">
+          <ItemsControl.ItemTemplate><DataTemplate>
+           <Border Background="{DynamicResource TileBackground}" CornerRadius="7" Padding="10,8" Margin="0,0,0,6" MouseLeftButtonDown="OnOpenFailureFrame" Cursor="Hand" ToolTip="{Binding ImagePath}">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="130" /><ColumnDefinition Width="130" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+             <TextBlock Text="{Binding WhenText}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />
+             <TextBlock Grid.Column="1" Text="{Binding TaskName}" VerticalAlignment="Center" FontSize="11" TextTrimming="CharacterEllipsis" />
+             <TextBlock Grid.Column="2" Text="{Binding Reason}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" TextTrimming="CharacterEllipsis" Margin="6,0" />
+             <TextBlock Grid.Column="3" Text="{Binding SizeText}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />
+            </Grid>
+           </Border>
+          </DataTemplate></ItemsControl.ItemTemplate>
+         </ItemsControl>
+        </ScrollViewer>
+
+        <TextBlock Text="运行报表" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="{Binding RunReportSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <Button Content="刷新" Click="OnRefreshRunHistory" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="导出 CSV…" Click="OnExportRunHistory" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="清空" Click="OnClearRunHistory" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding ReportStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto">
+         <ItemsControl ItemsSource="{Binding RunHistory}">
+          <ItemsControl.ItemTemplate><DataTemplate>
+           <Border Background="{DynamicResource TileBackground}" CornerRadius="7" Padding="10,8" Margin="0,0,0,6">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="130" /><ColumnDefinition Width="150" /><ColumnDefinition Width="90" /><ColumnDefinition Width="60" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+             <TextBlock Text="{Binding StartedText}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />
+             <TextBlock Grid.Column="1" Text="{Binding TaskName}" VerticalAlignment="Center" FontSize="11" TextTrimming="CharacterEllipsis" />
+             <TextBlock Grid.Column="2" Text="{Binding DurationText}" VerticalAlignment="Center" FontSize="11" />
+             <TextBlock Grid.Column="3" Text="{Binding ResultText}" VerticalAlignment="Center" FontSize="11" />
+             <TextBlock Grid.Column="4" Text="{Binding Message}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" TextTrimming="CharacterEllipsis" Margin="6,0,0,0" />
+            </Grid>
+           </Border>
+          </DataTemplate></ItemsControl.ItemTemplate>
+         </ItemsControl>
+        </ScrollViewer>
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />
