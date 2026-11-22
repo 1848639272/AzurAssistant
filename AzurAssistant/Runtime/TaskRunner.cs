@@ -8,7 +8,8 @@ public sealed record TaskRunOptions(TimeSpan? Timeout, Func<CancellationToken, T
     Func<TaskExecution, CancellationToken, Task>? PrepareWithExecutionAsync = null);
 
 public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator input, DailyLogStore log,
-    IFailureScreenshotStore? failureScreenshots = null, RunHistoryStore? runHistory = null)
+    IFailureScreenshotStore? failureScreenshots = null, RunHistoryStore? runHistory = null,
+    Func<bool>? autoRecover = null, Func<CancellationToken, Task<bool>>? recoverAsync = null)
 {
     private DateTimeOffset? _runStartedAt;
     private string? _runTaskName;
@@ -208,6 +209,19 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
                 _running = false;
             }
         }
+        // 失败后自动尝试回到主界面，避免下一次运行从错误页面开始。
+        if (!completedResult.Success && options.RequiresGameInput && recoverAsync is not null && autoRecover?.Invoke() != false)
+        {
+            try
+            {
+                using var recoverTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                var recovered = await recoverAsync(recoverTimeout.Token).ConfigureAwait(false);
+                log.Write(recovered ? "失败后已自动尝试回到主界面（Esc）" : "失败后自动恢复未生效", LogLevel.Warning);
+            }
+            catch (Exception ex) when (ex is OperationCanceledException or InvalidOperationException)
+            { log.Write("失败后自动恢复出错：" + ex.Message, LogLevel.Warning); }
+        }
+
         return completedResult;
 
         TaskResult CancellationResult() => new(false, session.PauseFailure is { } pauseFailure

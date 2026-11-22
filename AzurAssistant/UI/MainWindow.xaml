@@ -807,6 +807,23 @@
          <RadioButton x:Name="BackgroundFitOption" GroupName="BackgroundMode" Content="保持比例，上下/左右留白" IsChecked="{Binding BackgroundFitMode}" />
         </StackPanel>
         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
+        <TextBlock Text="识别与容错" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="超时越长越稳但更慢；重试间隔与动作后等待太短容易误点。卡死检测填 0 表示关闭。修改后下次任务生效。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="90" /><ColumnDefinition Width="150" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <TextBlock Text="单步超时（秒）" VerticalAlignment="Center" />
+         <TextBox Grid.Column="1" Text="{Binding StepTimeoutSeconds}" Margin="0,0,16,0" AutomationProperties.Name="单步超时" />
+         <TextBlock Grid.Column="2" Text="重试间隔（秒）" VerticalAlignment="Center" />
+         <TextBox Grid.Column="3" Text="{Binding StepRetrySeconds}" AutomationProperties.Name="重试间隔" />
+        </Grid>
+        <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="90" /><ColumnDefinition Width="150" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <TextBlock Text="动作后等待（毫秒）" VerticalAlignment="Center" />
+         <TextBox Grid.Column="1" Text="{Binding ActionSettleMs}" Margin="0,0,16,0" AutomationProperties.Name="动作后等待" />
+         <TextBlock Grid.Column="2" Text="卡死检测（秒）" VerticalAlignment="Center" />
+         <TextBox Grid.Column="3" Text="{Binding StuckWarningSeconds}" AutomationProperties.Name="卡死检测" />
+        </Grid>
+        <CheckBox x:Name="AutoRecoverOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoRecover}" Margin="0,4,0,0" AutomationProperties.Name="失败后自动恢复"><StackPanel><TextBlock Text="任务失败后自动按 Esc 尝试回到主界面" FontWeight="SemiBold" /><TextBlock Text="最多按 3 次；不会自动重跑任务，只是把游戏退回主菜单" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <Border Height="0" />
+        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
         <TextBlock Text="游戏语言切换（实验）" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
         <TextBlock Text="游戏的语言资源打包在 AssetBundle 里，无法在程序内直接切换。把语言包放进“语言包\”目录后，运行 脚本\Switch-GameLanguage.ps1 即可替换或还原（脚本会自动探测游戏目录并先备份）。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,18">

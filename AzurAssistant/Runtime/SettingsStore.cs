@@ -70,6 +70,10 @@ public sealed class SettingsStore
         foreach (var (name, level) in new[] { ("界面", value.UiOpacity), ("文字", value.TextOpacity), ("背景", value.BackgroundOpacity) })
             if (level is < 0 or > 100) throw new InvalidDataException($"{name}透明度应在 0–100 之间。");
         if (value.BackgroundImagePath is null || value.BackgroundImagePath.Length > 32767) throw new InvalidDataException("背景图路径无效。");
+        if (value.StepTimeoutSeconds is < 3 or > 300) throw new InvalidDataException("单步超时应在 3–300 秒之间。");
+        if (value.StepRetrySeconds is < 0 or > 60) throw new InvalidDataException("重试间隔应在 0–60 秒之间。");
+        if (value.ActionSettleMs is < 200 or > 10000) throw new InvalidDataException("操作后等待应在 200–10000 毫秒之间。");
+        if (value.StuckWarningSeconds is < 0 or > 3600) throw new InvalidDataException("卡死检测阈值应在 0–3600 秒之间。");
         if (value.AccentColor is null || (value.AccentColor.Length > 0 && !System.Text.RegularExpressions.Regex.IsMatch(value.AccentColor, "^#[0-9A-Fa-f]{6}$")))
             throw new InvalidDataException("界面颜色格式无效（应形如 #1E90FF）。");
         if (value.BackgroundImageMode is not ("stretch" or "fit")) throw new InvalidDataException("背景图处理方式无效。");

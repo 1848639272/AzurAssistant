@@ -3,6 +3,7 @@ using AzurAssistant.Runtime;
 using AzurAssistant.UI;
 using AzurAssistant.Features.StartJourney;
 using AzurAssistant.Vision;
+using AzurAssistant.Game.Ui;
 using System.IO;
 using AzurAssistant.Features.Commissions;
 using AzurAssistant.Contracts;
@@ -26,7 +27,30 @@ public static class Bootstrapper
         var settings = new SettingsStore(settingsPath ?? Path.Combine(DataRoot(), "settings.json"));
         var dataDirectory = Path.GetDirectoryName(settingsPath ?? Path.Combine(DataRoot(), "settings.json"))!;
         var runHistory = new RunHistoryStore(Path.Combine(dataDirectory, "runs.jsonl"));
-        var runner = new TaskRunner(preview, input, log, runHistory: runHistory);
+        // Recognition timing from settings, plus a safe "back to the menu" recovery for failed runs.
+        var initialSettings = settings.Current;
+        DailyUiTiming.Configure(initialSettings.StepTimeoutSeconds, initialSettings.StepRetrySeconds,
+            initialSettings.ActionSettleMs);
+        Func<CancellationToken, Task<bool>> recoverAsync = async token =>
+        {
+            var frame = preview.Current.Frame;
+            if (frame is null) return false;
+            using var lease = input.Acquire();
+            try
+            {
+                await lease.ActivateAsync(token).ConfigureAwait(false);
+                for (var press = 0; press < 3; press++)
+                {
+                    if (preview.Current.Frame is not { } current) return false;
+                    await lease.PressKeyAsync(current, GameKey.Escape, token).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromMilliseconds(700), token).ConfigureAwait(false);
+                }
+                return true;
+            }
+            finally { lease.ReleaseAll(); }
+        };
+        var runner = new TaskRunner(preview, input, log, runHistory: runHistory,
+            autoRecover: () => settings.Current.AutoRecover, recoverAsync: recoverAsync);
         var diagnostics = new DiagnosticBundle(dataDirectory, log);
         var languagePacks = new LanguagePackService(Path.Combine(AppContext.BaseDirectory, "语言包"),
             Path.Combine(AppContext.BaseDirectory, "脚本", "Switch-GameLanguage.ps1"));

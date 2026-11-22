@@ -16,6 +16,16 @@ public sealed record AssistantSettings
     public int TextOpacity { get; init; } = 100;
     /// <summary>背景表面（卡片、输入框、侧栏）透明度百分比 0–100。</summary>
     public int BackgroundOpacity { get; init; } = 100;
+    /// <summary>单步识别等待上限（秒）。</summary>
+    public int StepTimeoutSeconds { get; init; } = 15;
+    /// <summary>识别失败后重试间隔（秒）。</summary>
+    public int StepRetrySeconds { get; init; } = 3;
+    /// <summary>每次操作后等待界面稳定的时间（毫秒）。</summary>
+    public int ActionSettleMs { get; init; } = 1500;
+    /// <summary>任务失败后是否自动尝试按 Esc 回到主界面。</summary>
+    public bool AutoRecover { get; init; } = true;
+    /// <summary>运行中多少秒没有进展就判定疑似卡死（0 表示不检测）。</summary>
+    public int StuckWarningSeconds { get; init; } = 90;
     /// <summary>界面强调色（#RRGGBB），空表示使用主题默认色。</summary>
     public string AccentColor { get; init; } = "";
     /// <summary>自定义背景图（绝对路径），空表示不使用。</summary>

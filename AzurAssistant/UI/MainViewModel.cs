@@ -540,6 +540,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         // rapid slider movement cannot force a synchronous refresh per tick.
         if (refreshAutomation) Refresh();
         NotifyAllLater();
+        ApplyRecognitionTiming(settings);
         return saved;
     }
     private static string SelectionText((bool Selected, string Name)[] choices)
@@ -577,6 +578,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     public void Refresh()
     {
         EnsureScheduleTimer();
+        DetectStuck();
         if (_displayedDailyOrder != Settings.DailyTaskOrder)
         {
             _displayedDailyOrder = Settings.DailyTaskOrder;

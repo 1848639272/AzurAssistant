@@ -8,7 +8,23 @@ public sealed record DailyUiTiming(TimeSpan StepTimeout, TimeSpan PollInterval, 
     public TimeSpan StableDuration { get; init; } = TimeSpan.FromMilliseconds(600);
     public TimeSpan RetryDelay { get; init; } = TimeSpan.FromSeconds(3);
     public TimeSpan InvalidFrameDelay { get; init; } = TimeSpan.FromMilliseconds(10);
-    public static DailyUiTiming Default { get; } = new(TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(1500));
+    private static TimeSpan _stepTimeout = TimeSpan.FromSeconds(15);
+    private static TimeSpan _retryDelay = TimeSpan.FromSeconds(3);
+    private static TimeSpan _actionSettle = TimeSpan.FromMilliseconds(1500);
+
+    /// <summary>Settings-driven defaults so the user can trade speed against robustness.</summary>
+    public static DailyUiTiming Default => new(_stepTimeout, TimeSpan.FromMilliseconds(200), _actionSettle)
+    {
+        RetryDelay = _retryDelay,
+    };
+
+    /// <summary>Applies the recognition timing settings; out-of-range values fall back to safe defaults.</summary>
+    public static void Configure(int stepTimeoutSeconds, int retrySeconds, int actionSettleMs)
+    {
+        _stepTimeout = TimeSpan.FromSeconds(stepTimeoutSeconds is >= 3 and <= 300 ? stepTimeoutSeconds : 15);
+        _retryDelay = TimeSpan.FromSeconds(retrySeconds is >= 0 and <= 60 ? retrySeconds : 3);
+        _actionSettle = TimeSpan.FromMilliseconds(actionSettleMs is >= 200 and <= 10000 ? actionSettleMs : 1500);
+    }
 }
 
 internal sealed record ObservedUi(FrameSnapshot Frame, DailyUiObservation Ui);
