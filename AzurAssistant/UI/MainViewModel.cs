@@ -603,7 +603,10 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
                 _lastPreviewUpdate = now;
             }
         }
-        FrameInfo = frame is null ? "等待画面" : $"{frame.Width} × {frame.Height}  ·  帧 #{frame.Id}";
+        FrameInfo = frame is null ? "等待画面"
+            : frame.IsNormalized
+                ? $"{frame.ContentWidth} × {frame.ContentHeight} → {frame.Width} × {frame.Height}  ·  帧 #{frame.Id}"
+                : $"{frame.Width} × {frame.Height}  ·  帧 #{frame.Id}";
         FrameTime = frame is null ? "—" : $"更新于 {frame.CapturedAt:HH:mm:ss}";
         if (log is not null)
         {

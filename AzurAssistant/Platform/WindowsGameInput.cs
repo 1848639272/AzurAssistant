@@ -75,13 +75,15 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         if (frame.WindowHandle != target.Handle || frame.ProcessId != target.ProcessId)
             throw new InvalidOperationException("观察帧来自其他游戏窗口，已停止输入。");
         if (age < TimeSpan.Zero || age > TimeSpan.FromSeconds(1)
-            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop || geometry.Width != frame.Width || geometry.Height != frame.Height)
+            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop
+            || geometry.Width != frame.ContentWidth || geometry.Height != frame.ContentHeight)
             throw new InputUnavailableException("观察帧或窗口位置已变化，等待重新观察。");
         if (point.X < 0 || point.Y < 0 || point.X >= frame.Width || point.Y >= frame.Height)
             throw new InvalidOperationException("点击位置超出游戏客户区。");
         if (NativeMethods.GetForegroundWindow() != target.Handle)
             throw new InputUnavailableException("游戏不在前台，等待切回游戏。");
-        var desktop = new NativeMethods.Point { X = geometry.X + point.X, Y = geometry.Y + point.Y };
+        var native = ToNative(frame, point);
+        var desktop = new NativeMethods.Point { X = geometry.X + native.X, Y = geometry.Y + native.Y };
         if (GetAncestor(WindowFromPoint(desktop), 2) != target.Handle)
             throw new InputUnavailableException("目标位置被其他窗口遮挡，等待恢复。");
         if (!GetClipCursor(out var clip))
@@ -120,8 +122,8 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         token.ThrowIfCancellationRequested();
         var target = ValidateObservation(frame);
         if (!GetCursorPos(out var pointer)) throw new InvalidOperationException("无法读取鼠标当前位置，未点击。");
-        if (pointer.X < frame.ClientLeft || pointer.X >= frame.ClientLeft + frame.Width
-            || pointer.Y < frame.ClientTop || pointer.Y >= frame.ClientTop + frame.Height
+        if (pointer.X < frame.ClientLeft || pointer.X >= frame.ClientLeft + frame.ContentWidth
+            || pointer.Y < frame.ClientTop || pointer.Y >= frame.ClientTop + frame.ContentHeight
             || GetAncestor(WindowFromPoint(pointer), 2) != target.Handle)
             throw new InputUnavailableException("鼠标不在游戏客户区或被遮挡，已停止输入。");
         token.ThrowIfCancellationRequested();
@@ -143,10 +145,22 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         if (frame.WindowHandle != target.Handle || frame.ProcessId != target.ProcessId)
             throw new InvalidOperationException("观察帧来自其他游戏窗口，已停止输入。");
         if (age < TimeSpan.Zero || age > TimeSpan.FromSeconds(1)
-            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop || geometry.Width != frame.Width || geometry.Height != frame.Height
+            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop
+            || geometry.Width != frame.ContentWidth || geometry.Height != frame.ContentHeight
             || NativeMethods.GetForegroundWindow() != target.Handle)
             throw new InputUnavailableException("输入前观察帧或游戏前台已失效，请重新开始。");
         return target;
+    }
+
+    /// <summary>Maps a reference-space client point onto the frame's native client pixels.</summary>
+    private static ClientPoint ToNative(FrameSnapshot frame, ClientPoint point)
+    {
+        if (!frame.IsNormalized) return point;
+        static int Scale(int value, int from, int to)
+            => (int)Math.Round((double)value * to / from, MidpointRounding.AwayFromZero);
+        return new ClientPoint(
+            Math.Clamp(Scale(point.X, frame.Width, frame.ContentWidth), 0, frame.ContentWidth - 1),
+            Math.Clamp(Scale(point.Y, frame.Height, frame.ContentHeight), 0, frame.ContentHeight - 1));
     }
 
     public async Task DragAsync(FrameSnapshot frame, ClientPoint from, ClientPoint to, CancellationToken token)
@@ -158,7 +172,8 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
             var target = ValidateObservation(frame);
             if (point.X < 0 || point.Y < 0 || point.X >= frame.Width || point.Y >= frame.Height)
                 throw new ArgumentOutOfRangeException(nameof(point));
-            var desktop = new NativeMethods.Point { X = frame.ClientLeft + point.X, Y = frame.ClientTop + point.Y };
+            var desktopPoint = ToNative(frame, point);
+            var desktop = new NativeMethods.Point { X = frame.ClientLeft + desktopPoint.X, Y = frame.ClientTop + desktopPoint.Y };
             if (!GetClipCursor(out var clip)) throw new InvalidOperationException("无法检查拖动范围。");
             if (GetAncestor(WindowFromPoint(desktop), 2) != target.Handle || desktop.X < clip.Left
                 || desktop.X >= clip.Right || desktop.Y < clip.Top || desktop.Y >= clip.Bottom)
@@ -209,7 +224,8 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         if (frame.WindowHandle != target.Handle || frame.ProcessId != target.ProcessId)
             throw new InvalidOperationException("观察帧来自其他游戏窗口，已停止输入。");
         if (age < TimeSpan.Zero || age > TimeSpan.FromSeconds(1)
-            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop || geometry.Width != frame.Width || geometry.Height != frame.Height
+            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop
+            || geometry.Width != frame.ContentWidth || geometry.Height != frame.ContentHeight
             || NativeMethods.GetForegroundWindow() != target.Handle)
             throw new InputUnavailableException("按键前观察帧或游戏前台已失效，等待重新观察。");
         var scan = checked((ushort)MapVirtualKey((uint)key, 0));

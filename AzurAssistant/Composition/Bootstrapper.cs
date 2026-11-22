@@ -18,7 +18,8 @@ public static class Bootstrapper
     {
         var log = startupLog ?? new DailyLogStore(Path.Combine(DataRoot(), "logs"));
         log.Write("蔚蓝助手 v0.1.0 beta 已就绪");
-        var preview = new CapturePreviewService(() => new WindowsGraphicsFrameSource(GameWindow.Find("AzurPromilia")), log.Write);
+        var preview = new CapturePreviewService(
+            () => new ReferenceSpaceFrameSource(new WindowsGraphicsFrameSource(GameWindow.Find("AzurPromilia"))), log.Write);
         var nativeInput = new WindowsGameInput(() => GameWindow.Find("AzurPromilia"));
         var input = new InputCoordinator(nativeInput, timing => nativeInput.SetActivationTiming(
             timing.Scale(TimeSpan.FromSeconds(3)), timing.Scale(TimeSpan.FromMilliseconds(200)), timing.Scale(TimeSpan.FromMilliseconds(40))));
