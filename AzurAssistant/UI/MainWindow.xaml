@@ -576,14 +576,22 @@
           <ItemsControl.ItemTemplate><DataTemplate>
            <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="10,8" Margin="0,0,0,7">
             <Grid>
-             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="150" /><ColumnDefinition Width="190" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="62" /><ColumnDefinition Width="58" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-             <CheckBox Grid.Column="0" IsChecked="{Binding Enabled}" VerticalAlignment="Center" ToolTip="是否启用" AutomationProperties.Name="启用该任务" />
-             <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="40" Margin="6,0,8,0" ToolTip="任务名称" AutomationProperties.Name="任务名称" />
-             <ComboBox Grid.Column="2" ItemsSource="{Binding DataContext.ScheduleChoices, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding Target}" SelectedValuePath="Key" DisplayMemberPath="Label" Margin="0,0,8,0" AutomationProperties.Name="执行内容" />
-             <CheckBox Grid.Column="3" Content="按间隔" IsChecked="{Binding UseInterval}" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="不勾选=每天固定时刻；勾选=每隔一段时间" AutomationProperties.Name="按间隔执行" />
-             <TextBox Grid.Column="4" Text="{Binding TimeText, UpdateSourceTrigger=PropertyChanged}" MaxLength="5" Margin="0,0,8,0" ToolTip="每天时刻 HH:mm" AutomationProperties.Name="每天时刻" />
-             <TextBox Grid.Column="5" Text="{Binding IntervalText, UpdateSourceTrigger=PropertyChanged}" MaxLength="4" Margin="0,0,8,0" ToolTip="间隔分钟 1-1440" AutomationProperties.Name="间隔分钟" />
-             <StackPanel Grid.Column="6" Orientation="Horizontal">
+             <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" /><ColumnDefinition Width="128" /><ColumnDefinition Width="252" />
+              <ColumnDefinition Width="118" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" />
+             </Grid.ColumnDefinitions>
+             <CheckBox Grid.Column="0" Style="{StaticResource FeatureOption}" IsChecked="{Binding Enabled}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="是否启用这条任务" AutomationProperties.Name="启用该任务" />
+             <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="40" Margin="0,0,10,0" ToolTip="任务名称" AutomationProperties.Name="任务名称" />
+             <ComboBox Grid.Column="2" ItemsSource="{Binding DataContext.ScheduleChoices, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding Target}" SelectedValuePath="Key" DisplayMemberPath="Label" Margin="0,0,10,0" AutomationProperties.Name="执行内容" />
+             <ComboBox Grid.Column="3" ItemsSource="{Binding DataContext.ScheduleModeChoices, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding ModeKey}" SelectedValuePath="Key" DisplayMemberPath="Label" Margin="0,0,10,0" ToolTip="定时执行=每天固定时刻；间歇执行=每隔一段时间" AutomationProperties.Name="执行方式" />
+             <Grid Grid.Column="4" VerticalAlignment="Center" Margin="0,0,10,0">
+              <TextBox Text="{Binding TimeText, UpdateSourceTrigger=PropertyChanged}" MaxLength="5" Width="84" HorizontalAlignment="Left" ToolTip="每天执行的时刻 HH:mm" AutomationProperties.Name="每天时刻" Visibility="{Binding IsDaily, Converter={StaticResource BoolVisibility}}" />
+              <StackPanel Orientation="Horizontal" Visibility="{Binding IsInterval, Converter={StaticResource BoolVisibility}}">
+               <TextBox Text="{Binding IntervalText, UpdateSourceTrigger=PropertyChanged}" MaxLength="4" Width="70" ToolTip="间隔分钟数 1-1440" AutomationProperties.Name="间隔分钟" />
+               <TextBlock Text="分钟" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="{DynamicResource Muted}" />
+              </StackPanel>
+             </Grid>
+             <StackPanel Grid.Column="5" Orientation="Horizontal">
               <Button Content="立即执行" Click="OnRunSelectedSchedule" Padding="10,5" Margin="0,0,6,0" />
               <Button Content="移除" Click="OnRemoveScheduleTask" Padding="10,5" />
              </StackPanel>
@@ -592,7 +600,7 @@
           </DataTemplate></ItemsControl.ItemTemplate>
          </ItemsControl>
         </ScrollViewer>
-        <TextBlock Text="列说明：第 2 列是任务名；第 3 列是要执行的内容；勾“按间隔”后填分钟数，不勾则按“每天时刻”执行。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <TextBlock Text="列说明：第 2 列是任务名；第 3 列是要执行的内容；第 4 列选“定时执行”就填每天几点，选“间歇执行”就填每隔多少分钟。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,10" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
          <Button x:Name="AddScheduleTaskButton" Content="新增任务" Click="OnAddScheduleTask" Style="{StaticResource PrimaryAction}" />
          <Button x:Name="SaveScheduleTasksButton" Content="保存任务" Click="OnSaveScheduleTasks" Margin="10,0,0,0" />

@@ -8,15 +8,36 @@ namespace AzurAssistant.UI;
 /// <summary>One selectable scheduled action: the daily chain, or a saved route / action / wheelchair plan.</summary>
 public sealed record ScheduleChoice(string Key, string Label);
 
-/// <summary>One editable scheduled job row.</summary>
-public sealed class ScheduleTaskDraft(string name)
+/// <summary>One editable scheduled job row. The mode is a two-value choice so the row can show only its own input.</summary>
+public sealed class ScheduleTaskDraft(string name) : System.ComponentModel.INotifyPropertyChanged
 {
+    private string _modeKey = "daily";
+
     public string Name { get; set; } = name;
     public bool Enabled { get; set; } = true;
-    public bool UseInterval { get; set; }
     public string TimeText { get; set; } = "08:00";
     public string IntervalText { get; set; } = "60";
     public string Target { get; set; } = "daily";
+
+    /// <summary>"daily"（定时执行）或 "interval"（间歇执行）。</summary>
+    public string ModeKey
+    {
+        get => _modeKey;
+        set
+        {
+            var normalized = value == "interval" ? "interval" : "daily";
+            if (_modeKey == normalized) return;
+            _modeKey = normalized;
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(ModeKey)));
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(IsDaily)));
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(IsInterval)));
+        }
+    }
+
+    public bool IsDaily => _modeKey != "interval";
+    public bool IsInterval => _modeKey == "interval";
+
+    public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
 }
 
 /// <summary>Read-only row shown on the home page.</summary>
@@ -41,6 +62,7 @@ public sealed partial class MainViewModel
     public ObservableCollection<ScheduleChoice> ScheduleChoices { get; } = [];
     public ObservableCollection<ScheduleTaskSummary> ScheduleSummaries { get; } = [];
     public ObservableCollection<SoundChoice> SoundChoices { get; } = [];
+    public ObservableCollection<ScheduleChoice> ScheduleModeChoices { get; } = [new("daily", "定时执行"), new("interval", "间歇执行")];
 
     public ScheduleTaskDraft? SelectedScheduleDraft
     {
@@ -93,6 +115,9 @@ public sealed partial class MainViewModel
         EnsureScheduleTimer();
         RefreshScheduleNextTimes();
         if (Schedules.Error is { } error) SetScheduleStatus(error);
+        else if (_schedule.Tasks.Count > 0)
+            SetScheduleStatus($"已载入 {_schedule.Tasks.Count} 条定时任务，改完记得点“保存任务”。");
+        else SetScheduleStatus("还没有定时任务。点“新增任务”添加一条。");
     }
 
     // ---- 任务编辑 ----
@@ -125,7 +150,7 @@ public sealed partial class MainViewModel
             {
                 Name = draft.Name.Trim(),
                 Enabled = draft.Enabled,
-                Mode = draft.UseInterval ? "interval" : "daily",
+                Mode = draft.ModeKey == "interval" ? "interval" : "daily",
                 Time = $"{time.Hours:00}:{time.Minutes:00}",
                 IntervalMinutes = minutes,
                 Target = draft.Target,
@@ -170,7 +195,7 @@ public sealed partial class MainViewModel
             ScheduleDrafts.Add(new ScheduleTaskDraft(task.Name)
             {
                 Enabled = task.Enabled,
-                UseInterval = task.Mode == "interval",
+                ModeKey = task.Mode == "interval" ? "interval" : "daily",
                 TimeText = task.Time,
                 IntervalText = task.IntervalMinutes.ToString(),
                 Target = task.Target,
