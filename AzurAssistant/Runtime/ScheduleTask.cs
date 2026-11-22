@@ -15,6 +15,10 @@ public sealed record ScheduleTask
     public int IntervalMinutes { get; init; } = 60;
     /// <summary>"daily" 或 "route:名称" / "action:名称" / "wheelchair:名称"。</summary>
     public string Target { get; init; } = "daily";
+    /// <summary>该任务自己的开始提示音；null 表示跟随全局设置。</summary>
+    public string? StartSound { get; init; }
+    /// <summary>该任务自己的结束提示音；null 表示跟随全局设置。</summary>
+    public string? EndSound { get; init; }
     /// <summary>上次触发时间（Unix 毫秒），重启后用于计算间隔任务的下一轮。</summary>
     public long LastRunUnixMs { get; init; }
 

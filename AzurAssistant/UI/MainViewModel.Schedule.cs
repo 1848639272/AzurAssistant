@@ -18,6 +18,10 @@ public sealed class ScheduleTaskDraft(string name) : System.ComponentModel.INoti
     public string TimeText { get; set; } = "08:00";
     public string IntervalText { get; set; } = "60";
     public string Target { get; set; } = "daily";
+    /// <summary>该任务自己的开始提示音；空字符串表示跟随全局设置。</summary>
+    public string StartSoundKey { get; set; } = "";
+    /// <summary>该任务自己的结束提示音；空字符串表示跟随全局设置。</summary>
+    public string EndSoundKey { get; set; } = "";
 
     /// <summary>"daily"（定时执行）或 "interval"（间歇执行）。</summary>
     public string ModeKey
@@ -63,6 +67,8 @@ public sealed partial class MainViewModel
     public ObservableCollection<ScheduleTaskSummary> ScheduleSummaries { get; } = [];
     public ObservableCollection<SoundChoice> SoundChoices { get; } = [];
     public ObservableCollection<ScheduleChoice> ScheduleModeChoices { get; } = [new("daily", "定时执行"), new("interval", "间歇执行")];
+    /// <summary>Per-task sound options; the empty key means "inherit the global sound".</summary>
+    public ObservableCollection<SoundChoice> TaskSoundChoices { get; } = [];
 
     public ScheduleTaskDraft? SelectedScheduleDraft
     {
@@ -95,6 +101,19 @@ public sealed partial class MainViewModel
         get => SoundChoices.FirstOrDefault(choice => choice.Key == ScheduleClock.NormalizeSound(Settings.ScheduleEndSound));
         set { if (value is not null && SaveSettings(Settings with { ScheduleEndSound = value.Key })) { Notify(); Notify(nameof(SoundSummary)); } }
     }
+
+    public int ScheduleSoundVolume
+    {
+        get => Settings.ScheduleSoundVolume;
+        set
+        {
+            var clamped = Math.Clamp(value, 0, 100);
+            if (clamped == Settings.ScheduleSoundVolume) return;
+            if (SaveSettings(Settings with { ScheduleSoundVolume = clamped })) { Notify(); Notify(nameof(SoundVolumeText)); Notify(nameof(SoundSummary)); }
+        }
+    }
+
+    public string SoundVolumeText => $"音量 {ScheduleSoundVolume}%";
 
     public string SoundSummary => Settings.ScheduleSound
         ? $"开始：{ScheduleClock.SoundLabelFor(Settings.ScheduleStartSound, [])} · 结束：{ScheduleClock.SoundLabelFor(Settings.ScheduleEndSound, [])}"
@@ -154,6 +173,8 @@ public sealed partial class MainViewModel
                 Time = $"{time.Hours:00}:{time.Minutes:00}",
                 IntervalMinutes = minutes,
                 Target = draft.Target,
+                StartSound = string.IsNullOrWhiteSpace(draft.StartSoundKey) ? null : draft.StartSoundKey,
+                EndSound = string.IsNullOrWhiteSpace(draft.EndSoundKey) ? null : draft.EndSoundKey,
                 LastRunUnixMs = previous?.LastRunUnixMs ?? 0,
             });
         }
@@ -199,6 +220,8 @@ public sealed partial class MainViewModel
                 TimeText = task.Time,
                 IntervalText = task.IntervalMinutes.ToString(),
                 Target = task.Target,
+                StartSoundKey = task.StartSound ?? "",
+                EndSoundKey = task.EndSound ?? "",
             });
         }
         SelectedScheduleDraft = ScheduleDrafts.FirstOrDefault();
@@ -244,11 +267,15 @@ public sealed partial class MainViewModel
         SoundChoices.Clear();
         foreach (var preset in ScheduleClock.SoundPresets) SoundChoices.Add(new(preset, ScheduleClock.SoundLabel(preset)));
         TaskSound.SoundDirectory = SoundsDirectory;
+        TaskSoundChoices.Clear();
+        TaskSoundChoices.Add(new SoundChoice("", "默认（跟随全局）"));
+        foreach (var choice in SoundChoices) TaskSoundChoices.Add(choice);
         if (!Directory.Exists(SoundsDirectory)) return;
         foreach (var file in Directory.GetFiles(SoundsDirectory).Where(IsAudioFile).OrderBy(path => path, StringComparer.Ordinal))
         {
             var key = ScheduleClock.FilePrefix + Path.GetFileName(file);
             SoundChoices.Add(new(key, ScheduleClock.SoundLabelFor(key, [])));
+            TaskSoundChoices.Add(new(key, ScheduleClock.SoundLabelFor(key, [])));
         }
     }
 
@@ -327,10 +354,10 @@ public sealed partial class MainViewModel
             var started = TryStartScheduled(task.Target, out var message);
             SetScheduleStatus($"「{task.Name}」{(manual ? "手动触发：" : "定时触发：")}{message}");
             if (!started) return;
-            if (Settings.ScheduleSound) TaskSound.PlayStart(Settings.ScheduleStartSound);
+            if (Settings.ScheduleSound) TaskSound.PlayStart(task.StartSound ?? Settings.ScheduleStartSound, Settings.ScheduleSoundVolume);
             var completion = automation!.Runner.Completion;
             await completion;
-            if (Settings.ScheduleSound) TaskSound.PlayFinish(Settings.ScheduleEndSound);
+            if (Settings.ScheduleSound) TaskSound.PlayFinish(task.EndSound ?? Settings.ScheduleEndSound, Settings.ScheduleSoundVolume);
             var result = automation.Runner.LastResult;
             SetScheduleStatus($"「{task.Name}」{(result?.Success == true ? "已完成" : "已结束")}：{result?.Message ?? "无结果"}");
         }

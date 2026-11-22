@@ -580,6 +580,7 @@
          <ItemsControl x:Name="ScheduleTaskList" ItemsSource="{Binding ScheduleDrafts}">
           <ItemsControl.ItemTemplate><DataTemplate>
            <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="10,8" Margin="0,0,0,7">
+             <StackPanel>
             <Grid>
              <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto" /><ColumnDefinition Width="128" /><ColumnDefinition Width="252" />
@@ -601,6 +602,13 @@
               <Button Content="移除" Click="OnRemoveScheduleTask" Padding="10,5" />
              </StackPanel>
             </Grid>
+              <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+               <TextBlock Text="开始" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" FontSize="11" />
+               <ComboBox Width="150" Margin="6,0,16,0" ItemsSource="{Binding DataContext.TaskSoundChoices, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding StartSoundKey}" SelectedValuePath="Key" DisplayMemberPath="Label" ToolTip="默认=跟随上面的全局声音" AutomationProperties.Name="任务开始提示音" />
+               <TextBlock Text="结束" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" FontSize="11" />
+               <ComboBox Width="150" Margin="6,0,0,0" ItemsSource="{Binding DataContext.TaskSoundChoices, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding EndSoundKey}" SelectedValuePath="Key" DisplayMemberPath="Label" ToolTip="默认=跟随上面的全局声音" AutomationProperties.Name="任务结束提示音" />
+              </StackPanel>
+             </StackPanel>
            </Border>
           </DataTemplate></ItemsControl.ItemTemplate>
          </ItemsControl>
@@ -612,6 +620,12 @@
         </StackPanel>
         <TextBlock Text="提示音" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
         <CheckBox x:Name="ScheduleSoundOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding ScheduleSound}" Margin="0,0,0,12" AutomationProperties.Name="定时执行提示音"><StackPanel><TextBlock Text="任务开始和结束时播放提示音" FontWeight="SemiBold" /><TextBlock Text="可选内置音色，也可以导入自己的 wav / mp3 / wma" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <Grid Margin="0,0,0,8">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+         <TextBlock Text="音量" VerticalAlignment="Center" />
+         <Slider Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding ScheduleSoundVolume}" VerticalAlignment="Center" Margin="0,0,12,0" AutomationProperties.Name="提示音音量" />
+         <TextBlock Grid.Column="2" Text="{Binding SoundVolumeText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" MinWidth="62" />
+        </Grid>
         <Grid Margin="0,0,0,8">
          <Grid.ColumnDefinitions><ColumnDefinition Width="90" /><ColumnDefinition Width="180" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
          <TextBlock Text="开始声音" VerticalAlignment="Center" />

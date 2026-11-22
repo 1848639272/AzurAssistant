@@ -41,4 +41,6 @@ public sealed record AssistantSettings
     public string ScheduleStartSound { get; init; } = "chime";
     /// <summary>结束提示音预设：chime / soft / deep / double。</summary>
     public string ScheduleEndSound { get; init; } = "soft";
+    /// <summary>提示音音量百分比（0–100）。</summary>
+    public int ScheduleSoundVolume { get; init; } = 70;
 }
