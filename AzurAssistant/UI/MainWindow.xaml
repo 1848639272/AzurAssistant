@@ -217,7 +217,8 @@
      <TextBlock Text="蔚蓝助手" FontSize="19" FontWeight="SemiBold" Margin="4,0,0,6" />
      <TextBlock Text="蓝色星原：旅谣自动化辅助" Foreground="{DynamicResource Muted}" FontSize="11" Margin="4,0,0,0" />
     </StackPanel>
-    <StackPanel Grid.Row="1" Margin="0,30,0,0">
+     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,30,0,0" Padding="0,0,4,0">
+      <StackPanel>
      <RadioButton x:Name="FeedbackNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="feedback" Checked="OnNavigate" IsChecked="{Binding IsFeedbackPage, Mode=OneWay}" AutomationProperties.Name="问题反馈">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE939;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="问题反馈" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
@@ -245,10 +246,14 @@
      <RadioButton x:Name="WheelchairNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="wheelchair" Checked="OnNavigate" IsChecked="{Binding IsWheelchairPage, Mode=OneWay}" AutomationProperties.Name="轮椅功能">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7EC;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="轮椅功能" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
+     <RadioButton x:Name="GrowthNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="growth" Checked="OnNavigate" IsChecked="{Binding IsGrowthPage, Mode=OneWay}" AutomationProperties.Name="养成计算">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="养成计算" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
      <RadioButton x:Name="SettingsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="settings" Checked="OnNavigate" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" AutomationProperties.Name="设置">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
     </StackPanel>
+     </ScrollViewer>
     <StackPanel Grid.Row="3" Margin="5,0,0,0">
      <Border Background="{DynamicResource DividerBrush}" Height="1" Margin="0,0,0,16" />
      <TextBlock Text="AZUR ASSISTANT" Foreground="{DynamicResource Subtle}" FontSize="10" FontWeight="SemiBold" />
@@ -606,19 +611,30 @@
          <Button x:Name="SaveScheduleTasksButton" Content="保存任务" Click="OnSaveScheduleTasks" Margin="10,0,0,0" />
         </StackPanel>
         <TextBlock Text="提示音" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
-        <CheckBox x:Name="ScheduleSoundOption" Content="任务开始和结束时播放提示音" IsChecked="{Binding ScheduleSound}" Margin="0,0,0,10" AutomationProperties.Name="定时执行提示音" />
+        <CheckBox x:Name="ScheduleSoundOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding ScheduleSound}" Margin="0,0,0,12" AutomationProperties.Name="定时执行提示音"><StackPanel><TextBlock Text="任务开始和结束时播放提示音" FontWeight="SemiBold" /><TextBlock Text="可选内置音色，也可以导入自己的 wav / mp3 / wma" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
         <Grid Margin="0,0,0,8">
-         <Grid.ColumnDefinitions><ColumnDefinition Width="90" /><ColumnDefinition Width="140" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="90" /><ColumnDefinition Width="140" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="90" /><ColumnDefinition Width="180" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
          <TextBlock Text="开始声音" VerticalAlignment="Center" />
-         <ComboBox Grid.Column="1" ItemsSource="{Binding SoundChoices}" SelectedItem="{Binding ScheduleStartSoundChoice}" DisplayMemberPath="Label" AutomationProperties.Name="开始提示音" />
-         <Button Grid.Column="2" Content="试听" Click="OnPreviewStartSound" Padding="12,6" Margin="8,0,18,0" AutomationProperties.Name="试听开始提示音" />
-         <TextBlock Grid.Column="3" Text="结束声音" VerticalAlignment="Center" />
-         <ComboBox Grid.Column="4" ItemsSource="{Binding SoundChoices}" SelectedItem="{Binding ScheduleEndSoundChoice}" DisplayMemberPath="Label" AutomationProperties.Name="结束提示音" />
-         <Button Grid.Column="5" Content="试听" Click="OnPreviewEndSound" Padding="12,6" Margin="8,0,0,0" AutomationProperties.Name="试听结束提示音" />
+         <ComboBox Grid.Column="1" ItemsSource="{Binding SoundChoices}" SelectedItem="{Binding ScheduleStartSoundChoice}" DisplayMemberPath="Label" Margin="0,0,8,0" AutomationProperties.Name="开始提示音" />
+         <Button Grid.Column="2" Content="试听" Click="OnPreviewStartSound" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="试听开始提示音" />
+         <Button Grid.Column="3" Content="导入音频…" Click="OnImportStartSound" Padding="12,6" AutomationProperties.Name="导入开始提示音" />
+        </Grid>
+        <Grid Margin="0,0,0,8">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="90" /><ColumnDefinition Width="180" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <TextBlock Text="结束声音" VerticalAlignment="Center" />
+         <ComboBox Grid.Column="1" ItemsSource="{Binding SoundChoices}" SelectedItem="{Binding ScheduleEndSoundChoice}" DisplayMemberPath="Label" Margin="0,0,8,0" AutomationProperties.Name="结束提示音" />
+         <Button Grid.Column="2" Content="试听" Click="OnPreviewEndSound" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="试听结束提示音" />
+         <Button Grid.Column="3" Content="导入音频…" Click="OnImportEndSound" Padding="12,6" AutomationProperties.Name="导入结束提示音" />
         </Grid>
         <TextBlock Text="{Binding SoundSummary}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,0,14" />
         <TextBlock Text="{Binding ScheduleStatus}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,10" />
         <TextBlock Text="说明：到点时如果已有任务在运行，本次会跳过并记日志；助手中途退出不会补跑错过的任务。定时任务保存在程序目录的 schedule.json。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,6,0,0" />
+       </StackPanel>
+       <StackPanel x:Name="GrowthPage" Visibility="{Binding IsGrowthPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="养成计算" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,10" />
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="16,14">
+         <TextBlock Text="这个页面先占位，内容待补充。" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" />
+        </Border>
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />

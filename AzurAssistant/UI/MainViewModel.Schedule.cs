@@ -97,7 +97,7 @@ public sealed partial class MainViewModel
     }
 
     public string SoundSummary => Settings.ScheduleSound
-        ? $"开始：{ScheduleClock.SoundLabel(Settings.ScheduleStartSound)} · 结束：{ScheduleClock.SoundLabel(Settings.ScheduleEndSound)}"
+        ? $"开始：{ScheduleClock.SoundLabelFor(Settings.ScheduleStartSound, [])} · 结束：{ScheduleClock.SoundLabelFor(Settings.ScheduleEndSound, [])}"
         : "提示音已关闭";
 
     public void PreviewStartSound() => TaskSound.PlayStart(Settings.ScheduleStartSound);
@@ -106,7 +106,7 @@ public sealed partial class MainViewModel
     public void RefreshSchedulePage()
     {
         BuildScheduleChoices();
-        EnsureSoundChoices();
+        RefreshSoundChoices();
         LoadSchedule();
         Notify(nameof(ScheduleSound));
         Notify(nameof(ScheduleStartSoundChoice));
@@ -234,11 +234,51 @@ public sealed partial class MainViewModel
         Notify(nameof(ScheduleChoices));
     }
 
-    private void EnsureSoundChoices()
+    private string SoundsDirectory => soundsDirectory ?? Path.Combine(AppContext.BaseDirectory, "sounds");
+
+    private static bool IsAudioFile(string path) => Path.GetExtension(path).ToLowerInvariant() is ".wav" or ".mp3" or ".wma";
+
+    /// <summary>Presets first, then the audio files the user imported into the sounds folder.</summary>
+    private void RefreshSoundChoices()
     {
-        if (SoundChoices.Count == ScheduleClock.SoundPresets.Count) return;
         SoundChoices.Clear();
         foreach (var preset in ScheduleClock.SoundPresets) SoundChoices.Add(new(preset, ScheduleClock.SoundLabel(preset)));
+        TaskSound.SoundDirectory = SoundsDirectory;
+        if (!Directory.Exists(SoundsDirectory)) return;
+        foreach (var file in Directory.GetFiles(SoundsDirectory).Where(IsAudioFile).OrderBy(path => path, StringComparer.Ordinal))
+        {
+            var key = ScheduleClock.FilePrefix + Path.GetFileName(file);
+            SoundChoices.Add(new(key, ScheduleClock.SoundLabelFor(key, [])));
+        }
+    }
+
+    public void ImportStartSound(string path) => ImportSound(path, start: true);
+    public void ImportEndSound(string path) => ImportSound(path, start: false);
+
+    private void ImportSound(string path, bool start)
+    {
+        var extension = Path.GetExtension(path).ToLowerInvariant();
+        if (extension is not (".wav" or ".mp3" or ".wma"))
+        { SetScheduleStatus("只支持 wav / mp3 / wma 音频文件，其他格式请先转换。"); return; }
+        try
+        {
+            if (new FileInfo(path).Length > 8L * 1024 * 1024) { SetScheduleStatus("音频文件超过 8MB，请先压缩。"); return; }
+            Directory.CreateDirectory(SoundsDirectory);
+            var name = string.Concat(Path.GetFileName(path).Select(character =>
+                Path.GetInvalidFileNameChars().Contains(character) ? '_' : character));
+            var target = Path.Combine(SoundsDirectory, name);
+            if (!string.Equals(Path.GetFullPath(path), Path.GetFullPath(target), StringComparison.OrdinalIgnoreCase))
+                File.Copy(path, target, overwrite: true);
+            RefreshSoundChoices();
+            var spec = ScheduleClock.FilePrefix + Path.GetFileName(target);
+            SaveSettings(start ? Settings with { ScheduleStartSound = spec } : Settings with { ScheduleEndSound = spec });
+            Notify(nameof(ScheduleStartSoundChoice));
+            Notify(nameof(ScheduleEndSoundChoice));
+            Notify(nameof(SoundSummary));
+            SetScheduleStatus($"已导入「{Path.GetFileName(target)}」，并设为{(start ? "开始" : "结束")}提示音。");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        { SetScheduleStatus("导入音频失败：" + ex.Message); }
     }
 
     private void EnsureScheduleTimer()
@@ -247,7 +287,7 @@ public sealed partial class MainViewModel
         {
             // The home page shows the job list, so it must be loaded before the schedule page is ever opened.
             _scheduleLoaded = true;
-            EnsureSoundChoices();
+            RefreshSoundChoices();
             BuildScheduleChoices();
             LoadSchedule();
             RefreshScheduleNextTimes();

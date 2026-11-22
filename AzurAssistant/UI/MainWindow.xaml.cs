@@ -149,6 +149,17 @@ public partial class MainWindow : Window
     private void OnRunFirstSchedule(object sender, RoutedEventArgs e) => ViewModel.RunFirstScheduleNow();
     private void OnPreviewStartSound(object sender, RoutedEventArgs e) => ViewModel.PreviewStartSound();
     private void OnPreviewEndSound(object sender, RoutedEventArgs e) => ViewModel.PreviewEndSound();
+    private void OnImportStartSound(object sender, RoutedEventArgs e) => ImportSound(ViewModel.ImportStartSound);
+    private void OnImportEndSound(object sender, RoutedEventArgs e) => ImportSound(ViewModel.ImportEndSound);
+    private void ImportSound(Action<string> apply)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "选择提示音", Filter = "音频文件 (*.wav;*.mp3;*.wma)|*.wav;*.mp3;*.wma|所有文件 (*.*)|*.*",
+            CheckFileExists = true, Multiselect = false,
+        };
+        if (dialog.ShowDialog(this) == true) apply(dialog.FileName);
+    }
     private void OnOpenPackFolder(object sender, RoutedEventArgs e) => OpenFolder(Path.Combine(AppContext.BaseDirectory, "语言包"));
     private void OnOpenScriptFolder(object sender, RoutedEventArgs e) => OpenFolder(Path.Combine(AppContext.BaseDirectory, "脚本"));
     private void OnOpenLanguageHelp(object sender, RoutedEventArgs e)

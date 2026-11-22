@@ -63,7 +63,8 @@ public static class Bootstrapper
         }, automation, runDailyFromCommandLine, restartAssistant: () => AssistantRestarter.TryRestart(log.Write),
             actionsDirectory: Path.Combine(dataDirectory, "actions"),
             wheelchairDirectory: Path.Combine(dataDirectory, "wheelchair"),
-            schedulePath: Path.Combine(dataDirectory, "schedule.json")));
+            schedulePath: Path.Combine(dataDirectory, "schedule.json"),
+            soundsDirectory: Path.Combine(dataDirectory, "sounds")));
         try
         {
             var source = JsonSerializer.Deserialize<UpdateSource>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "update-source.json")))!;

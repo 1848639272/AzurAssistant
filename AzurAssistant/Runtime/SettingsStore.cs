@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
 
 namespace AzurAssistant.Runtime;
@@ -64,6 +64,8 @@ public sealed class SettingsStore
         if (!Runtime.ScheduleClock.TryParseTime(value.ScheduleTime, out _)) throw new InvalidDataException("定时执行的时刻无效，格式为 HH:mm。");
         if (value.ScheduleIntervalMinutes is < 1 or > 1440) throw new InvalidDataException("定时执行的间隔应为 1–1440 分钟。");
         if (value.ScheduleTarget is null || value.ScheduleTarget.Length > 300) throw new InvalidDataException("定时执行的内容无效。");
+        if (value.ScheduleStartSound is null || value.ScheduleStartSound.Length > 260) throw new InvalidDataException("开始提示音设置无效。");
+        if (value.ScheduleEndSound is null || value.ScheduleEndSound.Length > 260) throw new InvalidDataException("结束提示音设置无效。");
         if (!HotkeyBinding.TryParsePair(value.PauseHotkey, value.StopHotkey, out _, out _, out var error))
             throw new InvalidDataException(error);
     }

@@ -68,5 +68,18 @@ public static class ScheduleClock
         _ => "清脆",
     };
 
-    public static string NormalizeSound(string? preset) => SoundPresets.Contains(preset) ? preset! : "chime";
+    public const string FilePrefix = "file:";
+
+    /// <summary>A spec is either a preset key or <c>file:&lt;name&gt;</c> for a user-imported audio file.</summary>
+    public static bool IsFileSpec(string? spec) => spec is not null && spec.StartsWith(FilePrefix, StringComparison.Ordinal);
+
+    public static string NormalizeSound(string? preset)
+        => IsFileSpec(preset) ? preset! : SoundPresets.Contains(preset) ? preset! : "chime";
+
+    public static string SoundLabelFor(string? spec, IEnumerable<string> fileKeys)
+    {
+        if (!IsFileSpec(spec)) return SoundLabel(spec);
+        var name = spec!.Substring(FilePrefix.Length);
+        return "导入：" + System.IO.Path.GetFileNameWithoutExtension(name);
+    }
 }

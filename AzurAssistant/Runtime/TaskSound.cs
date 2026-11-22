@@ -14,8 +14,44 @@ public static class TaskSound
 
     private static readonly Dictionary<string, (byte[] Start, byte[] Finish)> Waves = Build();
 
-    public static void PlayStart(string? preset) => Play(Waves[ScheduleClock.NormalizeSound(preset)].Start);
-    public static void PlayFinish(string? preset) => Play(Waves[ScheduleClock.NormalizeSound(preset)].Finish);
+    private static System.Windows.Media.MediaPlayer? _filePlayer;
+
+    /// <summary>Directory holding user-imported audio; <c>file:</c> specs are resolved against it.</summary>
+    public static string? SoundDirectory { get; set; }
+
+    public static void PlayStart(string? spec) => PlaySpec(spec, start: true);
+    public static void PlayFinish(string? spec) => PlaySpec(spec, start: false);
+
+    private static void PlaySpec(string? spec, bool start)
+    {
+        var normalized = ScheduleClock.NormalizeSound(spec);
+        if (ScheduleClock.IsFileSpec(normalized))
+        {
+            PlayFile(normalized.Substring(ScheduleClock.FilePrefix.Length));
+            return;
+        }
+        Play(start ? Waves[normalized].Start : Waves[normalized].Finish);
+    }
+
+    /// <summary>Plays a user-imported wav/mp3/wma through the WPF media stack.</summary>
+    private static void PlayFile(string name)
+    {
+        try
+        {
+            var path = System.IO.Path.IsPathRooted(name)
+                ? name
+                : SoundDirectory is { } directory ? System.IO.Path.Combine(directory, name) : name;
+            if (!System.IO.File.Exists(path)) return;
+            _filePlayer?.Close();
+            var player = new System.Windows.Media.MediaPlayer { Volume = 1.0 };
+            player.MediaEnded += (_, _) => player.Close();
+            player.MediaFailed += (_, _) => player.Close();
+            player.Open(new Uri(path));
+            player.Play();
+            _filePlayer = player;
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or UriFormatException or System.IO.IOException or NotSupportedException) { }
+    }
 
     private static Dictionary<string, (byte[] Start, byte[] Finish)> Build() => new(StringComparer.Ordinal)
     {
