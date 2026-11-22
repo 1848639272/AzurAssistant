@@ -64,7 +64,7 @@ public sealed partial class MainViewModel
         };
         _pendingUi = _pendingText = _pendingBackground = null;
         _accentRed = _accentGreen = _accentBlue = null;
-        if (!SaveSettings(updated))
+        if (!SaveSettings(updated, refreshAutomation: false))
         {
             Notify(nameof(UiOpacityPercent));
             Notify(nameof(TextOpacityPercent));

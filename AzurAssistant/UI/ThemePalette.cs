@@ -105,12 +105,30 @@ public sealed class ThemePalette : ResourceDictionary
     /// <summary>Rewrites the alpha of every grouped brush in place; consumers repaint without re-resolving resources.</summary>
     public void UpdateOpacity(int uiOpacity, int textOpacity, int backgroundOpacity)
     {
-        _uiOpacity = Clamp(uiOpacity);
-        _textOpacity = Clamp(textOpacity);
-        _backgroundOpacity = Clamp(backgroundOpacity);
-        foreach (var key in BackgroundKeys) SetAlpha(key, _backgroundOpacity);
-        foreach (var key in TextKeys) SetAlpha(key, _textOpacity);
+        UpdateChromeOpacity(uiOpacity);
+        UpdateTextOpacity(textOpacity);
+        UpdateBackgroundOpacity(backgroundOpacity);
+    }
+
+    /// <summary>Only the chrome group: used while the interface slider is being dragged.</summary>
+    public void UpdateChromeOpacity(int percent)
+    {
+        _uiOpacity = Clamp(percent);
         foreach (var key in ChromeKeys) SetAlpha(key, _uiOpacity);
+    }
+
+    /// <summary>Only the text group.</summary>
+    public void UpdateTextOpacity(int percent)
+    {
+        _textOpacity = Clamp(percent);
+        foreach (var key in TextKeys) SetAlpha(key, _textOpacity);
+    }
+
+    /// <summary>Only the surfaces group.</summary>
+    public void UpdateBackgroundOpacity(int percent)
+    {
+        _backgroundOpacity = Clamp(percent);
+        foreach (var key in BackgroundKeys) SetAlpha(key, _backgroundOpacity);
     }
 
     /// <summary>Re-derives the accent, its readable foreground and the selected tint from the user's colour.</summary>

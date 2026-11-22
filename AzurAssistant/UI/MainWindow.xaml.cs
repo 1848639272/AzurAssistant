@@ -48,6 +48,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _appearanceCommit.Tick += OnAppearanceCommitTick;
+        _appearanceApply.Tick += OnAppearanceApplyTick;
         DataContext = ViewModel = viewModel;
         ApplyAppearance();
         _confirmSettingsRestart = confirmSettingsRestart ?? (() => Task.FromResult(MessageBox.Show(this,
@@ -136,7 +137,13 @@ public partial class MainWindow : Window
     }
     private readonly DispatcherTimer _appearanceCommit = new() { Interval = TimeSpan.FromMilliseconds(350) };
     private ThemePalette? _palette;
-    private bool _appearanceQueued;
+    private readonly DispatcherTimer _appearanceApply = new() { Interval = TimeSpan.FromMilliseconds(33) };
+    private bool _appearanceDirty;
+    private System.Windows.Media.Color? _accentApplied;
+    private bool _slowReported;
+    private int _appliedUi = -1;
+    private int _appliedText = -1;
+    private int _appliedBackground = -1;
     private void OnDarkModeChanged(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded) return;
@@ -152,22 +159,30 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Coalesces rapid slider ticks into at most one palette update per dispatcher pass.</summary>
+    /// <summary>Applies the latest slider values at most once every 33 ms, so dragging stays smooth.</summary>
     private void QueueAppearanceUpdate()
     {
-        if (!_appearanceQueued)
+        _appearanceDirty = true;
+        if (!_appearanceApply.IsEnabled)
         {
-            _appearanceQueued = true;
-            Dispatcher.BeginInvoke(DispatcherPriority.Render, () =>
-            {
-                _appearanceQueued = false;
-                try { ApplyAppearanceFast(); }
-                catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
-                { ViewModel.Report("应用外观失败：" + ex.Message); }
-            });
+            // First movement applies immediately; later ticks are throttled by the timer.
+            ApplyAppearanceFast();
+            _appearanceDirty = false;
+            _appearanceApply.Start();
         }
         // Persist once the drag settles instead of writing settings on every tick.
         _appearanceCommit.Stop();
         _appearanceCommit.Start();
+    }
+
+    private void OnAppearanceApplyTick(object? sender, EventArgs e)
+    {
+        if (_appearanceDirty)
+        {
+            _appearanceDirty = false;
+            ApplyAppearanceFast();
+        }
+        else _appearanceApply.Stop();
     }
 
     private void OnAppearanceCommitTick(object? sender, EventArgs e)
@@ -213,8 +228,26 @@ public partial class MainWindow : Window
     private void ApplyAppearanceFast()
     {
         if (_palette is null) { ApplyAppearance(); return; }
-        _palette.UpdateOpacity(ViewModel.UiOpacityPercent, ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
-        _palette.UpdateAccent(ViewModel.AccentValue);
+        var started = System.Diagnostics.Stopwatch.GetTimestamp();
+        // Only the group whose slider moved is recomputed, so a single drag invalidates a third of the brushes.
+        var ui = ViewModel.UiOpacityPercent;
+        var text = ViewModel.TextOpacityPercent;
+        var background = ViewModel.BackgroundOpacityPercent;
+        if (ui != _appliedUi) { _palette.UpdateChromeOpacity(ui); _appliedUi = ui; }
+        if (text != _appliedText) { _palette.UpdateTextOpacity(text); _appliedText = text; }
+        if (background != _appliedBackground) { _palette.UpdateBackgroundOpacity(background); _appliedBackground = background; }
+        var accent = ViewModel.AccentValue;
+        if (_accentApplied != accent)
+        {
+            _palette.UpdateAccent(accent);
+            _accentApplied = accent;
+        }
+        var elapsedMs = (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+        if (elapsedMs > 40 && !_slowReported)
+        {
+            _slowReported = true;
+            ViewModel.Report($"外观应用耗时 {elapsedMs:F0} ms（只记录一次，用于排查卡顿）");
+        }
     }
 
     [DllImport("dwmapi.dll")]

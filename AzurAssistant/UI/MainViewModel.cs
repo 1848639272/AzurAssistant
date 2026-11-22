@@ -527,14 +527,16 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
             _navigating = false;
         }
     }
-    private bool SaveSettings(AssistantSettings settings)
+    private bool SaveSettings(AssistantSettings settings, bool refreshAutomation = true)
     {
         if (Settings == settings && !HasSettingsError) return true;
         var saved = true;
         if (automation is not null) saved = automation.SaveSettings(settings);
         else _localSettings = settings;
-        Refresh();
-        Notify(string.Empty);
+        // Appearance-only saves skip the automation refresh; every save coalesces the full binding refresh so
+        // rapid slider movement cannot force a synchronous refresh per tick.
+        if (refreshAutomation) Refresh();
+        NotifyAllLater();
         return saved;
     }
     private static string SelectionText((bool Selected, string Name)[] choices)
