@@ -14,8 +14,8 @@
    <TextBlock Text="{Binding Name}" />
   </DataTemplate>
   <Style x:Key="NavigationItem" TargetType="RadioButton">
-   <Setter Property="Cursor" Value="Hand" /><Setter Property="Margin" Value="0,0,0,6" />
-   <Setter Property="Foreground" Value="{DynamicResource NavigationInk}" /><Setter Property="Padding" Value="14,13" />
+    <Setter Property="Cursor" Value="Hand" /><Setter Property="Margin" Value="0,0,0,3" />
+    <Setter Property="Foreground" Value="{DynamicResource NavigationInk}" /><Setter Property="Padding" Value="14,9" />
    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RadioButton">
     <Border x:Name="NavigationTile" Background="Transparent" CornerRadius="8" Padding="{TemplateBinding Padding}">
      <ContentPresenter />
@@ -187,7 +187,7 @@
    <Image x:Name="BackgroundImageLayer" Grid.ColumnSpan="2" Source="{Binding BackgroundImage}" Stretch="{Binding BackgroundStretch}" Opacity="{Binding BackgroundLayerOpacity}" IsHitTestVisible="False" />
   <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
    <Grid Margin="18,30,18,22">
-    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
     <StackPanel>
      <Button x:Name="MascotButton" Width="80" Height="80" HorizontalAlignment="Left" Margin="4,0,0,12"
              Click="OnChangeMascotPose" ToolTip="点击切换菜鸡动作" AutomationProperties.Name="菜鸡：小跑，点击切换动作">
@@ -218,7 +218,7 @@
      <TextBlock Text="蔚蓝助手" FontSize="19" FontWeight="SemiBold" Margin="4,0,0,6" />
      <TextBlock Text="蓝色星原：旅谣自动化辅助" Foreground="{DynamicResource Muted}" FontSize="11" Margin="4,0,0,0" />
     </StackPanel>
-     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Margin="0,30,0,0" Padding="0,0,4,0">
+     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Margin="0,18,0,0" Padding="0,0,8,0" ScrollViewer.CanContentScroll="False">
       <StackPanel>
      <RadioButton x:Name="FeedbackNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="feedback" Checked="OnNavigate" IsChecked="{Binding IsFeedbackPage, Mode=OneWay}" AutomationProperties.Name="问题反馈">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE939;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="问题反馈" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
@@ -251,7 +251,7 @@
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="养成计算" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
       <RadioButton x:Name="GachaNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="gacha" Checked="OnNavigate" IsChecked="{Binding IsGachaPage, Mode=OneWay}" AutomationProperties.Name="抽卡分析">
-       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D2;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="抽卡分析" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE734;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="抽卡分析" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
       </RadioButton>
      <RadioButton x:Name="SettingsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="settings" Checked="OnNavigate" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" AutomationProperties.Name="设置">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
