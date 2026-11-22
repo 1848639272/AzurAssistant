@@ -1,5 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 using System.IO;
 using System.Windows;
 using System.Windows.Automation;
@@ -38,6 +40,7 @@ public partial class MainWindow : Window
         ("cabbird-64.png", "小跑"), ("cabbird-hop-64.png", "蹦跳"),
         ("cabbird-wave-64.png", "招手"), ("cabbird-peek-64.png", "探头")
     ];
+    private bool _chromeReported;
     public MainViewModel ViewModel { get; }
 
     public MainWindow(MainViewModel viewModel, Func<Task<bool>>? confirmSettingsRestart = null,
@@ -45,7 +48,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = ViewModel = viewModel;
-        ThemePalette.Apply(this, ViewModel.EffectiveDarkMode);
+        ApplyAppearance();
         _confirmSettingsRestart = confirmSettingsRestart ?? (() => Task.FromResult(MessageBox.Show(this,
             "设置已经修改，是否立即重启助手生效？", "蔚蓝助手", MessageBoxButton.YesNo,
             MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes));
@@ -59,6 +62,7 @@ public partial class MainWindow : Window
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
+        ApplyAppearance();
         _refresh.Start();
         await CheckUpdatesAsync(automatic: true);
         if (!_closing && !_updateLaunched && !ViewModel.RestartRequested) ViewModel.Initialize();
@@ -132,8 +136,65 @@ public partial class MainWindow : Window
     private void OnDarkModeChanged(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded) return;
-        ThemePalette.Apply(this, ViewModel.DarkMode);
+        ApplyAppearance();
         ViewModel.Refresh();
+    }
+
+    private void OnAppearanceSliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (!IsLoaded) return;
+        ApplyAppearance();
+    }
+
+    private void OnImportBackground(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "选择背景图", Filter = "图片 (*.png;*.jpg;*.jpeg;*.bmp;*.webp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.webp;*.gif",
+            CheckFileExists = true, Multiselect = false,
+        };
+        if (dialog.ShowDialog(this) == true) ViewModel.ImportBackgroundImage(dialog.FileName);
+    }
+
+    private void OnClearBackground(object sender, RoutedEventArgs e) => ViewModel.ClearBackgroundImage();
+
+    /// <summary>Applies the palette with the three opacity sliders, the window opacity and the DWM frame colours.</summary>
+    private void ApplyAppearance()
+    {
+        ThemePalette.Apply(this, ViewModel.DarkMode, ViewModel.UiOpacityPercent, ViewModel.TextOpacityPercent,
+            ViewModel.BackgroundOpacityPercent);
+        // Keep a floor so the window can never become completely unclickable.
+        Opacity = Math.Max(10, ViewModel.WindowOpacityPercent) / 100.0;
+        ApplyWindowChrome();
+    }
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
+
+    /// <summary>Colours the native caption and border so the frame matches the panel colours (Windows 11).</summary>
+    private void ApplyWindowChrome()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        if (handle == IntPtr.Zero) return;
+        var palette = ThemePalette.Create(ViewModel.DarkMode);
+        static int ToColorRef(System.Windows.Media.Color color) => color.R | (color.G << 8) | (color.B << 16);
+        var caption = ToColorRef(((System.Windows.Media.SolidColorBrush)palette["CardBackground"]).Color);
+        var border = ToColorRef(((System.Windows.Media.SolidColorBrush)palette["BorderBrush"]).Color);
+        var text = ToColorRef(((System.Windows.Media.SolidColorBrush)palette["Ink"]).Color);
+        var dark = ViewModel.DarkMode ? 1 : 0;
+        var results = new[]
+        {
+            DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int)),      // DWMWA_USE_IMMERSIVE_DARK_MODE
+            DwmSetWindowAttribute(handle, 35, ref caption, sizeof(int)),    // DWMWA_CAPTION_COLOR
+            DwmSetWindowAttribute(handle, 34, ref border, sizeof(int)),     // DWMWA_BORDER_COLOR
+            DwmSetWindowAttribute(handle, 36, ref text, sizeof(int)),       // DWMWA_TEXT_COLOR
+        };
+        var failure = results.Any(result => result != 0);
+        if (failure || !_chromeReported)
+        {
+            _chromeReported = true;
+            ViewModel.Report("窗口外框配色：" + string.Join(",", results) + $"；标题栏 #{caption:X6} 边框 #{border:X6}" + (failure ? "（系统不支持时为 0）" : ""));
+        }
     }
     private void OnAddScheduleTask(object sender, RoutedEventArgs e) => ViewModel.AddScheduleTask();
     private void OnRemoveScheduleTask(object sender, RoutedEventArgs e)

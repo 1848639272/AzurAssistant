@@ -1,14 +1,36 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Media;
 
 namespace AzurAssistant.UI;
 
-/// <summary>Window-scoped semantic colors shared by the production UI and independent WPF hosts.</summary>
+/// <summary>
+/// Window-scoped semantic colours shared by the production UI and independent WPF hosts. Three opacity sliders scale
+/// the alpha of the background surfaces, the text and the chrome (borders/dividers/accent) independently.
+/// </summary>
 public sealed class ThemePalette : ResourceDictionary
 {
-    public ThemePalette() : this(false) { }
+    private static readonly string[] BackgroundKeys =
+    [
+        "WindowBackground", "SidebarBackground", "CardBackground", "TileBackground", "InputBackground",
+        "HoverBackground", "SelectedBackground", "PreviewBackground", "MascotBackground", "MascotHoverBackground",
+        "MascotPressedBackground",
+    ];
 
-    private ThemePalette(bool dark)
+    private static readonly string[] TextKeys =
+    [
+        "Ink", "Muted", "Subtle", "NavigationInk", "NavigationSelectedInk", "HandleInk", "InactiveInk",
+        "WarningInk", "SuccessInk", "PreviewInk", "PreviewMuted",
+    ];
+
+    private static readonly string[] ChromeKeys =
+    [
+        "BorderBrush", "InputBorderBrush", "DividerBrush", "MascotBorderBrush", "DropIndicatorBrush",
+        "Accent", "AccentForeground",
+    ];
+
+    public ThemePalette() : this(false, 100, 100, 100) { }
+
+    private ThemePalette(bool dark, int uiOpacity, int textOpacity, int backgroundOpacity)
     {
         AddBrush("WindowBackground", dark ? "#000000" : "#F6F8FA");
         AddBrush("SidebarBackground", dark ? "#0A0A0A" : "#EFF3F5");
@@ -39,22 +61,42 @@ public sealed class ThemePalette : ResourceDictionary
         AddBrush("PreviewBackground", dark ? "#0C1216" : "#172733");
         AddBrush("PreviewInk", dark ? "#C3D3DC" : "#A6B8C1");
         AddBrush("PreviewMuted", dark ? "#93ABB8" : "#718995");
+
+        ApplyOpacity(BackgroundKeys, backgroundOpacity);
+        ApplyOpacity(TextKeys, textOpacity);
+        ApplyOpacity(ChromeKeys, uiOpacity);
     }
 
-    public static ResourceDictionary Create(bool dark) => new ThemePalette(dark);
+    public static ResourceDictionary Create(bool dark, int uiOpacity = 100, int textOpacity = 100, int backgroundOpacity = 100)
+        => new ThemePalette(dark, Clamp(uiOpacity), Clamp(textOpacity), Clamp(backgroundOpacity));
 
-    public static void Apply(FrameworkElement scope, bool dark)
+    public static void Apply(FrameworkElement scope, bool dark, int uiOpacity = 100, int textOpacity = 100, int backgroundOpacity = 100)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        var palette = Create(dark);
+        var palette = Create(dark, uiOpacity, textOpacity, backgroundOpacity);
         foreach (var key in palette.Keys)
             scope.Resources[key] = palette[key];
     }
+
+    private static int Clamp(int value) => Math.Clamp(value, 0, 100);
 
     private void AddBrush(string key, string color)
     {
         var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
         brush.Freeze();
         Add(key, brush);
+    }
+
+    private void ApplyOpacity(string[] keys, int percent)
+    {
+        if (percent >= 100) return;
+        var alpha = (byte)Math.Round(255 * Clamp(percent) / 100.0);
+        foreach (var key in keys)
+        {
+            if (this[key] is not SolidColorBrush brush) continue;
+            var faded = new SolidColorBrush(Color.FromArgb(alpha, brush.Color.R, brush.Color.G, brush.Color.B));
+            faded.Freeze();
+            this[key] = faded;
+        }
     }
 }

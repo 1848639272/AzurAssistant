@@ -10,6 +10,18 @@ public sealed record AssistantSettings
     public bool LowPerformanceMode { get; init; }
     public bool ShowPreview { get; init; } = true;
     public bool DarkMode { get; init; }
+    /// <summary>界面元素（边框、分隔线、强调色）透明度百分比 0–100。</summary>
+    public int UiOpacity { get; init; } = 100;
+    /// <summary>文字透明度百分比 0–100。</summary>
+    public int TextOpacity { get; init; } = 100;
+    /// <summary>背景表面（卡片、输入框、侧栏）透明度百分比 0–100。</summary>
+    public int BackgroundOpacity { get; init; } = 100;
+    /// <summary>整个窗口（含外框）不透明度百分比 0–100。</summary>
+    public int WindowOpacity { get; init; } = 100;
+    /// <summary>自定义背景图（绝对路径），空表示不使用。</summary>
+    public string BackgroundImagePath { get; init; } = "";
+    /// <summary>"stretch"=拉伸铺满；"fit"=保持比例，留白。</summary>
+    public string BackgroundImageMode { get; init; } = "stretch";
     public string PauseHotkey { get; init; } = "F9";
     public string StopHotkey { get; init; } = "F10";
     public bool LaunchGame { get; init; }

@@ -184,6 +184,7 @@
  </Window.Resources>
  <Grid x:Name="DailyDragSurface" AllowDrop="True" PreviewDragEnter="OnDailyPreviewDragOver" PreviewDragOver="OnDailyPreviewDragOver" PreviewDragLeave="OnDailyPreviewDragLeave" PreviewDrop="OnDailyPreviewDrop" DragEnter="OnDailyDragOutside" DragOver="OnDailyDragOutside" Drop="OnDailyDragOutside" QueryContinueDrag="OnDailyQueryContinueDrag">
   <Grid.ColumnDefinitions><ColumnDefinition Width="206" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+   <Image x:Name="BackgroundImageLayer" Grid.ColumnSpan="2" Source="{Binding BackgroundImage}" Stretch="{Binding BackgroundStretch}" Opacity="{Binding BackgroundLayerOpacity}" IsHitTestVisible="False" />
   <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
    <Grid Margin="18,30,18,22">
     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
@@ -217,7 +218,7 @@
      <TextBlock Text="蔚蓝助手" FontSize="19" FontWeight="SemiBold" Margin="4,0,0,6" />
      <TextBlock Text="蓝色星原：旅谣自动化辅助" Foreground="{DynamicResource Muted}" FontSize="11" Margin="4,0,0,0" />
     </StackPanel>
-     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,30,0,0" Padding="0,0,4,0">
+     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Margin="0,30,0,0" Padding="0,0,4,0">
       <StackPanel>
      <RadioButton x:Name="FeedbackNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="feedback" Checked="OnNavigate" IsChecked="{Binding IsFeedbackPage, Mode=OneWay}" AutomationProperties.Name="问题反馈">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE939;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="问题反馈" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
@@ -668,6 +669,39 @@
         <CheckBox x:Name="DarkModeOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding DarkMode}" Checked="OnDarkModeChanged" Unchecked="OnDarkModeChanged">
          <StackPanel><TextBlock Text="深色模式" FontWeight="SemiBold" /><TextBlock Text="纯黑背景、白色文字、明亮灰边框；勾选后立即生效，无需重启" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
         </CheckBox>
+        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
+        <TextBlock Text="外观与透明度" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="四个滑杆分别控制：界面元素（边框/分隔线/强调色）、文字、背景表面（卡片/输入框/侧栏）、整个窗口（含外框，会透出桌面）。拖动即时生效。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+         <TextBlock Text="界面元素" VerticalAlignment="Center" />
+         <Slider Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding UiOpacityPercent}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="界面元素透明度" />
+         <TextBlock Grid.Column="2" Text="{Binding UiOpacityText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
+        </Grid>
+        <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+         <TextBlock Text="文字" VerticalAlignment="Center" />
+         <Slider Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding TextOpacityPercent}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="文字透明度" />
+         <TextBlock Grid.Column="2" Text="{Binding TextOpacityText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
+        </Grid>
+        <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+         <TextBlock Text="背景表面" VerticalAlignment="Center" />
+         <Slider Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding BackgroundOpacityPercent}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="背景透明度" />
+         <TextBlock Grid.Column="2" Text="{Binding BackgroundOpacityText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
+        </Grid>
+        <Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+         <TextBlock Text="整个窗口" VerticalAlignment="Center" />
+         <Slider Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding WindowOpacityPercent}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="窗口不透明度" />
+         <TextBlock Grid.Column="2" Text="{Binding WindowOpacityText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
+        </Grid>
+        <TextBlock Text="背景图" FontSize="14" FontWeight="SemiBold" Margin="0,4,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <Button x:Name="ChooseBackgroundButton" Content="选择背景图…" Click="OnImportBackground" Style="{StaticResource PrimaryAction}" />
+         <Button x:Name="ClearBackgroundButton" Content="清除背景" Click="OnClearBackground" Margin="10,0,0,0" />
+        </StackPanel>
+        <TextBlock Text="{Binding BackgroundStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+         <RadioButton x:Name="BackgroundStretchOption" GroupName="BackgroundMode" Content="拉伸铺满" IsChecked="{Binding BackgroundStretchMode}" Margin="0,0,20,0" />
+         <RadioButton x:Name="BackgroundFitOption" GroupName="BackgroundMode" Content="保持比例，上下/左右留白" IsChecked="{Binding BackgroundFitMode}" />
+        </StackPanel>
         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
         <TextBlock Text="游戏语言切换（实验）" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
         <TextBlock Text="游戏的语言资源打包在 AssetBundle 里，无法在程序内直接切换。把语言包放进“语言包\”目录后，运行 脚本\Switch-GameLanguage.ps1 即可替换或还原（脚本会自动探测游戏目录并先备份）。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
