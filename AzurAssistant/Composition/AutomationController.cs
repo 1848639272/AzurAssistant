@@ -3,6 +3,7 @@ using AzurAssistant.Contracts;
 using AzurAssistant.Platform;
 using AzurAssistant.Runtime;
 using AzurAssistant.Features.Actions;
+using AzurAssistant.Features.Wheelchair;
 using AzurAssistant.Features.Commissions;
 using AzurAssistant.Features.NavigationTest;
 using AzurAssistant.Game.Navigation;
@@ -19,7 +20,8 @@ public sealed class AutomationController(
     Func<NavigationTestRequest, Action<NavigationStatus>, IGameTask>? createNavigation = null,
     Func<RouteDefinition, Action<NavigationStatus>, IGameTask>? createRoute = null,
     Func<Action<NavigationStatus>, Action<MapPosition>, IGameTask>? createRouteCapture = null,
-    IReadOnlyList<NavigationMap>? navigationMaps = null, Func<GameWindow>? findGameWindow = null)
+    IReadOnlyList<NavigationMap>? navigationMaps = null, Func<GameWindow>? findGameWindow = null,
+    Func<WheelchairPlan, IReadOnlyDictionary<string, ActionRecording>, Action<NavigationStatus>, IGameTask>? createWheelchair = null)
 {
     private readonly object _completionGate = new();
     private bool _dailyCompletionPending;
@@ -274,6 +276,21 @@ public sealed class AutomationController(
             var timeout = TimeSpan.FromMilliseconds(recording.DurationUs / 1000.0 + 120_000);
             return Start(() => new PlayActionTask(recording),
                 new TaskRunOptions(timeout, ResponseTiming: ResponseTiming.FromLowPerformanceMode(EffectiveSettings.LowPerformanceMode)));
+        }
+    }
+
+    /// <summary>Runs a wheelchair plan: navigate to each coordinate, then play that step's recorded action.</summary>
+    public bool StartWheelchair(WheelchairPlan plan, IReadOnlyDictionary<string, ActionRecording> actions)
+    {
+        lock (_completionGate)
+        {
+            if (IsBusy) return RejectStart("已有功能正在运行，请先停止当前任务。");
+            if (_actionRecorder is not null) return RejectStart("正在录制动作，请先结束录制。");
+            if (createWheelchair is null) return RejectStart("轮椅功能未装配。");
+            Volatile.Write(ref _navigationStatus, new NavigationStatus(null, DateTimeOffset.Now, "正在启动轮椅方案"));
+            return Start(() => createWheelchair(plan, actions, status => Volatile.Write(ref _navigationStatus, status)),
+                new TaskRunOptions(TimeSpan.FromMinutes(plan.Steps.Count * 5 + 2),
+                    ResponseTiming: ResponseTiming.FromLowPerformanceMode(EffectiveSettings.LowPerformanceMode)));
         }
     }
 }

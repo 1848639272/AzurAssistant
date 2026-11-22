@@ -236,6 +236,9 @@
      <RadioButton x:Name="ActionsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="actions" Checked="OnNavigate" IsChecked="{Binding IsActionsPage, Mode=OneWay}" AutomationProperties.Name="动作录制">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE768;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="动作录制" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
+     <RadioButton x:Name="WheelchairNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="wheelchair" Checked="OnNavigate" IsChecked="{Binding IsWheelchairPage, Mode=OneWay}" AutomationProperties.Name="轮椅功能">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7EC;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="轮椅功能" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
      <RadioButton x:Name="SettingsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="settings" Checked="OnNavigate" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" AutomationProperties.Name="设置">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
@@ -426,6 +429,8 @@
          <Button x:Name="ActionRecordButton" Content="开始录制" Click="OnBeginActionRecording" IsEnabled="{Binding CanBeginActionRecording}" Style="{StaticResource PrimaryAction}" />
          <Button x:Name="ActionStopRecordButton" Content="停止录制" Click="OnStopActionRecording" IsEnabled="{Binding CanStopActionRecording}" Margin="10,0,0,0" />
          <Button Content="刷新列表" Click="OnRefreshActions" Margin="10,0,0,0" />
+         <Button Content="导入动作" Click="OnImportAction" IsEnabled="{Binding CanBeginActionRecording}" Margin="10,0,0,0" />
+         <Button Content="导出选中" Click="OnExportAction" IsEnabled="{Binding CanPlayAction}" Margin="10,0,0,0" />
         </StackPanel>
         <TextBlock Text="动作名称（保存或重命名时使用）" FontWeight="SemiBold" Margin="0,0,0,7" />
         <TextBox x:Name="ActionNameBox" Text="{Binding ActionName, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" IsEnabled="{Binding CanBeginActionRecording}" />
@@ -440,6 +445,45 @@
          <Button Content="删除" Click="OnDeleteAction" IsEnabled="{Binding CanPlayAction}" Margin="10,0,0,0" />
         </StackPanel>
         <TextBlock Text="回放会把游戏切到前台，并按录制时序注入键鼠：按键保持原来的按下时长，鼠标转动按原来的位移，点击落在同一客户区位置。回放期间按 F10 停止；暂停（F9）不适用于回放。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
+       </StackPanel>
+       <StackPanel x:Name="WheelchairPage" Visibility="{Binding IsWheelchairPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="把“走到某个坐标 → 执行某个动作 → 再走到下一个坐标”串成流水线，可导入导出分享给别人。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+         <Button x:Name="WheelchairNewButton" Content="新建方案" Click="OnBeginWheelchairDraft" IsEnabled="{Binding CanBeginWheelchair}" Style="{StaticResource PrimaryAction}" />
+         <Button x:Name="WheelchairCaptureButton" Content="记录当前坐标" Click="OnCaptureWheelchairStep" IsEnabled="{Binding CanCaptureWheelchairStep}" Margin="10,0,0,0" />
+         <Button Content="导入方案" Click="OnImportWheelchairPlan" IsEnabled="{Binding CanBeginWheelchair}" Margin="10,0,0,0" />
+        </StackPanel>
+        <TextBlock Text="{Binding WheelchairStatus}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,14" />
+        <StackPanel x:Name="WheelchairDraftPanel" Visibility="{Binding IsWheelchairDrafting, Converter={StaticResource BoolVisibility}}">
+         <TextBlock Text="方案名称" FontWeight="SemiBold" Margin="0,0,0,7" />
+         <TextBox x:Name="WheelchairNameBox" Text="{Binding WheelchairName, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" />
+         <TextBlock Text="步骤：到达坐标后执行的动作（留空则只走位），最后一列是到达后等待秒数" FontWeight="SemiBold" Margin="0,14,0,8" />
+         <ItemsControl ItemsSource="{Binding WheelchairSteps}">
+          <ItemsControl.ItemTemplate><DataTemplate>
+           <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="115" /><ColumnDefinition Width="175" /><ColumnDefinition Width="70" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" Margin="0,0,8,0" AutomationProperties.Name="步骤名称" />
+            <TextBlock Grid.Column="1" Text="{Binding PositionText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
+            <ComboBox Grid.Column="2" ItemsSource="{Binding DataContext.ActionChoices, RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding Action}" Margin="6,0" AutomationProperties.Name="步骤动作" />
+            <TextBox Grid.Column="3" Text="{Binding DelayText}" MaxLength="3" Margin="0,0,8,0" ToolTip="到达后等待多少秒再执行动作" AutomationProperties.Name="等待秒数" />
+            <Button Grid.Column="4" Content="移除" Click="OnRemoveWheelchairStep" Padding="10,5" />
+           </Grid>
+          </DataTemplate></ItemsControl.ItemTemplate>
+         </ItemsControl>
+         <StackPanel Orientation="Horizontal" Margin="0,10,0,18">
+          <Button x:Name="WheelchairSaveButton" Content="保存方案" Click="OnSaveWheelchairPlan" IsEnabled="{Binding CanSaveWheelchairPlan}" Style="{StaticResource PrimaryAction}" />
+          <Button Content="放弃草稿" Click="OnCancelWheelchairDraft" Margin="10,0,0,0" />
+         </StackPanel>
+        </StackPanel>
+        <TextBlock Text="已保存的方案" FontSize="15" FontWeight="SemiBold" Margin="0,4,0,10" />
+        <ComboBox x:Name="WheelchairSelector" ItemsSource="{Binding SavedWheelchairPlans}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedWheelchairPlan}" IsEnabled="{Binding CanBeginWheelchair}" />
+        <TextBlock Text="{Binding SelectedWheelchairPlanSummary}" Foreground="{DynamicResource Muted}" Margin="0,9,0,10" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+         <Button x:Name="WheelchairRunButton" Content="运行方案" Click="OnRunWheelchairPlan" IsEnabled="{Binding CanRunWheelchairPlan}" Style="{StaticResource PrimaryAction}" />
+         <Button Content="导出" Click="OnExportWheelchairPlan" IsEnabled="{Binding CanRunWheelchairPlan}" Margin="10,0,0,0" />
+         <Button Content="删除" Click="OnDeleteWheelchairPlan" IsEnabled="{Binding CanRunWheelchairPlan}" Margin="10,0,0,0" />
+        </StackPanel>
+        <TextBlock Text="运行前请让角色进入方案所属地图。方案只记录坐标和动作名称，分享给别人时对方需要先导入同名动作；导出方案会把动作引用一起带过去，但动作文件本身需要单独分享。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />

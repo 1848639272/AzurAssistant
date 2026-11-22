@@ -1,4 +1,4 @@
-using AzurAssistant.Platform;
+﻿using AzurAssistant.Platform;
 using AzurAssistant.Runtime;
 using AzurAssistant.UI;
 using AzurAssistant.Features.StartJourney;
@@ -41,6 +41,7 @@ public static class Bootstrapper
             createRoute: features.CreateRoute, createRouteCapture: features.CreateRouteCapture,
             navigationMaps: Game.Navigation.NavigationMapCatalog.Load(verifyFiles: false).Maps,
             findGameWindow: () => GameWindow.Find("AzurPromilia"),
+            createWheelchair: features.CreateWheelchair,
             dailyCompleted: async result =>
             {
                 var activeWindow = window;
@@ -60,7 +61,8 @@ public static class Bootstrapper
             }
             catch (System.ComponentModel.Win32Exception ex) { log.Write($"管理员重启未完成：{ex.Message}"); }
         }, automation, runDailyFromCommandLine, restartAssistant: () => AssistantRestarter.TryRestart(log.Write),
-            actionsDirectory: Path.Combine(dataDirectory, "actions")));
+            actionsDirectory: Path.Combine(dataDirectory, "actions"),
+            wheelchairDirectory: Path.Combine(dataDirectory, "wheelchair")));
         try
         {
             var source = JsonSerializer.Deserialize<UpdateSource>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "update-source.json")))!;

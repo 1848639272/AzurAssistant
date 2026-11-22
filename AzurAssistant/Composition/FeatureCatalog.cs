@@ -126,4 +126,7 @@ public sealed class FeatureCatalog : IDisposable
         => new RouteTask(_navigation.Value, route, report, route.AutoPickup ? PickupRecognizer.Load(_ocr) : null);
     public IGameTask CreateRouteCapture(Action<NavigationStatus> report, Action<MapPosition> captured)
         => new RouteCaptureTask(_navigation.Value, report, captured);
+    public IGameTask CreateWheelchair(Features.Wheelchair.WheelchairPlan plan,
+        IReadOnlyDictionary<string, ActionRecording> actions, Action<NavigationStatus> report)
+        => new Features.Wheelchair.WheelchairTask(_navigation.Value, plan, actions, report);
 }

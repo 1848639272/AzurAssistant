@@ -62,6 +62,26 @@ public sealed class ActionRecordingStore(string directory)
         if (File.Exists(path)) File.Delete(path);
     }
 
+    /// <summary>Writes a shareable copy of the recording without touching the stored one.</summary>
+    public void Export(ActionRecording recording, string path)
+    {
+        recording.Validate();
+        var temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temporary, recording.ToJson(), new UTF8Encoding(false));
+            File.Move(temporary, path, overwrite: true);
+        }
+        finally { if (File.Exists(temporary)) File.Delete(temporary); }
+    }
+
+    /// <summary>Validates a recording shared by another player and copies it into the action directory.</summary>
+    public string Import(string path)
+    {
+        if (new FileInfo(path).Length > 64L * 1024 * 1024) throw new InvalidDataException("动作文件超过 64MB，无法导入。");
+        return Save(Read(path));
+    }
+
     private static void Write(string path, ActionRecording recording)
     {
         var temporary = path + ".tmp";

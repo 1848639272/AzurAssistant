@@ -127,6 +127,52 @@ public partial class MainWindow : Window
             MessageBoxButton.OKCancel, MessageBoxImage.Warning) != MessageBoxResult.OK) return;
         ViewModel.DeleteSelectedAction();
     }
+    private void OnImportAction(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog { Title = "导入动作", Filter = "动作文件 (*.json)|*.json", CheckFileExists = true, Multiselect = false };
+        if (dialog.ShowDialog(this) == true) ViewModel.ImportActionRecording(dialog.FileName);
+    }
+    private void OnExportAction(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedAction is not { } selected) return;
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出动作", FileName = selected.Name + ".json", Filter = "动作文件 (*.json)|*.json",
+            DefaultExt = ".json", AddExtension = true,
+        };
+        if (dialog.ShowDialog(this) == true) ViewModel.ExportSelectedAction(dialog.FileName);
+    }
+    private void OnBeginWheelchairDraft(object sender, RoutedEventArgs e) => ViewModel.BeginWheelchairDraft();
+    private async void OnCaptureWheelchairStep(object sender, RoutedEventArgs e) => await ViewModel.CaptureWheelchairStepAsync();
+    private void OnRemoveWheelchairStep(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: WheelchairStepDraft draft }) ViewModel.RemoveWheelchairStep(draft);
+    }
+    private void OnSaveWheelchairPlan(object sender, RoutedEventArgs e) => ViewModel.SaveWheelchairPlan();
+    private void OnCancelWheelchairDraft(object sender, RoutedEventArgs e) => ViewModel.CancelWheelchairDraft();
+    private void OnRunWheelchairPlan(object sender, RoutedEventArgs e) => ViewModel.RunWheelchairPlan();
+    private void OnDeleteWheelchairPlan(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedWheelchairPlan is not { } selected) return;
+        if (MessageBox.Show($"确定删除方案“{selected.Name}”？此操作不可撤销。", "删除方案",
+            MessageBoxButton.OKCancel, MessageBoxImage.Warning) != MessageBoxResult.OK) return;
+        ViewModel.DeleteSelectedWheelchairPlan();
+    }
+    private void OnExportWheelchairPlan(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedWheelchairPlan is not { } selected) return;
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出轮椅方案", FileName = selected.Name + ".json", Filter = "轮椅方案 (*.json)|*.json",
+            DefaultExt = ".json", AddExtension = true,
+        };
+        if (dialog.ShowDialog(this) == true) ViewModel.ExportWheelchairPlan(dialog.FileName);
+    }
+    private void OnImportWheelchairPlan(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog { Title = "导入轮椅方案", Filter = "轮椅方案 (*.json)|*.json", CheckFileExists = true, Multiselect = false };
+        if (dialog.ShowDialog(this) == true) ViewModel.ImportWheelchairPlan(dialog.FileName);
+    }
     public async Task TogglePauseFromHotkeyAsync()
     {
         if (_closing || IsCapturingHotkey || ViewModel.IsRestarting) return;

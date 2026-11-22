@@ -64,8 +64,37 @@ public sealed partial class MainViewModel
         SavedActions.Clear();
         try { foreach (var item in Actions.List()) SavedActions.Add(item); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        { SetActionStatus("无法读取动作目录：" + ex.Message); return; }
+        { SetActionStatus("无法读取动作目录：" + ex.Message); RefreshActionChoices(); return; }
         SelectedAction = SavedActions.FirstOrDefault(item => item.Path == selected) ?? SavedActions.FirstOrDefault();
+        RefreshActionChoices();
+    }
+
+    /// <summary>Copies a shared action file into the local action directory.</summary>
+    public void ImportActionRecording(string path)
+    {
+        try
+        {
+            var stored = Actions.Import(path);
+            LoadActions();
+            SelectedAction = SavedActions.FirstOrDefault(item => item.Path == stored) ?? SelectedAction;
+            SetActionStatus($"已导入动作「{SelectedAction?.Name}」。");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException
+            or System.Text.Json.JsonException or ArgumentException or NotSupportedException)
+        { SetActionStatus("导入失败：" + ex.Message); }
+    }
+
+    /// <summary>Writes a shareable copy of the selected action.</summary>
+    public void ExportSelectedAction(string path)
+    {
+        if (SelectedAction is not { } selected) return;
+        try
+        {
+            Actions.Export(selected.Recording, path);
+            SetActionStatus($"已导出到 {path}");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
+        { SetActionStatus("导出失败：" + ex.Message); }
     }
 
     public void BeginActionRecording()
