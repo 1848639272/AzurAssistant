@@ -70,6 +70,7 @@ public sealed class SettingsStore
         foreach (var (name, level) in new[] { ("界面", value.UiOpacity), ("文字", value.TextOpacity), ("背景", value.BackgroundOpacity) })
             if (level is < 0 or > 100) throw new InvalidDataException($"{name}透明度应在 0–100 之间。");
         if (value.BackgroundImagePath is null || value.BackgroundImagePath.Length > 32767) throw new InvalidDataException("背景图路径无效。");
+        if (value.OverlayMonitor is < 0 or > 15) throw new InvalidDataException("显示器编号应在 0–15 之间。");
         if (value.StepTimeoutSeconds is < 3 or > 300) throw new InvalidDataException("单步超时应在 3–300 秒之间。");
         if (value.StepRetrySeconds is < 0 or > 60) throw new InvalidDataException("重试间隔应在 0–60 秒之间。");
         if (value.ActionSettleMs is < 200 or > 10000) throw new InvalidDataException("操作后等待应在 200–10000 毫秒之间。");

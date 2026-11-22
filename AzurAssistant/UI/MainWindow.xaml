@@ -875,6 +875,19 @@
          <RadioButton x:Name="BackgroundFitOption" GroupName="BackgroundMode" Content="保持比例，上下/左右留白" IsChecked="{Binding BackgroundFitMode}" />
         </StackPanel>
         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
+        <TextBlock Text="悬浮窗与通知" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="悬浮窗是置顶小条，显示当前状态和进度，可拖动；托盘图标在最小化后也能用右键菜单暂停/停止/退出。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <CheckBox x:Name="ShowHudOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding ShowHud}" Margin="0,0,0,10" AutomationProperties.Name="显示悬浮窗"><StackPanel><TextBlock Text="显示悬浮窗（HUD）" FontWeight="SemiBold" /><TextBlock Text="置顶小条：当前步骤 + 暂停/继续 + 停止" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <CheckBox x:Name="ShowTrayOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding ShowTrayIcon}" Margin="0,0,0,10" AutomationProperties.Name="显示托盘图标"><StackPanel><TextBlock Text="显示托盘图标" FontWeight="SemiBold" /><TextBlock Text="双击托盘恢复窗口；右键菜单可暂停/停止/退出" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <CheckBox x:Name="MinimizeToTrayOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding MinimizeToTray}" Margin="0,0,0,10" AutomationProperties.Name="最小化到托盘"><StackPanel><TextBlock Text="最小化时收进托盘" FontWeight="SemiBold" /><TextBlock Text="需要同时开启托盘图标" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <CheckBox x:Name="NotifyOnEndOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding NotifyOnTaskEnd}" Margin="0,0,0,10" AutomationProperties.Name="任务结束通知"><StackPanel><TextBlock Text="任务结束时弹出通知" FontWeight="SemiBold" /><TextBlock Text="成功或失败都会在右下角显示一条，4.5 秒后自动消失" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <Grid Margin="0,0,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="240" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <TextBlock Text="显示在" VerticalAlignment="Center" />
+         <ComboBox Grid.Column="1" ItemsSource="{Binding Monitors}" SelectedValue="{Binding OverlayMonitor}" SelectedValuePath="Index" DisplayMemberPath="Label" Margin="0,0,12,0" AutomationProperties.Name="显示器选择" />
+         <TextBlock Grid.Column="2" Text="{Binding OverlayMonitorLabel}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />
+        </Grid>
+        <Border Height="0" />
+        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
         <TextBlock Text="识别与容错" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
         <TextBlock Text="超时越长越稳但更慢；重试间隔与动作后等待太短容易误点。卡死检测填 0 表示关闭。修改后下次任务生效。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
         <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="90" /><ColumnDefinition Width="150" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>

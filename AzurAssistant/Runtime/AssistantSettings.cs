@@ -16,6 +16,16 @@ public sealed record AssistantSettings
     public int TextOpacity { get; init; } = 100;
     /// <summary>背景表面（卡片、输入框、侧栏）透明度百分比 0–100。</summary>
     public int BackgroundOpacity { get; init; } = 100;
+    /// <summary>是否显示悬浮窗（HUD）。</summary>
+    public bool ShowHud { get; init; }
+    /// <summary>是否显示托盘图标。</summary>
+    public bool ShowTrayIcon { get; init; } = true;
+    /// <summary>最小化时收进托盘。</summary>
+    public bool MinimizeToTray { get; init; } = true;
+    /// <summary>任务结束（成功/失败）时弹出通知。</summary>
+    public bool NotifyOnTaskEnd { get; init; } = true;
+    /// <summary>悬浮窗与通知显示在哪个显示器（0 = 第一个）。</summary>
+    public int OverlayMonitor { get; init; }
     /// <summary>单步识别等待上限（秒）。</summary>
     public int StepTimeoutSeconds { get; init; } = 15;
     /// <summary>识别失败后重试间隔（秒）。</summary>

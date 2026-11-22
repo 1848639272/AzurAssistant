@@ -22,6 +22,8 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
     public bool IsPaused { get { lock (_gate) return _running && _session?.Execution.IsPaused == true; } }
     public string Status { get; private set; } = "等待开始";
     public TaskResult? LastResult { get; private set; }
+    /// <summary>Raised once per finished run, on the run's continuation thread.</summary>
+    public event Action<TaskResult>? RunCompleted;
     public bool RequiresElevation { get; private set; }
     public Task<TaskResult> Completion { get { lock (_gate) return _run; } }
 
@@ -209,6 +211,7 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
                 _running = false;
             }
         }
+        try { RunCompleted?.Invoke(completedResult); } catch (Exception ex) when (ex is not OutOfMemoryException) { }
         // 失败后自动尝试回到主界面，避免下一次运行从错误页面开始。
         if (!completedResult.Success && options.RequiresGameInput && recoverAsync is not null && autoRecover?.Invoke() != false)
         {

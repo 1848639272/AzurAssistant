@@ -2,6 +2,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using System.Windows.Controls.Primitives;
+using AzurAssistant.Platform;
 using System.IO;
 using System.Windows;
 using System.Windows.Automation;
@@ -65,6 +67,10 @@ public partial class MainWindow : Window
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
+        ViewModel.RefreshMonitors();
+        ApplyOverlays();
+        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+        if (ViewModel.TaskRunnerInternal is { } runner) runner.RunCompleted += result => Dispatcher.BeginInvoke(() => OnRunCompleted(result));
         ApplyAppearance();
         _refresh.Start();
         await CheckUpdatesAsync(automatic: true);
@@ -804,5 +810,100 @@ public partial class MainWindow : Window
         if (MessageBox.Show(this, "确定清空全部运行记录吗？", "蔚蓝助手",
                 MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
         ViewModel.ClearRunHistory();
+    }
+
+    // ---- 悬浮窗 / 托盘 / 通知 ----
+    private HudWindow? _hud;
+    private ToastWindow? _toast;
+    private TrayIcon? _tray;
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(MainViewModel.ShowHud) or nameof(MainViewModel.ShowTrayIcon)
+            or nameof(MainViewModel.OverlayMonitor))
+            ApplyOverlays();
+    }
+
+    /// <summary>Creates, places or hides the HUD and the tray icon according to the settings.</summary>
+    private void ApplyOverlays()
+    {
+        var monitor = DisplayMonitors.Resolve(ViewModel.OverlayMonitor);
+        if (ViewModel.ShowHud)
+        {
+            if (_hud is null)
+            {
+                _hud = new HudWindow { DataContext = ViewModel };
+                _hud.Closed += (_, _) => _hud = null;
+            }
+            _hud.PlaceOn(monitor);
+            if (!_hud.IsVisible) _hud.Show();
+        }
+        else if (_hud is { IsVisible: true }) _hud.Hide();
+
+        if (ViewModel.ShowTrayIcon)
+        {
+            if (_tray is null)
+            {
+                _tray = new TrayIcon(this, "蔚蓝助手 - 双击显示窗口");
+                _tray.Activated += ShowFromTray;
+                _tray.MenuRequested += ShowTrayMenu;
+            }
+            _tray.Show();
+        }
+        else _tray?.Hide();
+    }
+
+    private void ShowFromTray()
+    {
+        Show();
+        WindowState = WindowState.Normal;
+        Activate();
+        Topmost = true;
+        Topmost = false;
+    }
+
+    private void ShowTrayMenu()
+    {
+        var menu = new ContextMenu { Placement = PlacementMode.MousePoint };
+        var show = new MenuItem { Header = "显示主窗口" };
+        show.Click += (_, _) => ShowFromTray();
+        var pause = new MenuItem { Header = "暂停 / 继续" };
+        pause.Click += async (_, _) => await ViewModel.TogglePauseAsync();
+        var stop = new MenuItem { Header = "停止任务" };
+        stop.Click += async (_, _) => await ViewModel.StopTaskAsync();
+        var exit = new MenuItem { Header = "退出" };
+        exit.Click += (_, _) => Close();
+        menu.Items.Add(show);
+        menu.Items.Add(new Separator());
+        menu.Items.Add(pause);
+        menu.Items.Add(stop);
+        menu.Items.Add(new Separator());
+        menu.Items.Add(exit);
+        menu.IsOpen = true;
+    }
+
+    /// <summary>Shows a bottom-right notification on the configured monitor.</summary>
+    private void ShowToast(string title, string message)
+    {
+        var toast = new ToastWindow();
+        toast.Closed += (_, _) => { if (ReferenceEquals(_toast, toast)) _toast = null; };
+        _toast = toast;
+        toast.Present(title, message, DisplayMonitors.Resolve(ViewModel.OverlayMonitor));
+    }
+
+    private void OnRunCompleted(AzurAssistant.Contracts.TaskResult result)
+    {
+        if (!ViewModel.NotifyOnTaskEnd) return;
+        ShowToast(result.Success ? "任务完成" : "任务失败", result.Message);
+    }
+
+    protected override void OnStateChanged(EventArgs e)
+    {
+        base.OnStateChanged(e);
+        if (WindowState == WindowState.Minimized && ViewModel.MinimizeToTray && ViewModel.ShowTrayIcon)
+        {
+            Hide();
+            _tray?.Show();
+        }
     }
 }
