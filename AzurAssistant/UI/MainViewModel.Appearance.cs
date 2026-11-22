@@ -10,40 +10,44 @@ public sealed partial class MainViewModel
 {
     private ImageSource? _backgroundImage;
     private string? _backgroundImageSource;
-    // Pending slider values: applied live to the palette, persisted once the drag settles.
-    private int? _pendingUi;
-    private int? _pendingText;
-    private int? _pendingBackground;
+    // Pending slider values (double so the thumb follows the mouse exactly); persisted once the drag settles.
+    private double? _pendingUi;
+    private double? _pendingText;
+    private double? _pendingBackground;
 
     private string BackgroundsDirectory => Path.Combine(
         Path.GetDirectoryName(SoundsDirectory) ?? AppContext.BaseDirectory, "backgrounds");
 
-    public int UiOpacityPercent
+    /// <summary>Bound to the slider directly: keeps the exact drag position instead of snapping to whole numbers.</summary>
+    public double UiOpacityValue
     {
         get => _pendingUi ?? Settings.UiOpacity;
-        set => SetPending(ref _pendingUi, value, nameof(UiOpacityPercent), nameof(UiOpacityText));
+        set => SetPendingValue(ref _pendingUi, value, nameof(UiOpacityValue), nameof(UiOpacityPercent), nameof(UiOpacityText));
     }
 
-    public int TextOpacityPercent
+    public double TextOpacityValue
     {
         get => _pendingText ?? Settings.TextOpacity;
-        set => SetPending(ref _pendingText, value, nameof(TextOpacityPercent), nameof(TextOpacityText));
+        set => SetPendingValue(ref _pendingText, value, nameof(TextOpacityValue), nameof(TextOpacityPercent), nameof(TextOpacityText));
     }
 
-    public int BackgroundOpacityPercent
+    public double BackgroundOpacityValue
     {
         get => _pendingBackground ?? Settings.BackgroundOpacity;
-        set => SetPending(ref _pendingBackground, value, nameof(BackgroundOpacityPercent), nameof(BackgroundOpacityText));
+        set => SetPendingValue(ref _pendingBackground, value, nameof(BackgroundOpacityValue), nameof(BackgroundOpacityPercent), nameof(BackgroundOpacityText));
     }
 
+    public int UiOpacityPercent => (int)Math.Round(UiOpacityValue);
+    public int TextOpacityPercent => (int)Math.Round(TextOpacityValue);
+    public int BackgroundOpacityPercent => (int)Math.Round(BackgroundOpacityValue);
 
     public bool HasPendingAppearance => _pendingUi.HasValue || _pendingText.HasValue
         || _pendingBackground.HasValue || _accentRed.HasValue || _accentGreen.HasValue || _accentBlue.HasValue;
 
-    private void SetPending(ref int? field, int value, params string[] names)
+    private void SetPendingValue(ref double? field, double value, params string[] names)
     {
         var clamped = Math.Clamp(value, 0, 100);
-        if (field == clamped) return;
+        if (field.HasValue && Math.Abs(field.Value - clamped) < 0.01) return;
         field = clamped;
         foreach (var name in names) Notify(name);
         Notify(nameof(HasPendingAppearance));
@@ -57,9 +61,9 @@ public sealed partial class MainViewModel
         var colour = AccentValue;
         var updated = Settings with
         {
-            UiOpacity = _pendingUi ?? Settings.UiOpacity,
-            TextOpacity = _pendingText ?? Settings.TextOpacity,
-            BackgroundOpacity = _pendingBackground ?? Settings.BackgroundOpacity,
+            UiOpacity = UiOpacityPercent,
+            TextOpacity = TextOpacityPercent,
+            BackgroundOpacity = BackgroundOpacityPercent,
             AccentColor = accent ? $"#{colour.R:X2}{colour.G:X2}{colour.B:X2}" : Settings.AccentColor,
         };
         _pendingUi = _pendingText = _pendingBackground = null;

@@ -49,6 +49,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         _appearanceCommit.Tick += OnAppearanceCommitTick;
         _appearanceApply.Tick += OnAppearanceApplyTick;
+        System.Windows.Media.CompositionTarget.Rendering += OnFrameRendered;
         DataContext = ViewModel = viewModel;
         ApplyAppearance();
         _confirmSettingsRestart = confirmSettingsRestart ?? (() => Task.FromResult(MessageBox.Show(this,
@@ -137,10 +138,12 @@ public partial class MainWindow : Window
     }
     private readonly DispatcherTimer _appearanceCommit = new() { Interval = TimeSpan.FromMilliseconds(350) };
     private ThemePalette? _palette;
-    private readonly DispatcherTimer _appearanceApply = new() { Interval = TimeSpan.FromMilliseconds(33) };
+    private readonly DispatcherTimer _appearanceApply = new() { Interval = TimeSpan.FromMilliseconds(16) };
     private bool _appearanceDirty;
     private System.Windows.Media.Color? _accentApplied;
-    private bool _slowReported;
+    private int _applyCount;
+    private double _applyTotalMs;
+    private double _applyMaxMs;
     private int _appliedUi = -1;
     private int _appliedText = -1;
     private int _appliedBackground = -1;
@@ -175,6 +178,27 @@ public partial class MainWindow : Window
         _appearanceCommit.Start();
     }
 
+    private long _lastFrameTicks;
+    private int _frameCount;
+    private double _frameSumMs;
+    private double _frameMaxMs;
+
+    private void OnFrameRendered(object? sender, EventArgs e)
+    {
+        var now = System.Diagnostics.Stopwatch.GetTimestamp();
+        if (_lastFrameTicks != 0)
+        {
+            var ms = (now - _lastFrameTicks) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+            if (_appearanceApply.IsEnabled)
+            {
+                _frameCount++;
+                _frameSumMs += ms;
+                if (ms > _frameMaxMs) _frameMaxMs = ms;
+            }
+        }
+        _lastFrameTicks = now;
+    }
+
     private void OnAppearanceApplyTick(object? sender, EventArgs e)
     {
         if (_appearanceDirty)
@@ -189,6 +213,14 @@ public partial class MainWindow : Window
     {
         _appearanceCommit.Stop();
         ViewModel.CommitAppearance();
+        // Only log when the drag was actually slow, so normal use keeps the log clean.
+        if (_applyCount >= 5 && _applyTotalMs / _applyCount > 12)
+            ViewModel.Report($"外观偏慢：应用 {_applyCount} 次，平均 {_applyTotalMs / _applyCount:F1} ms，最长 {_applyMaxMs:F1} ms；帧 {_frameCount} 个，平均 {(_frameCount > 0 ? _frameSumMs / _frameCount : 0):F1} ms，最长 {_frameMaxMs:F1} ms；渲染层 {(System.Windows.Media.RenderCapability.Tier >> 16)}");
+        _frameSumMs = 0;
+        _frameMaxMs = 0;
+        _applyCount = 0;
+        _applyTotalMs = 0;
+        _applyMaxMs = 0;
     }
 
     private void OnImportBackground(object sender, RoutedEventArgs e)
@@ -243,11 +275,9 @@ public partial class MainWindow : Window
             _accentApplied = accent;
         }
         var elapsedMs = (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
-        if (elapsedMs > 40 && !_slowReported)
-        {
-            _slowReported = true;
-            ViewModel.Report($"外观应用耗时 {elapsedMs:F0} ms（只记录一次，用于排查卡顿）");
-        }
+        _applyCount++;
+        _applyTotalMs += elapsedMs;
+        if (elapsedMs > _applyMaxMs) _applyMaxMs = elapsedMs;
     }
 
     [DllImport("dwmapi.dll")]
