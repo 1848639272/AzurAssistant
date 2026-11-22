@@ -67,7 +67,7 @@ public sealed class SettingsStore
         if (value.ScheduleStartSound is null || value.ScheduleStartSound.Length > 260) throw new InvalidDataException("开始提示音设置无效。");
         if (value.ScheduleEndSound is null || value.ScheduleEndSound.Length > 260) throw new InvalidDataException("结束提示音设置无效。");
         if (value.ScheduleSoundVolume is < 0 or > 100) throw new InvalidDataException("提示音音量应在 0–100 之间。");
-        foreach (var (name, level) in new[] { ("界面", value.UiOpacity), ("文字", value.TextOpacity), ("背景", value.BackgroundOpacity), ("窗口", value.WindowOpacity) })
+        foreach (var (name, level) in new[] { ("界面", value.UiOpacity), ("文字", value.TextOpacity), ("背景", value.BackgroundOpacity) })
             if (level is < 0 or > 100) throw new InvalidDataException($"{name}透明度应在 0–100 之间。");
         if (value.BackgroundImagePath is null || value.BackgroundImagePath.Length > 32767) throw new InvalidDataException("背景图路径无效。");
         if (value.BackgroundImageMode is not ("stretch" or "fit")) throw new InvalidDataException("背景图处理方式无效。");

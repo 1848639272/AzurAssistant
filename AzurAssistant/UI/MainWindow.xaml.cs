@@ -136,7 +136,6 @@ public partial class MainWindow : Window
     }
     private readonly DispatcherTimer _appearanceCommit = new() { Interval = TimeSpan.FromMilliseconds(350) };
     private ThemePalette? _palette;
-    private bool _backdropReported;
     private bool _appearanceQueued;
     private bool _swapReported;
     private void OnDarkModeChanged(object sender, RoutedEventArgs e)
@@ -197,10 +196,8 @@ public partial class MainWindow : Window
         {
             _palette = ThemePalette.Apply(this, ViewModel.DarkMode, ViewModel.UiOpacityPercent,
                 ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
-            _palette.UpdateWindowFill(ViewModel.WindowOpacityPercent);
             ApplyWindowChrome();
-            ApplyBackdrop();
-        }
+            }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
         { ViewModel.Report("应用外观失败：" + ex.Message); }
     }
@@ -210,8 +207,6 @@ public partial class MainWindow : Window
     {
         if (_palette is null) { ApplyAppearance(); return; }
         _palette.UpdateOpacity(ViewModel.UiOpacityPercent, ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
-        _palette.UpdateWindowFill(ViewModel.WindowOpacityPercent);
-        ApplyBackdrop();
     }
 
     [DllImport("dwmapi.dll")]
@@ -243,49 +238,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private const int WindowCompositionAccentPolicy = 19;
-    private const int AccentDisabled = 0;
-    private const int AccentEnableBlurBehind = 3;
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct AccentPolicy { public int AccentState; public int AccentFlags; public int GradientColor; public int AnimationId; }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct WindowCompositionAttributeData { public int Attribute; public IntPtr Data; public int SizeOfData; }
-
-    [DllImport("user32.dll")]
-    private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
-
-    /// <summary>Blurs and tints whatever is behind the window, so lowering the window opacity really shows the desktop.</summary>
-    private void ApplyBackdrop()
-    {
-        var handle = new WindowInteropHelper(this).Handle;
-        if (handle == IntPtr.Zero) return;
-        var transparency = 100 - Math.Clamp(ViewModel.WindowOpacityPercent, 0, 100);
-        var fill = _palette?.BaseColor("WindowBackground") ?? System.Windows.Media.Colors.Black;
-        var policy = new AccentPolicy
-        {
-            AccentState = transparency <= 0 ? AccentDisabled : AccentEnableBlurBehind,
-            AccentFlags = 2,
-            // 0xAABBGGRR: alpha = how much of the blurred desktop shows, colour = the window fill tint.
-            GradientColor = (transparency * 255 / 100) << 24 | fill.R | (fill.G << 8) | (fill.B << 16),
-        };
-        var size = Marshal.SizeOf<AccentPolicy>();
-        var pointer = Marshal.AllocHGlobal(size);
-        try
-        {
-            Marshal.StructureToPtr(policy, pointer, false);
-            var data = new WindowCompositionAttributeData { Attribute = WindowCompositionAccentPolicy, Data = pointer, SizeOfData = size };
-            var result = SetWindowCompositionAttribute(handle, ref data);
-            if (!_backdropReported)
-            {
-                _backdropReported = true;
-                var state = transparency <= 0 ? "未启用（窗口不透明）" : result != 0 ? "已启用" : "系统未接受";
-                ViewModel.Report($"窗口透明背景：{state}（当前 {transparency}% 透明）");
-            }
-        }
-        finally { Marshal.FreeHGlobal(pointer); }
-    }
     private void OnAddScheduleTask(object sender, RoutedEventArgs e) => ViewModel.AddScheduleTask();
     private void OnRemoveScheduleTask(object sender, RoutedEventArgs e)
     {

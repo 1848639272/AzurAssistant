@@ -671,7 +671,7 @@
         </CheckBox>
         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,22,0,18" />
         <TextBlock Text="外观与透明度" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
-        <TextBlock Text="四个滑杆分别控制：界面元素（边框/分隔线/强调色）、文字、背景表面（卡片/输入框/侧栏）、整个窗口（含外框，会透出桌面）。拖动即时生效。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <TextBlock Text="三个滑杆分别控制：界面元素（边框/分隔线/强调色）、文字、背景表面（卡片/输入框/侧栏）。拖动即时生效，松手后自动保存。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
         <Grid Margin="0,0,0,7"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
          <TextBlock Text="界面元素" VerticalAlignment="Center" />
          <Slider Grid.Column="1" Minimum="0" Maximum="100" IsSnapToTickEnabled="False" SmallChange="1" Value="{Binding UiOpacityPercent}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="界面元素透明度" />
@@ -686,11 +686,6 @@
          <TextBlock Text="背景表面" VerticalAlignment="Center" />
          <Slider Grid.Column="1" Minimum="0" Maximum="100" IsSnapToTickEnabled="False" SmallChange="1" Value="{Binding BackgroundOpacityPercent}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="背景透明度" />
          <TextBlock Grid.Column="2" Text="{Binding BackgroundOpacityText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
-        </Grid>
-        <Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
-         <TextBlock Text="整个窗口" VerticalAlignment="Center" />
-         <Slider Grid.Column="1" Minimum="0" Maximum="100" IsSnapToTickEnabled="False" SmallChange="1" Value="{Binding WindowOpacityPercent}" ValueChanged="OnAppearanceSliderChanged" VerticalAlignment="Center" Margin="0,0,10,0" AutomationProperties.Name="窗口不透明度" />
-         <TextBlock Grid.Column="2" Text="{Binding WindowOpacityText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" />
         </Grid>
         <TextBlock Text="背景图" FontSize="14" FontWeight="SemiBold" Margin="0,4,0,8" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

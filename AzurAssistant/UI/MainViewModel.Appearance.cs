@@ -14,7 +14,6 @@ public sealed partial class MainViewModel
     private int? _pendingUi;
     private int? _pendingText;
     private int? _pendingBackground;
-    private int? _pendingWindow;
 
     private string BackgroundsDirectory => Path.Combine(
         Path.GetDirectoryName(SoundsDirectory) ?? AppContext.BaseDirectory, "backgrounds");
@@ -37,14 +36,9 @@ public sealed partial class MainViewModel
         set => SetPending(ref _pendingBackground, value, nameof(BackgroundOpacityPercent), nameof(BackgroundOpacityText));
     }
 
-    public int WindowOpacityPercent
-    {
-        get => _pendingWindow ?? Settings.WindowOpacity;
-        set => SetPending(ref _pendingWindow, value, nameof(WindowOpacityPercent), nameof(WindowOpacityText));
-    }
 
     public bool HasPendingAppearance => _pendingUi.HasValue || _pendingText.HasValue
-        || _pendingBackground.HasValue || _pendingWindow.HasValue;
+        || _pendingBackground.HasValue;
 
     private void SetPending(ref int? field, int value, params string[] names)
     {
@@ -64,17 +58,14 @@ public sealed partial class MainViewModel
             UiOpacity = _pendingUi ?? Settings.UiOpacity,
             TextOpacity = _pendingText ?? Settings.TextOpacity,
             BackgroundOpacity = _pendingBackground ?? Settings.BackgroundOpacity,
-            WindowOpacity = _pendingWindow ?? Settings.WindowOpacity,
         };
-        _pendingUi = _pendingText = _pendingBackground = _pendingWindow = null;
-        if (!SaveSettings(updated)) { Notify(nameof(UiOpacityPercent)); Notify(nameof(TextOpacityPercent)); Notify(nameof(BackgroundOpacityPercent)); Notify(nameof(WindowOpacityPercent)); }
+        _pendingUi = _pendingText = _pendingBackground = null;
         Notify(nameof(HasPendingAppearance));
     }
 
     public string UiOpacityText => $"{UiOpacityPercent}%";
     public string TextOpacityText => $"{TextOpacityPercent}%";
     public string BackgroundOpacityText => $"{BackgroundOpacityPercent}%";
-    public string WindowOpacityText => $"{WindowOpacityPercent}%";
 
     public ImageSource? BackgroundImage
     {
@@ -172,11 +163,9 @@ public sealed partial class MainViewModel
         Notify(nameof(UiOpacityPercent));
         Notify(nameof(TextOpacityPercent));
         Notify(nameof(BackgroundOpacityPercent));
-        Notify(nameof(WindowOpacityPercent));
         Notify(nameof(UiOpacityText));
         Notify(nameof(TextOpacityText));
         Notify(nameof(BackgroundOpacityText));
-        Notify(nameof(WindowOpacityText));
         Notify(nameof(BackgroundImage));
         Notify(nameof(BackgroundStretch));
         Notify(nameof(BackgroundLayerOpacity));

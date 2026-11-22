@@ -12,7 +12,7 @@ public sealed class ThemePalette : ResourceDictionary
 {
     private static readonly string[] BackgroundKeys =
     [
-        "WindowBackground", "SidebarBackground", "CardBackground", "TileBackground", "InputBackground",
+        "SidebarBackground", "CardBackground", "TileBackground", "InputBackground",
         "HoverBackground", "SelectedBackground", "PreviewBackground", "MascotBackground", "MascotHoverBackground",
         "MascotPressedBackground",
     ];
@@ -99,12 +99,6 @@ public sealed class ThemePalette : ResourceDictionary
         foreach (var key in ChromeKeys) SetAlpha(key, _uiOpacity);
     }
 
-    /// <summary>Combines the background transparency with the window transparency for the window's own fill.</summary>
-    public void UpdateWindowFill(int windowOpacity)
-    {
-        var combined = (int)Math.Round(_backgroundOpacity * Clamp(windowOpacity) / 100.0);
-        SetAlpha("WindowBackground", combined);
-    }
 
     private static int Clamp(int value) => Math.Clamp(value, 0, 100);
 
