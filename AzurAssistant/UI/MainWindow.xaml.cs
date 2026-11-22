@@ -137,6 +137,8 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _appearanceCommit = new() { Interval = TimeSpan.FromMilliseconds(350) };
     private ThemePalette? _palette;
     private bool _backdropReported;
+    private bool _appearanceQueued;
+    private bool _swapReported;
     private void OnDarkModeChanged(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded) return;
@@ -148,7 +150,23 @@ public partial class MainWindow : Window
     private void OnAppearanceSliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (!IsLoaded) return;
-        ApplyAppearanceFast();
+        QueueAppearanceUpdate();
+    }
+
+    /// <summary>Coalesces rapid slider ticks into at most one palette update per dispatcher pass.</summary>
+    private void QueueAppearanceUpdate()
+    {
+        if (!_appearanceQueued)
+        {
+            _appearanceQueued = true;
+            Dispatcher.BeginInvoke(DispatcherPriority.Render, () =>
+            {
+                _appearanceQueued = false;
+                try { ApplyAppearanceFast(); }
+                catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
+                { ViewModel.Report("应用外观失败：" + ex.Message); }
+            });
+        }
         // Persist once the drag settles instead of writing settings on every tick.
         _appearanceCommit.Stop();
         _appearanceCommit.Start();
@@ -175,11 +193,16 @@ public partial class MainWindow : Window
     /// <summary>Full rebuild: first apply and dark-mode switches (the base colours change).</summary>
     private void ApplyAppearance()
     {
-        _palette = ThemePalette.Apply(this, ViewModel.DarkMode, ViewModel.UiOpacityPercent,
-            ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
-        _palette.UpdateWindowFill(ViewModel.WindowOpacityPercent);
-        ApplyWindowChrome();
-        ApplyBackdrop();
+        try
+        {
+            _palette = ThemePalette.Apply(this, ViewModel.DarkMode, ViewModel.UiOpacityPercent,
+                ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
+            _palette.UpdateWindowFill(ViewModel.WindowOpacityPercent);
+            ApplyWindowChrome();
+            ApplyBackdrop();
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
+        { ViewModel.Report("应用外观失败：" + ex.Message); }
     }
 
     /// <summary>Slider path: only alpha changes, so the existing brushes are rewritten in place.</summary>

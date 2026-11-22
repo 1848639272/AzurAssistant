@@ -30,6 +30,9 @@ public sealed class ThemePalette : ResourceDictionary
     ];
 
     private readonly Dictionary<string, Color> _colors = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, SolidColorBrush> _brushes = new(StringComparer.Ordinal);
+    private FrameworkElement? _scope;
+    private int _frozenSwaps;
     private int _uiOpacity = 100;
     private int _textOpacity = 100;
     private int _backgroundOpacity = 100;
@@ -80,10 +83,8 @@ public sealed class ThemePalette : ResourceDictionary
     {
         ArgumentNullException.ThrowIfNull(scope);
         var palette = new ThemePalette(dark, Clamp(uiOpacity), Clamp(textOpacity), Clamp(backgroundOpacity));
-        foreach (var key in palette.Keys)
-        {
-            if (palette[key] is SolidColorBrush) scope.Resources[key] = palette[key];
-        }
+        palette._scope = scope;
+        foreach (var (key, brush) in palette._brushes) scope.Resources[key] = brush;
         return palette;
     }
 
@@ -111,17 +112,34 @@ public sealed class ThemePalette : ResourceDictionary
     {
         var parsed = (Color)ColorConverter.ConvertFromString(color);
         _colors[key] = parsed;
-        // Not frozen: opacity changes rewrite the alpha of the very same brush instance.
-        Add(key, new SolidColorBrush(parsed));
+        var brush = new SolidColorBrush(parsed);
+        _brushes[key] = brush;
+        Add(key, brush);
     }
 
+    /// <summary>How many brushes had to be replaced because WPF froze them (reported once for diagnostics).</summary>
+    public int FrozenSwapCount => _frozenSwaps;
+
+    /// <summary>
+    /// Rewrites the brush alpha in place. WPF may freeze brushes that ended up in a sealed template, so a frozen
+    /// brush is replaced by a fresh instance instead of throwing (that exception used to crash the app mid-drag).
+    /// </summary>
     private void SetAlpha(string key, int percent)
     {
         if (!_colors.TryGetValue(key, out var baseColor)) return;
-        if (this[key] is not SolidColorBrush brush) return;
+        if (!_brushes.TryGetValue(key, out var brush)) return;
         var alpha = (byte)Math.Round(255 * Clamp(percent) / 100.0);
         var color = Color.FromArgb(alpha, baseColor.R, baseColor.G, baseColor.B);
         if (brush.Color == color) return;
-        brush.Color = color;
+        if (!brush.IsFrozen)
+        {
+            brush.Color = color;
+            return;
+        }
+        var replacement = new SolidColorBrush(color);
+        _frozenSwaps++;
+        _brushes[key] = replacement;
+        this[key] = replacement;
+        if (_scope is not null) _scope.Resources[key] = replacement;
     }
 }
