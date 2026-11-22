@@ -10,32 +10,65 @@ public sealed partial class MainViewModel
 {
     private ImageSource? _backgroundImage;
     private string? _backgroundImageSource;
+    // Pending slider values: applied live to the palette, persisted once the drag settles.
+    private int? _pendingUi;
+    private int? _pendingText;
+    private int? _pendingBackground;
+    private int? _pendingWindow;
 
     private string BackgroundsDirectory => Path.Combine(
         Path.GetDirectoryName(SoundsDirectory) ?? AppContext.BaseDirectory, "backgrounds");
 
     public int UiOpacityPercent
     {
-        get => Settings.UiOpacity;
-        set => SaveAppearance(Settings with { UiOpacity = Math.Clamp(value, 0, 100) });
+        get => _pendingUi ?? Settings.UiOpacity;
+        set => SetPending(ref _pendingUi, value, nameof(UiOpacityPercent), nameof(UiOpacityText));
     }
 
     public int TextOpacityPercent
     {
-        get => Settings.TextOpacity;
-        set => SaveAppearance(Settings with { TextOpacity = Math.Clamp(value, 0, 100) });
+        get => _pendingText ?? Settings.TextOpacity;
+        set => SetPending(ref _pendingText, value, nameof(TextOpacityPercent), nameof(TextOpacityText));
     }
 
     public int BackgroundOpacityPercent
     {
-        get => Settings.BackgroundOpacity;
-        set => SaveAppearance(Settings with { BackgroundOpacity = Math.Clamp(value, 0, 100) });
+        get => _pendingBackground ?? Settings.BackgroundOpacity;
+        set => SetPending(ref _pendingBackground, value, nameof(BackgroundOpacityPercent), nameof(BackgroundOpacityText));
     }
 
     public int WindowOpacityPercent
     {
-        get => Settings.WindowOpacity;
-        set => SaveAppearance(Settings with { WindowOpacity = Math.Clamp(value, 0, 100) });
+        get => _pendingWindow ?? Settings.WindowOpacity;
+        set => SetPending(ref _pendingWindow, value, nameof(WindowOpacityPercent), nameof(WindowOpacityText));
+    }
+
+    public bool HasPendingAppearance => _pendingUi.HasValue || _pendingText.HasValue
+        || _pendingBackground.HasValue || _pendingWindow.HasValue;
+
+    private void SetPending(ref int? field, int value, params string[] names)
+    {
+        var clamped = Math.Clamp(value, 0, 100);
+        if (field == clamped) return;
+        field = clamped;
+        foreach (var name in names) Notify(name);
+        Notify(nameof(HasPendingAppearance));
+    }
+
+    /// <summary>Writes the slider values to disk once the user stops dragging (one write instead of one per tick).</summary>
+    public void CommitAppearance()
+    {
+        if (!HasPendingAppearance) return;
+        var updated = Settings with
+        {
+            UiOpacity = _pendingUi ?? Settings.UiOpacity,
+            TextOpacity = _pendingText ?? Settings.TextOpacity,
+            BackgroundOpacity = _pendingBackground ?? Settings.BackgroundOpacity,
+            WindowOpacity = _pendingWindow ?? Settings.WindowOpacity,
+        };
+        _pendingUi = _pendingText = _pendingBackground = _pendingWindow = null;
+        if (!SaveSettings(updated)) { Notify(nameof(UiOpacityPercent)); Notify(nameof(TextOpacityPercent)); Notify(nameof(BackgroundOpacityPercent)); Notify(nameof(WindowOpacityPercent)); }
+        Notify(nameof(HasPendingAppearance));
     }
 
     public string UiOpacityText => $"{UiOpacityPercent}%";

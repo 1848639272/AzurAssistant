@@ -18,6 +18,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     Action? restartElevated = null, AutomationController? automation = null, bool runDailyFromCommandLine = false,
     Func<bool>? restartAssistant = null, string? routesDirectory = null, string? actionsDirectory = null, string? wheelchairDirectory = null, string? schedulePath = null, string? soundsDirectory = null) : INotifyPropertyChanged
 {
+    private readonly System.Windows.Threading.Dispatcher _dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
     private FrameSnapshot? _displayedFrame;
     private PreviewSnapshot? _lastSnapshot;
     private long _lastLog;
@@ -668,4 +669,18 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     }
 
     private void Notify([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    private bool _notifyAllQueued;
+
+    /// <summary>One background-priority full refresh per dispatcher pass, however many settings changed.</summary>
+    private void NotifyAllLater()
+    {
+        if (_notifyAllQueued) return;
+        _notifyAllQueued = true;
+        _dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, () =>
+        {
+            _notifyAllQueued = false;
+            Notify(string.Empty);
+        });
+    }
 }

@@ -47,6 +47,7 @@ public partial class MainWindow : Window
         Action<string>? showHotkeyMessage = null)
     {
         InitializeComponent();
+        _appearanceCommit.Tick += OnAppearanceCommitTick;
         DataContext = ViewModel = viewModel;
         ApplyAppearance();
         _confirmSettingsRestart = confirmSettingsRestart ?? (() => Task.FromResult(MessageBox.Show(this,
@@ -133,9 +134,13 @@ public partial class MainWindow : Window
             MessageBoxButton.OKCancel, MessageBoxImage.Warning) != MessageBoxResult.OK) return;
         ViewModel.DeleteSelectedAction();
     }
+    private readonly DispatcherTimer _appearanceCommit = new() { Interval = TimeSpan.FromMilliseconds(350) };
+    private ThemePalette? _palette;
+    private bool _backdropReported;
     private void OnDarkModeChanged(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded) return;
+        // Base colours change with the theme, so this is the one path that rebuilds the palette.
         ApplyAppearance();
         ViewModel.Refresh();
     }
@@ -143,7 +148,16 @@ public partial class MainWindow : Window
     private void OnAppearanceSliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (!IsLoaded) return;
-        ApplyAppearance();
+        ApplyAppearanceFast();
+        // Persist once the drag settles instead of writing settings on every tick.
+        _appearanceCommit.Stop();
+        _appearanceCommit.Start();
+    }
+
+    private void OnAppearanceCommitTick(object? sender, EventArgs e)
+    {
+        _appearanceCommit.Stop();
+        ViewModel.CommitAppearance();
     }
 
     private void OnImportBackground(object sender, RoutedEventArgs e)
@@ -158,14 +172,23 @@ public partial class MainWindow : Window
 
     private void OnClearBackground(object sender, RoutedEventArgs e) => ViewModel.ClearBackgroundImage();
 
-    /// <summary>Applies the palette with the three opacity sliders, the window opacity and the DWM frame colours.</summary>
+    /// <summary>Full rebuild: first apply and dark-mode switches (the base colours change).</summary>
     private void ApplyAppearance()
     {
-        ThemePalette.Apply(this, ViewModel.DarkMode, ViewModel.UiOpacityPercent, ViewModel.TextOpacityPercent,
-            ViewModel.BackgroundOpacityPercent);
-        // Keep a floor so the window can never become completely unclickable.
-        Opacity = Math.Max(10, ViewModel.WindowOpacityPercent) / 100.0;
+        _palette = ThemePalette.Apply(this, ViewModel.DarkMode, ViewModel.UiOpacityPercent,
+            ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
+        _palette.UpdateWindowFill(ViewModel.WindowOpacityPercent);
         ApplyWindowChrome();
+        ApplyBackdrop();
+    }
+
+    /// <summary>Slider path: only alpha changes, so the existing brushes are rewritten in place.</summary>
+    private void ApplyAppearanceFast()
+    {
+        if (_palette is null) { ApplyAppearance(); return; }
+        _palette.UpdateOpacity(ViewModel.UiOpacityPercent, ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
+        _palette.UpdateWindowFill(ViewModel.WindowOpacityPercent);
+        ApplyBackdrop();
     }
 
     [DllImport("dwmapi.dll")]
@@ -176,25 +199,69 @@ public partial class MainWindow : Window
     {
         var handle = new WindowInteropHelper(this).Handle;
         if (handle == IntPtr.Zero) return;
-        var palette = ThemePalette.Create(ViewModel.DarkMode);
+        var palette = ThemePalette.Apply(this, ViewModel.DarkMode, ViewModel.UiOpacityPercent,
+            ViewModel.TextOpacityPercent, ViewModel.BackgroundOpacityPercent);
         static int ToColorRef(System.Windows.Media.Color color) => color.R | (color.G << 8) | (color.B << 16);
-        var caption = ToColorRef(((System.Windows.Media.SolidColorBrush)palette["CardBackground"]).Color);
-        var border = ToColorRef(((System.Windows.Media.SolidColorBrush)palette["BorderBrush"]).Color);
-        var text = ToColorRef(((System.Windows.Media.SolidColorBrush)palette["Ink"]).Color);
+        var caption = ToColorRef(palette.BaseColor("CardBackground"));
+        var border = ToColorRef(palette.BaseColor("BorderBrush"));
+        var text = ToColorRef(palette.BaseColor("Ink"));
         var dark = ViewModel.DarkMode ? 1 : 0;
         var results = new[]
         {
-            DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int)),      // DWMWA_USE_IMMERSIVE_DARK_MODE
-            DwmSetWindowAttribute(handle, 35, ref caption, sizeof(int)),    // DWMWA_CAPTION_COLOR
-            DwmSetWindowAttribute(handle, 34, ref border, sizeof(int)),     // DWMWA_BORDER_COLOR
-            DwmSetWindowAttribute(handle, 36, ref text, sizeof(int)),       // DWMWA_TEXT_COLOR
+            DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int)),
+            DwmSetWindowAttribute(handle, 35, ref caption, sizeof(int)),
+            DwmSetWindowAttribute(handle, 34, ref border, sizeof(int)),
+            DwmSetWindowAttribute(handle, 36, ref text, sizeof(int)),
         };
-        var failure = results.Any(result => result != 0);
-        if (failure || !_chromeReported)
+        if (results.Any(result => result != 0) || !_chromeReported)
         {
             _chromeReported = true;
-            ViewModel.Report("窗口外框配色：" + string.Join(",", results) + $"；标题栏 #{caption:X6} 边框 #{border:X6}" + (failure ? "（系统不支持时为 0）" : ""));
+            ViewModel.Report("窗口外框配色：" + string.Join(",", results) + $"；标题栏 #{caption:X6} 边框 #{border:X6}");
         }
+    }
+
+    private const int WindowCompositionAccentPolicy = 19;
+    private const int AccentDisabled = 0;
+    private const int AccentEnableBlurBehind = 3;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct AccentPolicy { public int AccentState; public int AccentFlags; public int GradientColor; public int AnimationId; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct WindowCompositionAttributeData { public int Attribute; public IntPtr Data; public int SizeOfData; }
+
+    [DllImport("user32.dll")]
+    private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
+
+    /// <summary>Blurs and tints whatever is behind the window, so lowering the window opacity really shows the desktop.</summary>
+    private void ApplyBackdrop()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        if (handle == IntPtr.Zero) return;
+        var transparency = 100 - Math.Clamp(ViewModel.WindowOpacityPercent, 0, 100);
+        var fill = _palette?.BaseColor("WindowBackground") ?? System.Windows.Media.Colors.Black;
+        var policy = new AccentPolicy
+        {
+            AccentState = transparency <= 0 ? AccentDisabled : AccentEnableBlurBehind,
+            AccentFlags = 2,
+            // 0xAABBGGRR: alpha = how much of the blurred desktop shows, colour = the window fill tint.
+            GradientColor = (transparency * 255 / 100) << 24 | fill.R | (fill.G << 8) | (fill.B << 16),
+        };
+        var size = Marshal.SizeOf<AccentPolicy>();
+        var pointer = Marshal.AllocHGlobal(size);
+        try
+        {
+            Marshal.StructureToPtr(policy, pointer, false);
+            var data = new WindowCompositionAttributeData { Attribute = WindowCompositionAccentPolicy, Data = pointer, SizeOfData = size };
+            var result = SetWindowCompositionAttribute(handle, ref data);
+            if (!_backdropReported)
+            {
+                _backdropReported = true;
+                var state = transparency <= 0 ? "未启用（窗口不透明）" : result != 0 ? "已启用" : "系统未接受";
+                ViewModel.Report($"窗口透明背景：{state}（当前 {transparency}% 透明）");
+            }
+        }
+        finally { Marshal.FreeHGlobal(pointer); }
     }
     private void OnAddScheduleTask(object sender, RoutedEventArgs e) => ViewModel.AddScheduleTask();
     private void OnRemoveScheduleTask(object sender, RoutedEventArgs e)

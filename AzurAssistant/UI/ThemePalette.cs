@@ -4,8 +4,9 @@ using System.Windows.Media;
 namespace AzurAssistant.UI;
 
 /// <summary>
-/// Window-scoped semantic colours shared by the production UI and independent WPF hosts. Three opacity sliders scale
-/// the alpha of the background surfaces, the text and the chrome (borders/dividers/accent) independently.
+/// Window-scoped semantic colours shared by the production UI and independent WPF hosts.
+/// Brushes are mutable on purpose: opacity sliders only rewrite their alpha in place, so dragging a slider repaints
+/// instead of rebuilding the whole resource dictionary (which used to stall the UI on every tick).
 /// </summary>
 public sealed class ThemePalette : ResourceDictionary
 {
@@ -28,10 +29,16 @@ public sealed class ThemePalette : ResourceDictionary
         "Accent", "AccentForeground",
     ];
 
+    private readonly Dictionary<string, Color> _colors = new(StringComparer.Ordinal);
+    private int _uiOpacity = 100;
+    private int _textOpacity = 100;
+    private int _backgroundOpacity = 100;
+
     public ThemePalette() : this(false, 100, 100, 100) { }
 
     private ThemePalette(bool dark, int uiOpacity, int textOpacity, int backgroundOpacity)
     {
+        Dark = dark;
         AddBrush("WindowBackground", dark ? "#000000" : "#F6F8FA");
         AddBrush("SidebarBackground", dark ? "#0A0A0A" : "#EFF3F5");
         AddBrush("CardBackground", dark ? "#121212" : "#FFFFFF");
@@ -61,42 +68,60 @@ public sealed class ThemePalette : ResourceDictionary
         AddBrush("PreviewBackground", dark ? "#0C1216" : "#172733");
         AddBrush("PreviewInk", dark ? "#C3D3DC" : "#A6B8C1");
         AddBrush("PreviewMuted", dark ? "#93ABB8" : "#718995");
-
-        ApplyOpacity(BackgroundKeys, backgroundOpacity);
-        ApplyOpacity(TextKeys, textOpacity);
-        ApplyOpacity(ChromeKeys, uiOpacity);
+        UpdateOpacity(uiOpacity, textOpacity, backgroundOpacity);
     }
 
-    public static ResourceDictionary Create(bool dark, int uiOpacity = 100, int textOpacity = 100, int backgroundOpacity = 100)
-        => new ThemePalette(dark, Clamp(uiOpacity), Clamp(textOpacity), Clamp(backgroundOpacity));
+    public bool Dark { get; }
 
-    public static void Apply(FrameworkElement scope, bool dark, int uiOpacity = 100, int textOpacity = 100, int backgroundOpacity = 100)
+    public Color BaseColor(string key) => _colors.TryGetValue(key, out var color) ? color : Colors.Transparent;
+
+    /// <summary>Creates a palette and pushes it into the scope's resources; returns it for later in-place updates.</summary>
+    public static ThemePalette Apply(FrameworkElement scope, bool dark, int uiOpacity = 100, int textOpacity = 100, int backgroundOpacity = 100)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        var palette = Create(dark, uiOpacity, textOpacity, backgroundOpacity);
+        var palette = new ThemePalette(dark, Clamp(uiOpacity), Clamp(textOpacity), Clamp(backgroundOpacity));
         foreach (var key in palette.Keys)
-            scope.Resources[key] = palette[key];
+        {
+            if (palette[key] is SolidColorBrush) scope.Resources[key] = palette[key];
+        }
+        return palette;
+    }
+
+    /// <summary>Rewrites the alpha of every grouped brush in place; consumers repaint without re-resolving resources.</summary>
+    public void UpdateOpacity(int uiOpacity, int textOpacity, int backgroundOpacity)
+    {
+        _uiOpacity = Clamp(uiOpacity);
+        _textOpacity = Clamp(textOpacity);
+        _backgroundOpacity = Clamp(backgroundOpacity);
+        foreach (var key in BackgroundKeys) SetAlpha(key, _backgroundOpacity);
+        foreach (var key in TextKeys) SetAlpha(key, _textOpacity);
+        foreach (var key in ChromeKeys) SetAlpha(key, _uiOpacity);
+    }
+
+    /// <summary>Combines the background transparency with the window transparency for the window's own fill.</summary>
+    public void UpdateWindowFill(int windowOpacity)
+    {
+        var combined = (int)Math.Round(_backgroundOpacity * Clamp(windowOpacity) / 100.0);
+        SetAlpha("WindowBackground", combined);
     }
 
     private static int Clamp(int value) => Math.Clamp(value, 0, 100);
 
     private void AddBrush(string key, string color)
     {
-        var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
-        brush.Freeze();
-        Add(key, brush);
+        var parsed = (Color)ColorConverter.ConvertFromString(color);
+        _colors[key] = parsed;
+        // Not frozen: opacity changes rewrite the alpha of the very same brush instance.
+        Add(key, new SolidColorBrush(parsed));
     }
 
-    private void ApplyOpacity(string[] keys, int percent)
+    private void SetAlpha(string key, int percent)
     {
-        if (percent >= 100) return;
+        if (!_colors.TryGetValue(key, out var baseColor)) return;
+        if (this[key] is not SolidColorBrush brush) return;
         var alpha = (byte)Math.Round(255 * Clamp(percent) / 100.0);
-        foreach (var key in keys)
-        {
-            if (this[key] is not SolidColorBrush brush) continue;
-            var faded = new SolidColorBrush(Color.FromArgb(alpha, brush.Color.R, brush.Color.G, brush.Color.B));
-            faded.Freeze();
-            this[key] = faded;
-        }
+        var color = Color.FromArgb(alpha, baseColor.R, baseColor.G, baseColor.B);
+        if (brush.Color == color) return;
+        brush.Color = color;
     }
 }
