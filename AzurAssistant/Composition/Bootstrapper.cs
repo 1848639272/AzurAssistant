@@ -69,7 +69,7 @@ public static class Bootstrapper
             createRoute: features.CreateRoute, createRouteCapture: features.CreateRouteCapture,
             navigationMaps: Game.Navigation.NavigationMapCatalog.Load(verifyFiles: false).Maps,
             findGameWindow: () => GameWindow.Find("AzurPromilia"),
-            createWheelchair: features.CreateWheelchair,
+            createWheelchair: features.CreateWheelchair, createFlow: features.CreateFlow,
             dailyCompleted: async result =>
             {
                 var activeWindow = window;

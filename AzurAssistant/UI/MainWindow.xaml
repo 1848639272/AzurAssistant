@@ -544,6 +544,18 @@
         <TextBlock Text="回放会把游戏切到前台，并按录制时序注入键鼠：按键保持原来的按下时长，鼠标转动按原来的位移，点击落在同一客户区位置。回放期间按 F10 停止；暂停（F9）不适用于回放。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
        </StackPanel>
        <StackPanel x:Name="WheelchairPage" Visibility="{Binding IsWheelchairPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="流程（移动 / 点击 / 动作 / 等待 / 循环 / 条件）" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="流程是可以嵌套的自动化脚本：按顺序移动到坐标、点击、播放录制动作、等待某个模板出现，并且支持「循环 N 次」「重复直到看到 X」「如果看到 X 才执行」。放在程序目录的 flows 文件夹，可导入导出分享。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <ComboBox Width="260" ItemsSource="{Binding Flows}" SelectedItem="{Binding SelectedFlow}" DisplayMemberPath="Name" Margin="0,0,8,0" AutomationProperties.Name="流程列表" />
+         <Button Content="运行" Click="OnRunFlow" Padding="12,6" Margin="0,0,8,0" Style="{StaticResource PrimaryAction}" />
+         <Button Content="导入流程…" Click="OnImportFlow" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="导出" Click="OnExportFlow" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="删除" Click="OnDeleteFlow" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="刷新" Click="OnRefreshFlows" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding FlowSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
+        <TextBlock Text="{Binding FlowStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,20" />
         <TextBlock Text="把“走到某个坐标 → 执行某个动作 → 再走到下一个坐标”串成流水线，可导入导出分享给别人。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
          <Button x:Name="WheelchairNewButton" Content="新建方案" Click="OnBeginWheelchairDraft" IsEnabled="{Binding CanBeginWheelchair}" Style="{StaticResource PrimaryAction}" />

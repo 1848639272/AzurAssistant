@@ -21,7 +21,8 @@ public sealed class AutomationController(
     Func<RouteDefinition, Action<NavigationStatus>, IGameTask>? createRoute = null,
     Func<Action<NavigationStatus>, Action<MapPosition>, IGameTask>? createRouteCapture = null,
     IReadOnlyList<NavigationMap>? navigationMaps = null, Func<GameWindow>? findGameWindow = null,
-    Func<WheelchairPlan, IReadOnlyDictionary<string, ActionRecording>, Action<NavigationStatus>, IGameTask>? createWheelchair = null)
+    Func<WheelchairPlan, IReadOnlyDictionary<string, ActionRecording>, Action<NavigationStatus>, IGameTask>? createWheelchair = null,
+    Func<FlowDefinition, IReadOnlyDictionary<string, ActionRecording>, Action<NavigationStatus>, IGameTask>? createFlow = null)
 {
     private readonly object _completionGate = new();
     private bool _dailyCompletionPending;
@@ -290,6 +291,20 @@ public sealed class AutomationController(
             Volatile.Write(ref _navigationStatus, new NavigationStatus(null, DateTimeOffset.Now, "正在启动轮椅方案"));
             return Start(() => createWheelchair(plan, actions, status => Volatile.Write(ref _navigationStatus, status)),
                 new TaskRunOptions(TimeSpan.FromMinutes(plan.Steps.Count * 5 + 2),
+                    ResponseTiming: ResponseTiming.FromLowPerformanceMode(EffectiveSettings.LowPerformanceMode)));
+        }
+    }
+
+    public bool StartFlow(FlowDefinition flow, IReadOnlyDictionary<string, ActionRecording> actions)
+    {
+        lock (_completionGate)
+        {
+            if (IsBusy) return RejectStart("已有功能正在运行，请先停止当前任务。");
+            if (_actionRecorder is not null) return RejectStart("正在录制动作，请先结束录制。");
+            if (createFlow is null) return RejectStart("流程功能未装配。");
+            Volatile.Write(ref _navigationStatus, new NavigationStatus(null, DateTimeOffset.Now, "正在启动流程"));
+            return Start(() => createFlow(flow, actions, status => Volatile.Write(ref _navigationStatus, status)),
+                new TaskRunOptions(TimeSpan.FromMinutes(flow.TotalSteps * 3 + 5),
                     ResponseTiming: ResponseTiming.FromLowPerformanceMode(EffectiveSettings.LowPerformanceMode)));
         }
     }

@@ -129,4 +129,8 @@ public sealed class FeatureCatalog : IDisposable
     public IGameTask CreateWheelchair(Features.Wheelchair.WheelchairPlan plan,
         IReadOnlyDictionary<string, ActionRecording> actions, Action<NavigationStatus> report)
         => new Features.Wheelchair.WheelchairTask(_navigation.Value, plan, actions, report);
+
+    public IGameTask CreateFlow(FlowDefinition flow, IReadOnlyDictionary<string, ActionRecording> actions,
+        Action<NavigationStatus> report)
+        => new Features.Flow.FlowTask(_navigation.Value, flow, actions, report);
 }

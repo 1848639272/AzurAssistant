@@ -684,6 +684,35 @@ public partial class MainWindow : Window
         _ = Dispatcher.BeginInvoke(Close);
     }
 
+    // ---- 流程 ----
+    private void OnRunFlow(object sender, RoutedEventArgs e) => ViewModel.RunSelectedFlow();
+    private void OnRefreshFlows(object sender, RoutedEventArgs e) => ViewModel.RefreshFlows();
+
+    private void OnImportFlow(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog { Title = "导入流程", Filter = "流程 JSON (*.json)|*.json", CheckFileExists = true };
+        if (dialog.ShowDialog(this) == true) ViewModel.ImportFlow(dialog.FileName);
+    }
+
+    private void OnExportFlow(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedFlow is null) { ViewModel.Report("请先选择一个流程。"); return; }
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出流程", Filter = "流程 JSON (*.json)|*.json",
+            FileName = ViewModel.SelectedFlow.Name + ".json",
+        };
+        if (dialog.ShowDialog(this) == true) ViewModel.ExportSelectedFlow(dialog.FileName);
+    }
+
+    private void OnDeleteFlow(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedFlow is null) return;
+        if (MessageBox.Show(this, $"确定删除流程「{ViewModel.SelectedFlow.Name}」吗？", "流程",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        ViewModel.DeleteSelectedFlow();
+    }
+
     // ---- 模板标注 ----
     private void OnAnnotateTemplate(object sender, RoutedEventArgs e)
     {

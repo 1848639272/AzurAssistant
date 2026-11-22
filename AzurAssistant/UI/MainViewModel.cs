@@ -510,6 +510,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
             if (page == "schedule") RefreshSchedulePage();
             if (page == "tools") { RefreshLanguagePacks(); RefreshFailureFrames(); RefreshRunHistory(); }
             if (page == "growth") LoadGrowthData();
+            if (page == "wheelchair") RefreshFlows();
             return false;
         }
         catch (Exception ex)
