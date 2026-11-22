@@ -1,10 +1,12 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using AzurAssistant.Runtime;
 
 namespace AzurAssistant.UI;
 
-/// <summary>养成计算：从 promilia.wiki 的养成数据算出经验、金币与材料缺口。</summary>
+/// <summary>养成计算：角色 / 奇波 / 灵子 / 装备 的经验、金币与材料缺口。</summary>
 public sealed partial class MainViewModel
 {
     private GrowthDataSource? _growthSource;
@@ -21,18 +23,48 @@ public sealed partial class MainViewModel
     private long _growthOwnedExp;
     private bool _growthIncludeRunes = true;
 
-    public ObservableCollection<string> GrowthModules { get; } = ["角色", "源脉"];
+    private static readonly (string Label, string Kind)[] GrowthKindMap =
+    [
+        ("角色", GrowthData.Hero),
+        ("奇波", GrowthData.Pet),
+        ("灵子", GrowthData.Soul),
+        ("装备", GrowthData.Equipment),
+    ];
+
+    public ObservableCollection<string> GrowthModules { get; } = ["角色", "奇波", "灵子", "装备"];
     public ObservableCollection<GrowthEntry> GrowthEntries { get; } = [];
     public ObservableCollection<GrowthMaterialRow> GrowthMaterials { get; } = [];
 
     private string GrowthDataPath => Path.Combine(
         Path.GetDirectoryName(SoundsDirectory) ?? AppContext.BaseDirectory, "growth-data.json");
 
-    public string GrowthVersionText => _growth is null ? "尚未加载数据" : $"数据版本 {_growth.VersionText}";
+    private static string IconsDirectory => Path.Combine(AppContext.BaseDirectory, "assets", "growth", "icons");
+
+    private string CurrentKind => GrowthKindMap.FirstOrDefault(entry => entry.Label == _growthModule).Kind ?? GrowthData.Hero;
+
+    public string GrowthVersionText => _growth is null
+        ? "尚未加载数据"
+        : $"数据版本 {_growth.VersionText} · 角色 {_growth.Heroes.Count} / 奇波 {_growth.Pets.Count} / 灵子 {_growth.Souls.Count} / 装备 {_growth.Equipments.Count}";
 
     public string GrowthStatus { get => _growthStatus; private set { _growthStatus = value; Notify(); } }
     public string GrowthSummary { get => _growthSummary; private set { _growthSummary = value; Notify(); } }
     public string GrowthCrystalText { get => _growthCrystalText; private set { _growthCrystalText = value; Notify(); } }
+
+    /// <summary>Shows which stage index currently means what, so the from/to boxes are understandable.</summary>
+    /// <summary>False for equipment (no level EXP in the data), so the level boxes are disabled.</summary>
+    public bool GrowthHasLevels => _selectedGrowthEntry?.HasLevelExp ?? false;
+
+    public string GrowthStageHint
+    {
+        get
+        {
+            if (_selectedGrowthEntry is not { } entry) return "";
+            if (entry.MaxStage <= 1) return "该对象没有阶段（只算等级）。";
+            var from = entry.StageLabel(Math.Clamp(_growthFromRank, 1, entry.MaxStage));
+            var to = entry.StageLabel(Math.Clamp(_growthToRank, 1, entry.MaxStage));
+            return $"阶段共 {entry.MaxStage} 个：当前 = {_growthFromRank}「{from}」，目标 = {_growthToRank}「{to}」";
+        }
+    }
 
     public string SelectedGrowthModule
     {
@@ -56,15 +88,17 @@ public sealed partial class MainViewModel
             Notify();
             if (value is not null)
             {
-                _growthToLevel = Math.Clamp(_growthToLevel, 1, value.MaxLevel);
+                _growthToLevel = Math.Clamp(_growthToLevel, 1, Math.Max(1, value.MaxLevel));
                 _growthFromLevel = Math.Clamp(_growthFromLevel, 1, _growthToLevel);
-                _growthToRank = Math.Clamp(_growthToRank, 1, Math.Max(1, value.MaxRank));
+                _growthToRank = Math.Clamp(_growthToRank, 1, Math.Max(1, value.MaxStage));
                 _growthFromRank = Math.Clamp(_growthFromRank, 1, _growthToRank);
                 Notify(nameof(GrowthFromLevel));
                 Notify(nameof(GrowthToLevel));
                 Notify(nameof(GrowthFromRank));
                 Notify(nameof(GrowthToRank));
             }
+            Notify(nameof(GrowthStageHint));
+            Notify(nameof(GrowthHasLevels));
             ComputeGrowth();
         }
     }
@@ -86,13 +120,15 @@ public sealed partial class MainViewModel
         get => _growthFromRank;
         set
         {
-            var max = Math.Max(1, _selectedGrowthEntry?.MaxRank ?? 1);
+            var max = Math.Max(1, _selectedGrowthEntry?.MaxStage ?? 1);
             var clamped = Math.Clamp(value, 1, max);
             if (clamped == _growthFromRank) return;
             _growthFromRank = clamped;
             if (_growthToRank < clamped) _growthToRank = clamped;
             Notify();
             Notify(nameof(GrowthToRank));
+            Notify(nameof(GrowthStageHint));
+            Notify(nameof(GrowthHasLevels));
             ComputeGrowth();
         }
     }
@@ -102,11 +138,13 @@ public sealed partial class MainViewModel
         get => _growthToRank;
         set
         {
-            var max = Math.Max(1, _selectedGrowthEntry?.MaxRank ?? 1);
+            var max = Math.Max(1, _selectedGrowthEntry?.MaxStage ?? 1);
             var clamped = Math.Clamp(value, _growthFromRank, max);
             if (clamped == _growthToRank) return;
             _growthToRank = clamped;
             Notify();
+            Notify(nameof(GrowthStageHint));
+            Notify(nameof(GrowthHasLevels));
             ComputeGrowth();
         }
     }
@@ -138,7 +176,7 @@ public sealed partial class MainViewModel
 
     private bool SetLevel(ref int field, int value)
     {
-        var max = _selectedGrowthEntry?.MaxLevel ?? 100;
+        var max = Math.Max(1, _selectedGrowthEntry?.MaxLevel ?? 100);
         var clamped = Math.Clamp(value, 1, max);
         if (field == clamped) return false;
         field = clamped;
@@ -158,26 +196,27 @@ public sealed partial class MainViewModel
             GrowthSummary = "";
             return;
         }
-        GrowthStatus = $"已加载：{_growth.Heroes.Count} 个角色、{_growth.Souls.Count} 个源脉、{_growth.ExpItems.Count} 种星脉结晶。";
+        GrowthStatus = $"已加载：角色 {_growth.Heroes.Count}、奇波 {_growth.Pets.Count}、灵子 {_growth.Souls.Count}、装备 {_growth.Equipments.Count}，{_growth.ExpItems.Count} 种星脉结晶，{_growth.Icons.Count} 个材料图标。";
         RefreshGrowthEntries();
     }
 
     public void RefreshGrowthEntries()
     {
         GrowthEntries.Clear();
-        var source = _growthModule == "源脉" ? _growth?.Souls : _growth?.Heroes;
+        var source = _growth?.For(CurrentKind);
         if (source is not null)
             foreach (var entry in source) GrowthEntries.Add(entry);
         _selectedGrowthEntry = GrowthEntries.FirstOrDefault();
         _growthToLevel = _selectedGrowthEntry?.MaxLevel ?? 100;
-        _growthFromLevel = Math.Min(1, _growthToLevel);
-        _growthToRank = _selectedGrowthEntry?.MaxRank ?? 1;
+        _growthFromLevel = 1;
+        _growthToRank = _selectedGrowthEntry?.MaxStage ?? 1;
         _growthFromRank = 1;
         Notify(nameof(SelectedGrowthEntry));
         Notify(nameof(GrowthFromLevel));
         Notify(nameof(GrowthToLevel));
         Notify(nameof(GrowthFromRank));
         Notify(nameof(GrowthToRank));
+        Notify(nameof(GrowthStageHint));
         ComputeGrowth();
     }
 
@@ -190,9 +229,10 @@ public sealed partial class MainViewModel
             GrowthCrystalText = "";
             return;
         }
-        var goldPerExp = _growthModule == "源脉" ? _growth.SoulGoldPerExp : _growth.GoldPerExp;
-        var plan = GrowthCalculator.Compute(new GrowthRequest(_selectedGrowthEntry, _growthFromLevel, _growthOwnedExp,
-            _growthToLevel, _growthFromRank, _growthToRank, _growthIncludeRunes), goldPerExp, _growth.ExpItems);
+        var plan = GrowthCalculator.Compute(
+            new GrowthRequest(_selectedGrowthEntry, _growthFromLevel, _growthOwnedExp, _growthToLevel,
+                _growthFromRank, _growthToRank, _growthIncludeRunes),
+            _growth.GoldPerExpFor(CurrentKind), _growth.ExpItems, _growth.Icons, IconsDirectory);
         GrowthSummary = plan.Summary;
         GrowthCrystalText = plan.Crystals.Count == 0
             ? ""
@@ -213,7 +253,7 @@ public sealed partial class MainViewModel
         }
         _growth = data;
         Notify(nameof(GrowthVersionText));
-        GrowthStatus = $"已更新：{data.Heroes.Count} 个角色、{data.Souls.Count} 个源脉（{data.VersionText}）。";
+        GrowthStatus = $"已更新：角色 {data.Heroes.Count}、奇波 {data.Pets.Count}、灵子 {data.Souls.Count}、装备 {data.Equipments.Count}（{data.VersionText}）。";
         Report(GrowthStatus);
         RefreshGrowthEntries();
     }
@@ -229,7 +269,27 @@ public sealed partial class MainViewModel
         }
         _growth = data;
         Notify(nameof(GrowthVersionText));
-        GrowthStatus = $"已导入：{data.Heroes.Count} 个角色、{data.Souls.Count} 个源脉（{data.VersionText}）。";
+        GrowthStatus = $"已导入：角色 {data.Heroes.Count}、奇波 {data.Pets.Count}、灵子 {data.Souls.Count}、装备 {data.Equipments.Count}（{data.VersionText}）。";
         RefreshGrowthEntries();
+    }
+
+    /// <summary>Material icon as a cached, frozen bitmap so the list does not reload PNGs while scrolling.</summary>
+    public static ImageSource? LoadIcon(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
+        try
+        {
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.UriSource = new Uri(path);
+            bitmap.EndInit();
+            bitmap.Freeze();
+            return bitmap;
+        }
+        catch (Exception ex) when (ex is IOException or NotSupportedException or UriFormatException)
+        {
+            return null;
+        }
     }
 }

@@ -7,6 +7,7 @@
  UseLayoutRounding="True" Loaded="OnLoaded" Closing="OnClosing" PreviewMouseDown="OnWindowMouseDown">
  <Window.Resources>
   <ui:DifficultyLabelConverter x:Key="DifficultyLabel" />
+   <ui:PathToImageConverter x:Key="PathToImage" />
   <DataTemplate x:Key="DifficultyTemplate">
    <TextBlock Text="{Binding Converter={StaticResource DifficultyLabel}}" FontFamily="Segoe UI, Microsoft YaHei UI" />
   </DataTemplate>
@@ -219,6 +220,7 @@
      </Button>
      <TextBlock Text="蔚蓝助手" FontSize="19" FontWeight="SemiBold" Margin="4,0,0,6" />
      <TextBlock Text="蓝色星原：旅谣自动化辅助" Foreground="{DynamicResource Muted}" FontSize="11" Margin="4,0,0,0" />
+     <TextBlock Text="这UI再难用也比蓝原的UI好用吧（" Foreground="{DynamicResource Subtle}" FontSize="10" Margin="4,8,0,0" TextWrapping="Wrap" />
     </StackPanel>
      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Margin="0,18,0,0" Padding="0,0,8,0" ScrollViewer.CanContentScroll="False">
       <StackPanel>
@@ -705,33 +707,38 @@
           </Grid>
           <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="120" /><ColumnDefinition Width="90" /><ColumnDefinition Width="120" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
            <TextBlock Text="从" VerticalAlignment="Center" />
-           <TextBox Grid.Column="1" Text="{Binding GrowthFromLevel}" Margin="0,0,10,0" AutomationProperties.Name="当前等级" />
+           <TextBox Grid.Column="1" Text="{Binding GrowthFromLevel}" Margin="0,0,10,0" IsEnabled="{Binding GrowthHasLevels}" AutomationProperties.Name="当前等级" />
            <TextBlock Grid.Column="2" Text="级　已有经验" VerticalAlignment="Center" FontSize="11" />
-           <TextBox Grid.Column="3" Text="{Binding GrowthOwnedExp}" Margin="0,0,10,0" AutomationProperties.Name="当前经验" />
+           <TextBox Grid.Column="3" Text="{Binding GrowthOwnedExp}" Margin="0,0,10,0" IsEnabled="{Binding GrowthHasLevels}" AutomationProperties.Name="当前经验" />
            <TextBox Grid.Column="4" Text="{Binding GrowthFromRank}" AutomationProperties.Name="当前阶级" />
-           <TextBlock Grid.Column="5" Text="阶（源脉/角色阶级）" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" Margin="8,0,0,0" />
+           <TextBlock Grid.Column="5" Text="阶段序号（见下方提示）" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" Margin="8,0,0,0" />
           </Grid>
           <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="120" /><ColumnDefinition Width="90" /><ColumnDefinition Width="120" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
            <TextBlock Text="到" VerticalAlignment="Center" />
-           <TextBox Grid.Column="1" Text="{Binding GrowthToLevel}" Margin="0,0,10,0" AutomationProperties.Name="目标等级" />
+           <TextBox Grid.Column="1" Text="{Binding GrowthToLevel}" Margin="0,0,10,0" IsEnabled="{Binding GrowthHasLevels}" AutomationProperties.Name="目标等级" />
            <TextBlock Grid.Column="2" Text="级" VerticalAlignment="Center" FontSize="11" />
            <TextBox Grid.Column="3" Text="{Binding GrowthToRank}" Margin="0,0,10,0" AutomationProperties.Name="目标阶级" />
            <TextBlock Grid.Column="4" Text="阶" VerticalAlignment="Center" FontSize="11" />
-           <TextBlock Grid.Column="5" Text="（升阶材料按阶级区间累加）" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" Margin="8,0,0,0" />
-          </Grid>
+           <TextBlock Grid.Column="5" Text="（阶段材料按区间累加）" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" Margin="8,0,0,0" />
+           </Grid>
+           <TextBlock Text="{Binding GrowthStageHint}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="70,0,0,8" />
           <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding GrowthIncludeRunes}" Margin="0,0,0,4" AutomationProperties.Name="计入符文材料"><StackPanel><TextBlock Text="计入符文（星光）材料" FontWeight="SemiBold" /><TextBlock Text="每个阶级有 5 个符文的微粒与尤尼消耗" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
          </StackPanel>
         </Border>
 
         <TextBlock Text="{Binding GrowthSummary}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
         <TextBlock Text="{Binding GrowthCrystalText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
-        <TextBlock Text="缺口清单（「拥有」可改，自动算还差多少）" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,6" />
+        <TextBlock Text="缺口清单（图标在材料名右侧；「拥有」可改，自动算还差多少）" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,6" />
         <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
          <ItemsControl ItemsSource="{Binding GrowthMaterials}">
           <ItemsControl.ItemTemplate><DataTemplate>
            <Border Background="{DynamicResource TileBackground}" CornerRadius="7" Padding="10,6" Margin="0,0,0,5">
-            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="200" /><ColumnDefinition Width="110" /><ColumnDefinition Width="120" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-             <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="12" />
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="230" /><ColumnDefinition Width="110" /><ColumnDefinition Width="120" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Name}" FontSize="12" VerticalAlignment="Center" />
+              <Image Source="{Binding IconPath, Converter={StaticResource PathToImage}}" Width="20" Height="20" Margin="6,0,0,0"
+                     VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
+             </StackPanel>
              <TextBlock Grid.Column="1" Text="{Binding Need, StringFormat=需要 {0:N0}}" VerticalAlignment="Center" FontSize="11" />
              <TextBox Grid.Column="2" Text="{Binding Owned}" Margin="0,0,10,0" FontSize="11" AutomationProperties.Name="拥有数量" />
              <TextBlock Grid.Column="3" Text="{Binding Suggestion}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />

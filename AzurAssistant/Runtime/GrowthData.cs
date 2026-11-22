@@ -5,45 +5,78 @@ using System.Text.Json;
 
 namespace AzurAssistant.Runtime;
 
-/// <summary>One material requirement (name + amount).</summary>
-public sealed record GrowthItem(string Name, long Quantity);
+/// <summary>One material requirement (name + amount) with the optional icon shipped under assets/growth/icons.</summary>
+public sealed record GrowthCost(string Kind, string Id, string Name, long Quantity)
+{
+    public string Key => $"{Kind}:{Id}";
+}
 
-/// <summary>One ascension step: level cap, its own costs, and the rune costs of that step.</summary>
-public sealed record GrowthRank(int Rank, int LevelLimit, IReadOnlyList<GrowthItem> Costs, IReadOnlyList<GrowthItem> RuneCosts);
+/// <summary>One ascension-like step (hero rank, soul rank, equipment refine, pet evolution or pulse node).</summary>
+public sealed record GrowthStage(string Label, IReadOnlyList<GrowthCost> Costs, IReadOnlyList<GrowthCost> RuneCosts, int Copies)
+{
+    public bool HasRuneCosts => RuneCosts.Count > 0;
+}
 
-/// <summary>A hero or soul-essence progression table: per-level EXP plus the rank costs.</summary>
-public sealed record GrowthEntry(string Id, string Title, IReadOnlyList<int> LevelExp, IReadOnlyList<GrowthRank> Ranks)
+/// <summary>A hero, pet, soul essence or equipment progression table.</summary>
+public sealed record GrowthEntry(string Id, string Title, IReadOnlyList<int> LevelExp, IReadOnlyList<GrowthStage> Stages)
 {
     public int MaxLevel => LevelExp.Count;
-    public int MaxRank => Ranks.Count;
+    /// <summary>Equipment tables list levels but no EXP, so the level inputs are meaningless there.</summary>
+    public bool HasLevelExp => LevelExp.Any(value => value > 0);
+    public int MaxStage => Math.Max(1, Stages.Count);
 
     /// <summary>Sum of the EXP needed to walk from <paramref name="fromLevel"/> to <paramref name="toLevel"/>.</summary>
     public long ExpBetween(int fromLevel, int toLevel)
     {
-        var from = Math.Clamp(fromLevel, 1, MaxLevel);
-        var to = Math.Clamp(toLevel, from, MaxLevel);
+        var from = Math.Clamp(fromLevel, 1, Math.Max(1, MaxLevel));
+        var to = Math.Clamp(toLevel, from, Math.Max(1, MaxLevel));
         long total = 0;
         for (var level = from; level < to; level++) total += LevelExp[level - 1];
         return total;
     }
 
+    /// <summary>Label of a 1-based stage index, for the UI hints.</summary>
+    public string StageLabel(int index) => index >= 1 && index <= Stages.Count ? Stages[index - 1].Label : $"阶段 {index}";
+
     public override string ToString() => $"{Title}（{Id}）";
 }
 
-/// <summary>The progression planner data published by promilia.wiki, trimmed to heroes and soul essence.</summary>
+/// <summary>The progression planner data published by promilia.wiki, trimmed to hero / pet / soul essence / equipment.</summary>
 public sealed class GrowthData
 {
+    public const string Hero = "hero";
+    public const string Pet = "pet";
+    public const string Soul = "soulessence";
+    public const string Equipment = "equipment";
+
     public string SchemaVersion { get; init; } = "";
     public string SourceVersion { get; init; } = "";
-    public double GoldPerExp { get; init; } = 0.2;
+    public double HeroGoldPerExp { get; init; } = 0.2;
     public double SoulGoldPerExp { get; init; } = 0.2;
     public IReadOnlyList<GrowthEntry> Heroes { get; init; } = [];
+    public IReadOnlyList<GrowthEntry> Pets { get; init; } = [];
     public IReadOnlyList<GrowthEntry> Souls { get; init; } = [];
+    public IReadOnlyList<GrowthEntry> Equipments { get; init; } = [];
+    public IReadOnlyDictionary<string, string> Icons { get; init; } = new Dictionary<string, string>();
     public IReadOnlyList<(string Name, int Experience)> ExpItems { get; init; } = [];
 
-    public string VersionText => string.IsNullOrWhiteSpace(SourceVersion)
-        ? SchemaVersion
-        : $"{SourceVersion}（数据格式 {SchemaVersion}）";
+    public string VersionText => string.IsNullOrWhiteSpace(SourceVersion) ? SchemaVersion : $"{SourceVersion}（数据格式 {SchemaVersion}）";
+
+    public IReadOnlyList<GrowthEntry> For(string kind) => kind switch
+    {
+        Pet => Pets,
+        Soul => Souls,
+        Equipment => Equipments,
+        _ => Heroes,
+    };
+
+    /// <summary>Gold per EXP for a kind; pet and equipment have no published coefficient, so 0 = not shown.</summary>
+    public double GoldPerExpFor(string kind) => kind switch
+    {
+        Soul => SoulGoldPerExp,
+        Hero => HeroGoldPerExp,
+        _ => 0,
+    };
 
     public static GrowthData? Load(string path)
     {
@@ -73,31 +106,49 @@ public sealed class GrowthData
             }
         }
 
-        var heroes = Array(root, "hero");
-        var souls = Array(root, "soulessence");
-        // Older/large exports keep the tables under "catalog".
-        if (heroes.Count == 0 && root.TryGetProperty("catalog", out var catalog))
+        var icons = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (root.TryGetProperty("resources", out var resources) && resources.ValueKind == JsonValueKind.Object)
         {
-            heroes = Array(catalog, "hero");
-            souls = Array(catalog, "soulessence");
+            foreach (var property in resources.EnumerateObject())
+            {
+                if (property.Value.ValueKind != JsonValueKind.Object) continue;
+                if (property.Value.TryGetProperty("icon", out var icon) && icon.GetString() is { Length: > 0 } file)
+                    icons[property.Name] = file;
+            }
         }
-        if (heroes.Count == 0 && souls.Count == 0)
-            throw new InvalidDataException("数据里没有找到角色或源脉的养成表。");
+
+        var heroes = Entries(root, "hero");
+        var pets = Entries(root, "pet");
+        var souls = Entries(root, "soulessence");
+        var equipments = Entries(root, "equipment");
+        // Older exports keep the tables under "catalog".
+        if (heroes.Count + pets.Count + souls.Count + equipments.Count == 0 && root.TryGetProperty("catalog", out var catalog))
+        {
+            heroes = Entries(catalog, "hero");
+            pets = Entries(catalog, "pet");
+            souls = Entries(catalog, "soulessence");
+            equipments = Entries(catalog, "equipment");
+        }
+        if (heroes.Count + pets.Count + souls.Count + equipments.Count == 0)
+            throw new InvalidDataException("数据里没有找到角色、奇波、灵子或装备的养成表。");
 
         expItems.Sort((left, right) => right.Item2.CompareTo(left.Item2));
         return new GrowthData
         {
             SchemaVersion = Text("schemaVersion"),
             SourceVersion = Text("sourceVersion"),
-            GoldPerExp = Number("heroGoldPerExp"),
+            HeroGoldPerExp = Number("heroGoldPerExp"),
             SoulGoldPerExp = Number("soulGoldPerExp"),
             Heroes = heroes,
+            Pets = pets,
             Souls = souls,
+            Equipments = equipments,
+            Icons = icons,
             ExpItems = expItems,
         };
     }
 
-    private static List<GrowthEntry> Array(JsonElement parent, string name)
+    private static List<GrowthEntry> Entries(JsonElement parent, string name)
     {
         var list = new List<GrowthEntry>();
         if (parent.ValueKind != JsonValueKind.Object || !parent.TryGetProperty(name, out var array)
@@ -111,37 +162,54 @@ public sealed class GrowthData
             if (entry.TryGetProperty("levels", out var levelArray) && levelArray.ValueKind == JsonValueKind.Array)
                 foreach (var level in levelArray.EnumerateArray())
                     levels.Add(level.ValueKind == JsonValueKind.Number ? level.GetInt32() : 0);
-            var ranks = new List<GrowthRank>();
-            if (entry.TryGetProperty("ranks", out var rankArray) && rankArray.ValueKind == JsonValueKind.Array)
+
+            var stages = new List<GrowthStage>();
+            if (entry.TryGetProperty("stages", out var stageArray) && stageArray.ValueKind == JsonValueKind.Array)
             {
-                var index = 0;
-                foreach (var rank in rankArray.EnumerateArray())
+                foreach (var stage in stageArray.EnumerateArray())
                 {
-                    index++;
-                    var rankNumber = rank.TryGetProperty("rank", out var r) && r.ValueKind == JsonValueKind.Number ? r.GetInt32() : index;
-                    var limit = rank.TryGetProperty("levelLimit", out var l) && l.ValueKind == JsonValueKind.Number ? l.GetInt32() : 0;
-                    var costs = Costs(rank, "costs");
-                    var runeCosts = new List<GrowthItem>();
-                    if (rank.TryGetProperty("runes", out var runes) && runes.ValueKind == JsonValueKind.Array)
-                        foreach (var rune in runes.EnumerateArray())
-                            runeCosts.AddRange(Costs(rune, "costs"));
-                    ranks.Add(new GrowthRank(rankNumber, limit, costs, runeCosts));
+                    var label = stage.TryGetProperty("label", out var l) ? l.GetString() ?? "" : "";
+                    var copies = stage.TryGetProperty("copies", out var c) && c.ValueKind == JsonValueKind.Number ? c.GetInt32() : 0;
+                    stages.Add(new GrowthStage(label, Costs(stage, "costs"), Costs(stage, "runeCosts"), copies));
                 }
             }
-            if (levels.Count > 0) list.Add(new GrowthEntry(id, title, levels, ranks));
+            // Older/raw shapes: ranks/upgrades trees are folded into stages by the data builder, but accept them too.
+            if (stages.Count == 0) stages.AddRange(Ranks(entry));
+            if (levels.Count > 0) list.Add(new GrowthEntry(id, title, levels, stages));
         }
         return list;
     }
 
-    private static List<GrowthItem> Costs(JsonElement parent, string name)
+    private static IEnumerable<GrowthStage> Ranks(JsonElement entry)
     {
-        var list = new List<GrowthItem>();
+        foreach (var key in new[] { "ranks", "upgrades" })
+        {
+            if (!entry.TryGetProperty(key, out var array) || array.ValueKind != JsonValueKind.Array) continue;
+            foreach (var rank in array.EnumerateArray())
+            {
+                var number = rank.TryGetProperty("rank", out var r) && r.ValueKind == JsonValueKind.Number ? r.GetInt32() : 0;
+                var star = rank.TryGetProperty("star", out var s) && s.ValueKind == JsonValueKind.Number ? s.GetInt32() : 0;
+                var label = number > 0 ? $"阶级 {number}" : star > 0 ? $"精炼 {star}" : "阶段";
+                var runeCosts = new List<GrowthCost>();
+                if (rank.TryGetProperty("runes", out var runes) && runes.ValueKind == JsonValueKind.Array)
+                    foreach (var rune in runes.EnumerateArray())
+                        runeCosts.AddRange(Costs(rune, "costs"));
+                yield return new GrowthStage(label, Costs(rank, "costs"), runeCosts, 0);
+            }
+        }
+    }
+
+    private static List<GrowthCost> Costs(JsonElement parent, string name)
+    {
+        var list = new List<GrowthCost>();
         if (!parent.TryGetProperty(name, out var costs) || costs.ValueKind != JsonValueKind.Array) return list;
         foreach (var cost in costs.EnumerateArray())
         {
             var itemName = cost.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
             var quantity = cost.TryGetProperty("quantity", out var q) && q.ValueKind == JsonValueKind.Number ? q.GetInt64() : 0;
-            if (itemName.Length > 0 && quantity > 0) list.Add(new GrowthItem(itemName, quantity));
+            var id = cost.TryGetProperty("id", out var i) ? i.ToString() : "";
+            var kind = cost.TryGetProperty("kind", out var k) && k.ValueKind == JsonValueKind.String ? k.GetString() ?? "" : "3";
+            if (itemName.Length > 0 && quantity > 0) list.Add(new GrowthCost(kind, id, itemName, quantity));
         }
         return list;
     }
@@ -156,12 +224,10 @@ public sealed class GrowthDataSource(string cachePath)
     public string CachePath => cachePath;
     public string? Error { get; private set; }
 
-    /// <summary>Cache first, then the copy shipped with the app.</summary>
     public GrowthData? Load()
     {
         if (GrowthData.Load(cachePath) is { } cached) return cached;
-        var bundled = Path.Combine(AppContext.BaseDirectory, BundledRelative);
-        return GrowthData.Load(bundled);
+        return GrowthData.Load(Path.Combine(AppContext.BaseDirectory, BundledRelative));
     }
 
     public GrowthData? Import(string jsonPath)
