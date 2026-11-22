@@ -233,6 +233,9 @@
      <RadioButton x:Name="RoutesNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="routes" Checked="OnNavigate" IsChecked="{Binding IsRoutesPage, Mode=OneWay}" AutomationProperties.Name="路线管理">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8AB;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="路线管理" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
+     <RadioButton x:Name="ActionsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="actions" Checked="OnNavigate" IsChecked="{Binding IsActionsPage, Mode=OneWay}" AutomationProperties.Name="动作录制">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE768;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="动作录制" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+     </RadioButton>
      <RadioButton x:Name="SettingsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="settings" Checked="OnNavigate" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" AutomationProperties.Name="设置">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
@@ -416,6 +419,27 @@
          </Grid>
         </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
         <TextBlock Text="同地图路线依次前往各点。开头跳跃一次，途中自动转向前进；请在转弯和障碍附近补点，当前不自动绕障。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
+       </StackPanel>
+       <StackPanel x:Name="ActionsPage" Visibility="{Binding IsActionsPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="录制你自己的真实键鼠操作，再按原时序回放。录制期间助手只旁听，不会干预游戏。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+         <Button x:Name="ActionRecordButton" Content="开始录制" Click="OnBeginActionRecording" IsEnabled="{Binding CanBeginActionRecording}" Style="{StaticResource PrimaryAction}" />
+         <Button x:Name="ActionStopRecordButton" Content="停止录制" Click="OnStopActionRecording" IsEnabled="{Binding CanStopActionRecording}" Margin="10,0,0,0" />
+         <Button Content="刷新列表" Click="OnRefreshActions" Margin="10,0,0,0" />
+        </StackPanel>
+        <TextBlock Text="动作名称（保存或重命名时使用）" FontWeight="SemiBold" Margin="0,0,0,7" />
+        <TextBox x:Name="ActionNameBox" Text="{Binding ActionName, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" IsEnabled="{Binding CanBeginActionRecording}" />
+        <TextBlock Text="{Binding ActionRecordingText}" FontWeight="SemiBold" Margin="0,12,0,0" />
+        <TextBlock Text="{Binding ActionStatus}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,8,0,18" />
+        <TextBlock Text="已保存的动作" FontSize="15" FontWeight="SemiBold" Margin="0,4,0,10" />
+        <ComboBox x:Name="ActionSelector" ItemsSource="{Binding SavedActions}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedAction}" IsEnabled="{Binding CanBeginActionRecording}" />
+        <TextBlock Text="{Binding SelectedActionSummary}" Foreground="{DynamicResource Muted}" Margin="0,9,0,10" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+         <Button x:Name="ActionPlayButton" Content="回放选中动作" Click="OnPlayAction" IsEnabled="{Binding CanPlayAction}" Style="{StaticResource PrimaryAction}" />
+         <Button Content="重命名" Click="OnRenameAction" IsEnabled="{Binding CanPlayAction}" Margin="10,0,0,0" />
+         <Button Content="删除" Click="OnDeleteAction" IsEnabled="{Binding CanPlayAction}" Margin="10,0,0,0" />
+        </StackPanel>
+        <TextBlock Text="回放会把游戏切到前台，并按录制时序注入键鼠：按键保持原来的按下时长，鼠标转动按原来的位移，点击落在同一客户区位置。回放期间按 F10 停止；暂停（F9）不适用于回放。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />

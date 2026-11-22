@@ -115,6 +115,18 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog(this) == true) ViewModel.GameExecutablePath = dialog.FileName;
     }
     private async void OnCancelTask(object sender, RoutedEventArgs e) => await ViewModel.StopTaskAsync();
+    private void OnBeginActionRecording(object sender, RoutedEventArgs e) => ViewModel.BeginActionRecording();
+    private async void OnStopActionRecording(object sender, RoutedEventArgs e) => await ViewModel.StopActionRecordingAsync();
+    private void OnRefreshActions(object sender, RoutedEventArgs e) => ViewModel.LoadActions();
+    private void OnPlayAction(object sender, RoutedEventArgs e) => ViewModel.PlaySelectedAction();
+    private void OnRenameAction(object sender, RoutedEventArgs e) => ViewModel.RenameSelectedAction();
+    private void OnDeleteAction(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedAction is not { } selected) return;
+        if (MessageBox.Show($"确定删除动作“{selected.Name}”？此操作不可撤销。", "删除动作",
+            MessageBoxButton.OKCancel, MessageBoxImage.Warning) != MessageBoxResult.OK) return;
+        ViewModel.DeleteSelectedAction();
+    }
     public async Task TogglePauseFromHotkeyAsync()
     {
         if (_closing || IsCapturingHotkey || ViewModel.IsRestarting) return;

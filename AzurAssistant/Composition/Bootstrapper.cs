@@ -40,6 +40,7 @@ public static class Bootstrapper
             commissionSettings: commissionSettings, weeklyProgress: weekly, createNavigation: features.CreateNavigation,
             createRoute: features.CreateRoute, createRouteCapture: features.CreateRouteCapture,
             navigationMaps: Game.Navigation.NavigationMapCatalog.Load(verifyFiles: false).Maps,
+            findGameWindow: () => GameWindow.Find("AzurPromilia"),
             dailyCompleted: async result =>
             {
                 var activeWindow = window;
@@ -58,7 +59,8 @@ public static class Bootstrapper
                 System.Windows.Application.Current.MainWindow?.Close();
             }
             catch (System.ComponentModel.Win32Exception ex) { log.Write($"管理员重启未完成：{ex.Message}"); }
-        }, automation, runDailyFromCommandLine, restartAssistant: () => AssistantRestarter.TryRestart(log.Write)));
+        }, automation, runDailyFromCommandLine, restartAssistant: () => AssistantRestarter.TryRestart(log.Write),
+            actionsDirectory: Path.Combine(dataDirectory, "actions")));
         try
         {
             var source = JsonSerializer.Deserialize<UpdateSource>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "update-source.json")))!;

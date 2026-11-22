@@ -2,6 +2,7 @@ using System.IO;
 using AzurAssistant.Contracts;
 using AzurAssistant.Platform;
 using AzurAssistant.Runtime;
+using AzurAssistant.Features.Actions;
 using AzurAssistant.Features.Commissions;
 using AzurAssistant.Features.NavigationTest;
 using AzurAssistant.Game.Navigation;
@@ -18,7 +19,7 @@ public sealed class AutomationController(
     Func<NavigationTestRequest, Action<NavigationStatus>, IGameTask>? createNavigation = null,
     Func<RouteDefinition, Action<NavigationStatus>, IGameTask>? createRoute = null,
     Func<Action<NavigationStatus>, Action<MapPosition>, IGameTask>? createRouteCapture = null,
-    IReadOnlyList<NavigationMap>? navigationMaps = null)
+    IReadOnlyList<NavigationMap>? navigationMaps = null, Func<GameWindow>? findGameWindow = null)
 {
     private readonly object _completionGate = new();
     private bool _dailyCompletionPending;
@@ -199,8 +200,7 @@ public sealed class AutomationController(
     }
 
     public async Task<MapPosition?> CaptureRoutePointAsync()
-    {
-        MapPosition? captured = null;
+    {        MapPosition? captured = null;
         Task<TaskResult> completion;
         lock (_completionGate)
         {
@@ -211,5 +211,69 @@ public sealed class AutomationController(
             completion = runner.Completion;
         }
         return (await completion).Success ? captured : null;
+    }
+
+    private ActionRecorder? _actionRecorder;
+
+    public bool IsActionRecording => Volatile.Read(ref _actionRecorder) is not null;
+    public TimeSpan ActionRecordingElapsed => Volatile.Read(ref _actionRecorder)?.Elapsed ?? TimeSpan.Zero;
+    public int ActionRecordingEvents => Volatile.Read(ref _actionRecorder)?.EventCount ?? 0;
+
+    /// <summary>Starts a passive recording of the player's own input; the assistant does not touch the game meanwhile.</summary>
+    public bool StartActionRecording(string name, out Task<ActionRecording>? completion)
+    {
+        completion = null;
+        lock (_completionGate)
+        {
+            if (IsBusy) { log.Write("已有功能正在运行，请先停止当前任务再录制动作。"); return false; }
+            if (_actionRecorder is not null) { log.Write("动作录制已经进行中。"); return false; }
+            if (findGameWindow is null) { log.Write("动作录制未装配游戏窗口查找。"); return false; }
+            GameWindow window;
+            WindowGeometry geometry;
+            try
+            {
+                window = findGameWindow();
+                geometry = window.Observe();
+            }
+            catch (InvalidOperationException ex) { log.Write(ex.Message); return false; }
+            var excluded = new List<int>();
+            if (HotkeyBinding.TryParsePair(Settings.PauseHotkey, Settings.StopHotkey, out var pause, out var stop, out _))
+            {
+                excluded.Add((int)pause.VirtualKey);
+                excluded.Add((int)stop.VirtualKey);
+            }
+            var recorder = new ActionRecorder(window.Handle,
+                string.IsNullOrWhiteSpace(name) ? "未命名动作" : name.Trim(), geometry.Width, geometry.Height, excluded);
+            recorder.Start();
+            Volatile.Write(ref _actionRecorder, recorder);
+            completion = recorder.Completion;
+            log.Write($"动作录制已开始：切到游戏后的第一个键鼠操作开始计时；切回助手窗口约 1 秒后自动结束。");
+            return true;
+        }
+    }
+
+    public async Task<ActionRecording?> StopActionRecordingAsync()
+    {
+        var recorder = Interlocked.Exchange(ref _actionRecorder, null);
+        if (recorder is null) return null;
+        using (recorder)
+        {
+            recorder.Stop();
+            try { return await recorder.Completion.ConfigureAwait(false); }
+            catch (Exception ex) { log.Write($"动作录制失败：{ex.Message}", LogLevel.Error); return null; }
+        }
+    }
+
+    /// <summary>Replays a recording as a normal task so stop, cancellation, logging and failure capture still apply.</summary>
+    public bool StartActionPlayback(ActionRecording recording)
+    {
+        lock (_completionGate)
+        {
+            if (IsBusy) return RejectStart("已有功能正在运行，请先停止当前任务。");
+            if (_actionRecorder is not null) return RejectStart("正在录制动作，请先结束录制。");
+            var timeout = TimeSpan.FromMilliseconds(recording.DurationUs / 1000.0 + 120_000);
+            return Start(() => new PlayActionTask(recording),
+                new TaskRunOptions(timeout, ResponseTiming: ResponseTiming.FromLowPerformanceMode(EffectiveSettings.LowPerformanceMode)));
+        }
     }
 }
