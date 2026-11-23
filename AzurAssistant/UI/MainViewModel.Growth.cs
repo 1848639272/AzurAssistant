@@ -226,6 +226,7 @@ public sealed partial class MainViewModel
         _growthFromLevel = 1;
         _growthToRank = _selectedGrowthEntry?.MaxStageTarget ?? 1;
         _growthFromRank = 1;
+        RefreshPotentials();
         Notify(nameof(SelectedGrowthEntry));
         Notify(nameof(GrowthFromLevel));
         Notify(nameof(GrowthToLevel));
@@ -246,7 +247,7 @@ public sealed partial class MainViewModel
         }
         var plan = GrowthCalculator.Compute(
             new GrowthRequest(_selectedGrowthEntry, _growthFromLevel, _growthOwnedExp, _growthToLevel,
-                _growthFromRank, _growthToRank, _growthIncludeRunes),
+                _growthFromRank, _growthToRank, _growthIncludeRunes, _selectedPotential, _potentialFromLevel, _potentialToLevel),
             _growth.GoldPerExpFor(CurrentKind), _growth.ExpItems, _growth.Icons, IconsDirectory);
         GrowthSummary = plan.Summary;
         GrowthCrystalText = plan.Crystals.Count == 0
@@ -261,6 +262,8 @@ public sealed partial class MainViewModel
             GrowthMaterials.Add(row);
         }
         UpdateStaminaTotal();
+        _lastPlan = plan;
+        GrowthPotentialText = PotentialText();
     }
 
     /// <summary>Persists the owned counts the user typed (debounced) and refreshes the totals.</summary>
@@ -354,5 +357,120 @@ public sealed partial class MainViewModel
         {
             return null;
         }
+    }
+    // ---- 潜能（奇波）与导出 ----
+
+    private GrowthPotential? _selectedPotential;
+    private int _potentialFromLevel = 1;
+    private int _potentialToLevel;
+    private GrowthPlan? _lastPlan;
+    private string _growthPotentialText = "";
+
+    public ObservableCollection<GrowthPotential> GrowthPotentials { get; } = [];
+    public bool GrowthHasPotentials => GrowthPotentials.Count > 0;
+    public string GrowthPotentialText { get => _growthPotentialText; private set { _growthPotentialText = value; Notify(); } }
+
+    public GrowthPotential? SelectedGrowthPotential
+    {
+        get => _selectedPotential;
+        set
+        {
+            if (ReferenceEquals(_selectedPotential, value)) return;
+            _selectedPotential = value;
+            if (value is not null)
+            {
+                _potentialToLevel = value.MaxLevel;
+                _potentialFromLevel = 1;
+                Notify(nameof(GrowthPotentialFrom));
+                Notify(nameof(GrowthPotentialTo));
+            }
+            Notify();
+            ComputeGrowth();
+        }
+    }
+
+    public int GrowthPotentialFrom
+    {
+        get => _potentialFromLevel;
+        set
+        {
+            var max = Math.Max(1, _selectedPotential?.MaxLevel ?? 1);
+            var clamped = Math.Clamp(value, 1, max);
+            if (clamped == _potentialFromLevel) return;
+            _potentialFromLevel = clamped;
+            if (_potentialToLevel < clamped) _potentialToLevel = clamped;
+            Notify();
+            Notify(nameof(GrowthPotentialTo));
+            ComputeGrowth();
+        }
+    }
+
+    public int GrowthPotentialTo
+    {
+        get => _potentialToLevel;
+        set
+        {
+            var max = Math.Max(1, _selectedPotential?.MaxLevel ?? 1);
+            var clamped = Math.Clamp(value, _potentialFromLevel, max);
+            if (clamped == _potentialToLevel) return;
+            _potentialToLevel = clamped;
+            Notify();
+            ComputeGrowth();
+        }
+    }
+
+    private void RefreshPotentials()
+    {
+        GrowthPotentials.Clear();
+        var potentials = _selectedGrowthEntry?.Potentials;
+        if (potentials is not null)
+            foreach (var potential in potentials) GrowthPotentials.Add(potential);
+        _selectedPotential = GrowthPotentials.FirstOrDefault();
+        _potentialFromLevel = 1;
+        _potentialToLevel = _selectedPotential?.MaxLevel ?? 0;
+        Notify(nameof(GrowthHasPotentials));
+        Notify(nameof(SelectedGrowthPotential));
+        Notify(nameof(GrowthPotentialFrom));
+        Notify(nameof(GrowthPotentialTo));
+    }
+
+    private string PotentialText()
+    {
+        if (_selectedPotential is not { } potential || GrowthMaterials.Count == 0) return "";
+        var items = GrowthMaterials.FirstOrDefault(row => row.Kind == potential.ItemKind && row.Id == potential.ItemId);
+        var exp = potential.ExpBetween(_potentialFromLevel, _potentialToLevel);
+        if (items is null || items.Need == 0) return $"潜能「{potential.Name}」{_potentialFromLevel}→{_potentialToLevel}：不需要{potential.ItemName}";
+        return $"潜能「{potential.Name}」{_potentialFromLevel}→{_potentialToLevel}：需 {potential.ItemName} ×{items.Need:N0}"
+               + $"（每个 {potential.ItemExperience} 经验，共 {exp:N0} 经验）";
+    }
+
+    public GrowthPlanExport.PlanSnapshot BuildSnapshot()
+    {
+        var title = _selectedGrowthEntry is null
+            ? _growthModule
+            : $"{_growthModule} · {_selectedGrowthEntry.Title}（{_selectedGrowthEntry.Id}）";
+        var levels = _selectedGrowthEntry is { HasLevelExp: true }
+            ? $"等级 {_growthFromLevel} → {_growthToLevel}；"
+            : "";
+        var stages = _selectedGrowthEntry is { } entry
+            ? $"阶段 {_growthFromRank}「{entry.StageLabel(_growthFromRank)}」→ {_growthToRank}「{entry.StageLabel(_growthToRank)}」"
+            : "";
+        return new GrowthPlanExport.PlanSnapshot(title, GrowthSummary, GrowthCrystalText, GrowthStaminaText,
+            GrowthMaterials.ToList(), GrowthPotentialText,
+            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    public string ExportGrowthCsv(string path)
+    {
+        GrowthPlanExport.ToCsvFile(path, BuildSnapshot());
+        GrowthStatus = "已导出 CSV：" + path;
+        return path;
+    }
+
+    public string ExportGrowthPng(string path)
+    {
+        GrowthPlanExport.ToPngFile(path, BuildSnapshot());
+        GrowthStatus = "已导出 PNG：" + path;
+        return path;
     }
 }

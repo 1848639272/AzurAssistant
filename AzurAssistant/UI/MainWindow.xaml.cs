@@ -876,6 +876,24 @@ public partial class MainWindow : Window
         await ViewModel.UpdateGrowthDataAsync(null);
     }
 
+    private void OnExportGrowthCsv(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出养成方案（CSV）", Filter = "CSV (*.csv)|*.csv", FileName = $"养成方案-{DateTime.Now:yyyyMMdd-HHmm}.csv",
+        };
+        if (dialog.ShowDialog(this) == true) ViewModel.ExportGrowthCsv(dialog.FileName);
+    }
+
+    private void OnExportGrowthPng(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出养成方案（PNG）", Filter = "PNG (*.png)|*.png", FileName = $"养成方案-{DateTime.Now:yyyyMMdd-HHmm}.png",
+        };
+        if (dialog.ShowDialog(this) == true) ViewModel.ExportGrowthPng(dialog.FileName);
+    }
+
     private void OnImportGrowthData(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog { Title = "导入养成数据 JSON", Filter = "JSON (*.json)|*.json", CheckFileExists = true };

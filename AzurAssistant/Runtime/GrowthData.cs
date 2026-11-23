@@ -21,11 +21,39 @@ public sealed record GrowthStage(string Label, IReadOnlyList<GrowthCost> Costs, 
 /// <summary>One repeatable stage that yields materials for a stamina cost.</summary>
 public sealed record GrowthFarm(string Id, string Name, int Stamina, IReadOnlyList<KeyValuePair<string, double>> Yields);
 
+/// <summary>A pet potential track: feeding the item raises levels, each level costs experience.</summary>
+public sealed record GrowthPotential(string Id, string Name, string ItemKind, string ItemId, string ItemName,
+    int ItemExperience, IReadOnlyList<int> LevelExp)
+{
+    public int MaxLevel => LevelExp.Count;
+
+    /// <summary>Experience needed to walk from <paramref name="fromLevel"/> to <paramref name="toLevel"/>.</summary>
+    public long ExpBetween(int fromLevel, int toLevel)
+    {
+        var from = Math.Clamp(fromLevel, 1, Math.Max(1, MaxLevel));
+        var to = Math.Clamp(toLevel, from, Math.Max(1, MaxLevel));
+        long total = 0;
+        for (var level = from; level < to; level++) total += LevelExp[level - 1];
+        return total;
+    }
+
+    /// <summary>Number of feed items needed (each gives ItemExperience).</summary>
+    public long ItemsBetween(int fromLevel, int toLevel)
+    {
+        if (ItemExperience <= 0) return 0;
+        var exp = ExpBetween(fromLevel, toLevel);
+        return (exp + ItemExperience - 1) / ItemExperience;
+    }
+
+    public override string ToString() => Name;
+}
+
 /// <summary>A crafting recipe: costs in, one unit of the keyed product out.</summary>
 public sealed record GrowthRecipe(IReadOnlyList<GrowthCost> Costs);
 
 /// <summary>A hero, pet, soul essence or equipment progression table.</summary>
-public sealed record GrowthEntry(string Id, string Title, IReadOnlyList<int> LevelExp, IReadOnlyList<GrowthStage> Stages)
+public sealed record GrowthEntry(string Id, string Title, IReadOnlyList<int> LevelExp, IReadOnlyList<GrowthStage> Stages,
+    IReadOnlyList<GrowthPotential> Potentials)
 {
     public int MaxLevel => LevelExp.Count;
     /// <summary>Equipment tables list levels but no EXP, so the level inputs are meaningless there.</summary>
@@ -232,7 +260,26 @@ public sealed class GrowthData
             // Older/raw shapes: ranks/upgrades trees are folded into stages by the data builder, but accept them too.
             if (stages.Count == 0) stages.AddRange(Ranks(entry));
             // Equipment has an empty level table: its progress is 强化 stages plus 升星 stars only.
-            if (levels.Count > 0 || stages.Count > 0) list.Add(new GrowthEntry(id, title, levels, stages));
+            var potentials = new List<GrowthPotential>();
+            if (entry.TryGetProperty("potentials", out var potentialArray) && potentialArray.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var potential in potentialArray.EnumerateArray())
+                {
+                    var pId = potential.TryGetProperty("id", out var pid) ? pid.ToString() : "";
+                    var pName = potential.TryGetProperty("name", out var pname) ? pname.GetString() ?? "" : "";
+                    var itemId = potential.TryGetProperty("itemId", out var iid) ? iid.ToString() : "";
+                    var itemName = potential.TryGetProperty("itemName", out var iname) ? iname.GetString() ?? "" : "";
+                    var itemExp = potential.TryGetProperty("itemExperience", out var iexp) && iexp.ValueKind == JsonValueKind.Number
+                        ? iexp.GetInt32() : 0;
+                    var levelExp = new List<int>();
+                    if (potential.TryGetProperty("levels", out var potentialLevels) && potentialLevels.ValueKind == JsonValueKind.Array)
+                        foreach (var value in potentialLevels.EnumerateArray())
+                            levelExp.Add(value.ValueKind == JsonValueKind.Number ? value.GetInt32() : 0);
+                    if (pName.Length > 0 && itemName.Length > 0 && levelExp.Count > 0)
+                        potentials.Add(new GrowthPotential(pId, pName, "3", itemId, itemName, itemExp, levelExp));
+                }
+            }
+            if (levels.Count > 0 || stages.Count > 0) list.Add(new GrowthEntry(id, title, levels, stages, potentials));
         }
         return list;
     }

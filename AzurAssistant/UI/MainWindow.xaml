@@ -725,6 +725,15 @@
            <TextBlock Grid.Column="5" Text="（阶段材料按区间累加）" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" Margin="8,0,0,0" />
            </Grid>
            <TextBlock Text="{Binding GrowthStageHint}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="70,0,0,8" />
+           <Grid Margin="0,0,0,8" Visibility="{Binding GrowthHasPotentials, Converter={StaticResource BoolVisibility}}"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="150" /><ColumnDefinition Width="60" /><ColumnDefinition Width="80" /><ColumnDefinition Width="60" /><ColumnDefinition Width="80" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <TextBlock Text="潜能" VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding GrowthPotentials}" SelectedItem="{Binding SelectedGrowthPotential}" DisplayMemberPath="Name" Margin="0,0,12,0" AutomationProperties.Name="奇波潜能" />
+            <TextBlock Grid.Column="2" Text="从" VerticalAlignment="Center" FontSize="11" />
+            <TextBox Grid.Column="3" Text="{Binding GrowthPotentialFrom}" Margin="0,0,8,0" AutomationProperties.Name="潜能起始等级" />
+            <TextBlock Grid.Column="4" Text="到" VerticalAlignment="Center" FontSize="11" />
+            <TextBox Grid.Column="5" Text="{Binding GrowthPotentialTo}" Margin="0,0,12,0" AutomationProperties.Name="潜能目标等级" />
+           </Grid>
+           <TextBlock Text="{Binding GrowthPotentialText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="70,0,0,8" Visibility="{Binding GrowthHasPotentials, Converter={StaticResource BoolVisibility}}" />
           <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding GrowthIncludeRunes}" Margin="0,0,0,4" AutomationProperties.Name="计入符文材料"><StackPanel><TextBlock Text="计入符文（星光）材料" FontWeight="SemiBold" /><TextBlock Text="每个阶级有 5 个符文的微粒与尤尼消耗" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
          </StackPanel>
         </Border>
@@ -732,6 +741,10 @@
         <TextBlock Text="{Binding GrowthSummary}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
         <TextBlock Text="{Binding GrowthCrystalText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
         <TextBlock Text="{Binding GrowthStaminaText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+         <Button Content="导出 CSV…" Click="OnExportGrowthCsv" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="导出养成CSV" />
+         <Button Content="导出 PNG…" Click="OnExportGrowthPng" Padding="12,6" AutomationProperties.Name="导出养成PNG" />
+        </StackPanel>
         <TextBlock Text="缺口清单（图标在名字右侧；「拥有」改完自动保存到 growth-inventory.json；最后一列是估算的体力/刷本次数）" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,6" />
         <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
          <ItemsControl ItemsSource="{Binding GrowthMaterials}">

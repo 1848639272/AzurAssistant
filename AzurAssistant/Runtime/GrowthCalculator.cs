@@ -3,7 +3,7 @@ using System.IO;
 namespace AzurAssistant.Runtime;
 
 public sealed record GrowthRequest(GrowthEntry Entry, int FromLevel, long OwnedExp, int ToLevel, int FromStage, int ToStage,
-    bool IncludeRunes);
+    bool IncludeRunes, GrowthPotential? Potential = null, int PotentialFromLevel = 1, int PotentialToLevel = 0);
 
 /// <summary>One material row: how much is needed, owned (user input) and therefore missing, plus its icon.</summary>
 public sealed class GrowthMaterialRow(string name, string? iconPath, string kind = "", string id = "") : System.ComponentModel.INotifyPropertyChanged
@@ -111,6 +111,15 @@ public static class GrowthCalculator
                 foreach (var cost in step.RuneCosts) Add(cost);
             // 升星 also consumes copies of the item itself.
             if (step.Copies > 0) Add(new GrowthCost("copy", entry.Id, "本体（同款装备）", step.Copies));
+        }
+
+        // Pet potentials are fed with a fixed item (each gives a fixed experience), so they add material directly.
+        var potential = request.Potential;
+        if (potential is not null && potential.ItemName.Length > 0)
+        {
+            var target = request.PotentialToLevel <= 0 ? potential.MaxLevel : request.PotentialToLevel;
+            var items = potential.ItemsBetween(request.PotentialFromLevel, target);
+            if (items > 0) Add(new GrowthCost(potential.ItemKind, potential.ItemId, potential.ItemName, items));
         }
 
         var rows = totals.Values.OrderByDescending(entry2 => entry2.Quantity)
