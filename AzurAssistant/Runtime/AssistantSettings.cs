@@ -45,6 +45,8 @@ public sealed record AssistantSettings
     public bool MinigameReferenceRhythm { get; init; }
     /// <summary>Press when the note head is within this many reference pixels of the judge line.</summary>
     public int MinigameTriggerWindow { get; init; } = 120;
+    /// <summary>Use the ported jenga detector (HUD gate + bird + template matching) instead of the brightness centroid.</summary>
+    public bool MinigameReferenceLadder { get; init; }
     /// <summary>关闭窗口时的行为：ask=每次询问，exit=总是完全关闭，tray=总是收到托盘。</summary>
     public string CloseAction { get; init; } = "ask";
     /// <summary>是否显示悬浮窗（HUD）。</summary>

@@ -489,6 +489,7 @@
            <Button Grid.Column="4" Content="按当前画面校准目标" Click="OnMinigameCalibrate" Padding="10,5" Margin="0,0,10,0" AutomationProperties.Name="校准目标列" />
           </Grid>
           <StackPanel Orientation="Horizontal" Margin="0,0,0,4"><TextBlock Text="松手键" VerticalAlignment="Center" FontSize="11" Margin="0,0,8,0" /><TextBox Width="80" Text="{Binding MinigameKeyLadder, UpdateSourceTrigger=LostFocus}" AutomationProperties.Name="松手键" /><TextBlock Text="（默认空格 32）" VerticalAlignment="Center" FontSize="10" Foreground="{DynamicResource Subtle}" Margin="8,0,0,0" /></StackPanel>
+          <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding MinigameReferenceLadder}" Margin="0,6,0,4" AutomationProperties.Name="使用参考实现卡之梯"><StackPanel><TextBlock Text="使用参考实现的卡之梯识别" FontWeight="SemiBold" /><TextBlock Text="HUD 校验 + 鸟检测 + 模板匹配定位悬挂件（AGPL-3.0）" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
           <TextBlock Text="{Binding MinigameLadderText}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" />
          </StackPanel>
         </Border>

@@ -268,6 +268,33 @@ internal static class Program
         Check("judge line", Math.Abs(RhythmDetector.JudgeX - 587) < 1e-9
             && RhythmDetector.LegendY.SequenceEqual([678, 726, 774]));
 
+        // ported jenga detector: assets load, detail is a high-pass, normalisation and HUD gate behave
+        var jenga = new JengaDetector();
+        jenga.Load();
+        Check("jenga assets loaded", jenga.TemplateCount >= 50 && jenga.BirdCount == 3,
+            $"templates={jenga.TemplateCount} birds={jenga.BirdCount} err={jenga.LoadError}");
+        var jengaBlank = MakeFrame(1920, 1080);
+        using (var normalized = JengaDetector.Normalize(jengaBlank, 1920, 1080))
+        {
+            Check("jenga normalize 1080p", normalized is not null && normalized.Width == 1920 && normalized.Height == 1080);
+            Check("jenga hud gate rejects blank", normalized is not null && !jenga.IsActive(normalized));
+            if (normalized is not null)
+            {
+                Check("jenga tower column empty", double.IsNaN(JengaDetector.TowerColumn(normalized)));
+                var jengaObservation = jenga.Detect(normalized);
+                Check("jenga detect reports HUD miss", jengaObservation.Carried is null && jengaObservation.Note.Contains("HUD"),
+                    jengaObservation.Note);
+            }
+        }
+        using (var wide = JengaDetector.Normalize(MakeFrame(2560, 1080), 2560, 1080))
+            Check("jenga rejects non 16:9", wide is null);
+        using (var grey = new OpenCvSharp.Mat(64, 64, OpenCvSharp.MatType.CV_8UC1))
+        {
+            using var detail = JengaDetector.Detail(grey);
+            Check("jenga detail is flat for flat input", detail.Type() == OpenCvSharp.MatType.CV_32F
+                && Math.Abs(OpenCvSharp.Cv2.Mean(detail).Val0) < 1e-6, OpenCvSharp.Cv2.Mean(detail).Val0.ToString("F6"));
+        }
+
         // synthetic 1920x1080 frame: a red blob in lane 1, a blue blob in lane 3, on the judge line
         var frame = MakeFrame(1920, 1080);
         PaintBlob(frame, 1920, (int)config.LaneCenter(1) - 10, 590, 20, 20, 220, 30, 40);   // red

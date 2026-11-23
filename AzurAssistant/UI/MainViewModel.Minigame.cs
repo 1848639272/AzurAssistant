@@ -10,6 +10,7 @@ public sealed partial class MainViewModel
 {
     private DispatcherTimer? _minigameTimer;
     private RhythmDetector? _rhythmDetector;
+    private JengaDetector? _jengaDetector;
     private readonly Dictionary<int, DateTimeOffset> _laneCooldown = new();
     private DateTimeOffset _ladderLastTap;
     private string _minigameStatus = "先连接游戏画面，再打开下面的自动开关。识别只读画面；按键只在游戏处于前台时发送。";
@@ -46,6 +47,17 @@ public sealed partial class MainViewModel
         {
             if (value == Settings.MinigameReferenceRhythm) return;
             if (SaveSettings(Settings with { MinigameReferenceRhythm = value })) { Notify(); }
+        }
+    }
+
+    /// <summary>Uses the ported jenga detector (HUD gate + bird + template matching) for the hanging piece.</summary>
+    public bool MinigameReferenceLadder
+    {
+        get => Settings.MinigameReferenceLadder;
+        set
+        {
+            if (value == Settings.MinigameReferenceLadder) return;
+            if (SaveSettings(Settings with { MinigameReferenceLadder = value })) Notify();
         }
     }
 
@@ -212,7 +224,34 @@ public sealed partial class MainViewModel
             }
         }
 
-        if (MinigameLadderAuto)
+        if (MinigameLadderAuto && MinigameReferenceLadder)
+        {
+            _jengaDetector ??= new JengaDetector();
+            var bytes = frame.Pixels.ToArray();
+            using var normalized = JengaDetector.Normalize(bytes, frame.Width, frame.Height);
+            if (normalized is null)
+            {
+                MinigameLadderText = "参考识别：画面不是 16:9，无法归一化。";
+            }
+            else
+            {
+                var observation = _jengaDetector.Detect(normalized, config.LadderTolerance);
+                MinigameLadderText = JengaDetector.Describe(observation);
+                var aligned = observation.Carried is not null && !double.IsNaN(observation.TowerX)
+                    && Math.Abs(observation.Carried.X - observation.TowerX) <= config.LadderTolerance;
+                if (aligned && now - _ladderLastTap > TimeSpan.FromMilliseconds(Math.Max(200, config.CooldownMs)))
+                {
+                    if (SyntheticInput.IsForegroundOf(frame.ProcessId))
+                    {
+                        SyntheticInput.Tap((ushort)config.LadderKey);
+                        _ladderLastTap = now;
+                        MinigameStatus = "参考识别：悬挂件与承接面对齐，已松手。";
+                    }
+                    else MinigameStatus = "游戏不在前台，按键已暂停。";
+                }
+            }
+        }
+        else if (MinigameLadderAuto)
         {
             var observation = LadderAnalyzer.Detect(pixels, frame.Width, frame.Height, config);
             MinigameLadderText = LadderAnalyzer.Describe(observation);
