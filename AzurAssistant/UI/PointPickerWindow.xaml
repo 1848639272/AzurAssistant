@@ -9,8 +9,12 @@
   <Line x:Name="VLine" Stroke="#FF19C3B6" StrokeThickness="1" />
   <Border x:Name="Readout" Background="#F2FFFFFF" CornerRadius="6" Padding="10,6" IsHitTestVisible="False">
    <StackPanel>
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+     <Rectangle x:Name="Swatch" Width="16" Height="16" RadiusX="3" RadiusY="3" Stroke="#55000000" VerticalAlignment="Center" />
+     <TextBlock x:Name="ColorText" FontFamily="Consolas" FontSize="12" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="#FF1B1B24" />
+    </StackPanel>
     <TextBlock x:Name="PositionText" FontSize="13" FontWeight="SemiBold" Foreground="#FF1B1B24" />
-    <TextBlock x:Name="HintText" FontSize="11" Foreground="#FF55606B" Text="左键拾取 · 右键或 Esc 取消" Margin="0,4,0,0" />
+    <TextBlock x:Name="HintText" FontSize="11" Foreground="#FF55606B" Text="左键拾取坐标与颜色 · 右键或 Esc 取消" Margin="0,4,0,0" />
    </StackPanel>
   </Border>
  </Canvas>

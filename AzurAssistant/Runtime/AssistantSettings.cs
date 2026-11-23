@@ -25,6 +25,10 @@ public sealed record AssistantSettings
     public int CoverUidHeight { get; init; } = 26;
     /// <summary>没有游戏窗口时，把遮挡层贴在本程序窗口上预览。</summary>
     public bool CoverUidPreviewOnSelf { get; init; }
+    /// <summary>每日重置提醒（04:00 体力/委托刷新）。</summary>
+    public bool ReminderDailyReset { get; init; }
+    /// <summary>体力提醒间隔（分钟）；0 = 关闭。</summary>
+    public int ReminderStaminaMinutes { get; init; }
     /// <summary>关闭窗口时的行为：ask=每次询问，exit=总是完全关闭，tray=总是收到托盘。</summary>
     public string CloseAction { get; init; } = "ask";
     /// <summary>是否显示悬浮窗（HUD）。</summary>

@@ -72,6 +72,8 @@ public sealed class SettingsStore
         if (value.BackgroundImagePath is null || value.BackgroundImagePath.Length > 32767) throw new InvalidDataException("背景图路径无效。");
         if (value.OverlayMonitor is < 0 or > 15) throw new InvalidDataException("显示器编号应在 0–15 之间。");
         if (value.CloseAction is not ("ask" or "exit" or "tray")) throw new InvalidDataException("关闭行为设置无效。");
+        if (value.ReminderStaminaMinutes is < 0 or > ReminderScheduler.MaxStaminaMinutes)
+            throw new InvalidDataException("体力提醒间隔应在 0–1440 分钟之间。");
         if (value.CoverUidX is < 0 or > 8192 || value.CoverUidY is < 0 or > 8192)
             throw new InvalidDataException("UID 遮挡的位置应在 0–8192 像素之间。");
         if (value.CoverUidWidth is < 1 or > 4096 || value.CoverUidHeight is < 1 or > 4096)

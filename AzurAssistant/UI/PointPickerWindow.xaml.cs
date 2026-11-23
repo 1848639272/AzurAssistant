@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace AzurAssistant.UI;
 
@@ -34,6 +35,12 @@ public partial class PointPickerWindow : Window
         VLine.X1 = position.X; VLine.X2 = position.X; VLine.Y1 = 0; VLine.Y2 = ActualHeight;
         var screen = PointToScreen(position);
         PositionText.Text = $"屏幕 ({screen.X:0}, {screen.Y:0})";
+        if (AzurAssistant.Platform.ScreenSampler.Sample((int)screen.X, (int)screen.Y) is { } pixel)
+        {
+            Swatch.Fill = new SolidColorBrush(Color.FromRgb(pixel.R, pixel.G, pixel.B));
+            ColorText.Text = AzurAssistant.Runtime.PixelColor.ToHex(pixel.R, pixel.G, pixel.B);
+        }
+        else ColorText.Text = "颜色不可读";
         var readoutX = position.X + 18;
         var readoutY = position.Y + 18;
         if (readoutX + Readout.ActualWidth > ActualWidth) readoutX = Math.Max(4, position.X - Readout.ActualWidth - 18);
@@ -47,6 +54,12 @@ public partial class PointPickerWindow : Window
     private void Pick(MouseButtonEventArgs e)
     {
         ScreenPoint = PointToScreen(e.GetPosition(this));
+        if (ScreenPoint is { } point
+            && AzurAssistant.Platform.ScreenSampler.Sample((int)point.X, (int)point.Y) is { } pixel)
+            ColorHex = AzurAssistant.Runtime.PixelColor.ToHex(pixel.R, pixel.G, pixel.B);
         DialogResult = true;
     }
+
+    /// <summary>Picked pixel colour as #RRGGBB (empty when unreadable).</summary>
+    public string ColorHex { get; private set; } = "";
 }

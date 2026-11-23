@@ -125,7 +125,7 @@ public sealed partial class MainViewModel
     public string PickedSnippet { get => _pickedSnippet; private set { _pickedSnippet = value; Notify(); } }
 
     /// <summary>Converts a screen point into client/reference coordinates against the game window (or this window).</summary>
-    public void PickCoordinateAt(int screenX, int screenY)
+    public void PickCoordinateAt(int screenX, int screenY, string colorHex = "")
     {
         int left = 0, top = 0, width = 0, height = 0;
         var source = "屏幕";
@@ -160,8 +160,11 @@ public sealed partial class MainViewModel
         }
 
         var result = AzurAssistant.Runtime.PickCoordinate.FromScreen(screenX, screenY, left, top, width, height);
-        PickedCoordinate = $"{source}：{result.Describe(width, height)}";
-        PickedSnippet = result.InsideClient ? result.Snippet : "";
+        var colorPart = colorHex.Length > 0 ? $"　颜色 {colorHex}" : "";
+        PickedCoordinate = $"{source}：{result.Describe(width, height)}{colorPart}";
+        PickedSnippet = result.InsideClient
+            ? result.Snippet + (colorHex.Length > 0 ? Environment.NewLine + colorHex : "")
+            : colorHex;
     }
 
     public void ClearPickedCoordinate()

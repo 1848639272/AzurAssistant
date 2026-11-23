@@ -994,6 +994,16 @@
         <CheckBox x:Name="ShowHudOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding ShowHud}" Margin="0,0,0,10" AutomationProperties.Name="显示悬浮窗"><StackPanel><TextBlock Text="显示悬浮窗（HUD）" FontWeight="SemiBold" /><TextBlock Text="置顶小条：当前步骤 + 暂停/继续 + 停止" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
         <CheckBox x:Name="ShowTrayOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding ShowTrayIcon}" Margin="0,0,0,10" AutomationProperties.Name="显示托盘图标"><StackPanel><TextBlock Text="显示托盘图标" FontWeight="SemiBold" /><TextBlock Text="双击托盘恢复窗口；右键菜单可暂停/停止/退出" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
         <CheckBox x:Name="MinimizeToTrayOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding MinimizeToTray}" Margin="0,0,0,10" AutomationProperties.Name="最小化到托盘"><StackPanel><TextBlock Text="最小化时收进托盘" FontWeight="SemiBold" /><TextBlock Text="需要同时开启托盘图标" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="240" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <TextBlock Text="提醒" VerticalAlignment="Center" />
+         <StackPanel Grid.Column="1" Orientation="Horizontal">
+          <CheckBox Content="每日重置" IsChecked="{Binding ReminderDailyReset}" VerticalAlignment="Center" AutomationProperties.Name="每日重置提醒" />
+          <TextBlock Text="体力提醒" VerticalAlignment="Center" Margin="16,0,6,0" FontSize="11" />
+          <TextBox Width="60" Text="{Binding ReminderStaminaMinutes, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" AutomationProperties.Name="体力提醒分钟" />
+          <TextBlock Text="分钟（0=关）" VerticalAlignment="Center" FontSize="11" Margin="6,0,0,0" />
+         </StackPanel>
+         <TextBlock Grid.Column="2" Text="{Binding ReminderStatus}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+        </Grid>
         <CheckBox x:Name="NotifyOnEndOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding NotifyOnTaskEnd}" Margin="0,0,0,10" AutomationProperties.Name="任务结束通知"><StackPanel><TextBlock Text="任务结束时弹出通知" FontWeight="SemiBold" /><TextBlock Text="成功或失败都会在右下角显示一条，4.5 秒后自动消失" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
         <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="240" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
          <TextBlock Text="关闭窗口时" VerticalAlignment="Center" />

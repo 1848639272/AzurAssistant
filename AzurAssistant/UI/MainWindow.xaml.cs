@@ -77,6 +77,13 @@ public partial class MainWindow : Window
         };
         _uidCover.Start();
         ApplyUidCover();
+        ViewModel.LoadReminderState();
+        _reminderTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _reminderTimer.Tick += (_, _) =>
+        {
+            foreach (var reminder in ViewModel.TakeDueReminders()) ShowToast(reminder.Title, reminder.Message);
+        };
+        _reminderTimer.Start();
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
         if (ViewModel.TaskRunnerInternal is { } runner) runner.RunCompleted += result => Dispatcher.BeginInvoke(() => OnRunCompleted(result));
         ApplyAppearance();
@@ -715,6 +722,8 @@ public partial class MainWindow : Window
     {
         _uidCover?.Stop();
         _uidCover = null;
+        _reminderTimer?.Stop();
+        _reminderTimer = null;
         if (_hud is not null)
         {
             _hud.Close();
@@ -1027,6 +1036,7 @@ public partial class MainWindow : Window
 
     // ---- 扩展功能：UID 遮挡 ----
     private UidCoverController? _uidCover;
+    private DispatcherTimer? _reminderTimer;
     private bool _coverAdjusting;
 
     private void OnToggleCoverAdjust(object sender, RoutedEventArgs e)
@@ -1041,7 +1051,7 @@ public partial class MainWindow : Window
     {
         var picker = new PointPickerWindow { Owner = this };
         if (picker.ShowDialog() != true || picker.ScreenPoint is not { } point) return;
-        ViewModel.PickCoordinateAt((int)Math.Round(point.X), (int)Math.Round(point.Y));
+        ViewModel.PickCoordinateAt((int)Math.Round(point.X), (int)Math.Round(point.Y), picker.ColorHex);
     }
 
     private void OnCopyPickedCoordinate(object sender, RoutedEventArgs e)
