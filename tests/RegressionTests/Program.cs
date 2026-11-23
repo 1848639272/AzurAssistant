@@ -261,8 +261,10 @@ internal static class Program
 
         // More copies need more pulls and the worst case adds up.
         Check("two copies", hard.Expected(2, 0, 80) > hard.Expected(1, 0, 80));
-        Check("worst case", hard.WorstCase(1, 0) == 20 && hard.WorstCase(2, 0) == 40,
+        Check("worst case", hard.WorstCase(1, 0) == 10 && hard.WorstCase(2, 0) == 20,
             $"{hard.WorstCase(1, 0)}/{hard.WorstCase(2, 0)}");
+        Check("worst case with 50/50", banner.WorstCase(1, 0) == 20 && banner.WorstCase(2, 0) == 40,
+            $"{banner.WorstCase(1, 0)}/{banner.WorstCase(2, 0)}");
 
         // Preset tables are sane and probabilities are monotonic in pulls.
         var character = GachaModel.Preset("character");
@@ -272,6 +274,12 @@ internal static class Program
             $"{within100:P1} → {within200:P1}");
         Check("preset table shape", character.MaxPity == 90 && character.PityTable[90] == 1.0,
             $"{character.MaxPity} 抽");
+        Check("preset ramp 70/71/80/81",
+            Math.Abs(character.PityTable[70] - 0.008) < 1e-12
+            && Math.Abs(character.PityTable[71] - 0.028) < 1e-12
+            && Math.Abs(character.PityTable[80] - 0.208) < 1e-12
+            && Math.Abs(character.PityTable[81] - 0.288) < 1e-12,
+            $"{character.PityTable[70]:P1} / {character.PityTable[71]:P1} / {character.PityTable[80]:P1} / {character.PityTable[81]:P1}");
         Check("table parse", GachaModel.ParseTable("0.6,0.6,1").Count == 3
             && Math.Abs(GachaModel.ParseTable("0.6,0.6,1")[0] - 0.6) < 1e-12
             && Math.Abs(GachaModel.ParseTable("60,60,100")[0] - 0.6) < 1e-12,

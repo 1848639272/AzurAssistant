@@ -108,13 +108,14 @@ public sealed class GachaModel
         copies = Math.Clamp(copies, 1, MaxCopies);
         var pity = Math.Clamp(startPity, 0, MaxPity);
         var pulls = 0;
+        // With a guaranteed pull (item probability 100%) a copy costs at most one hard-pity cycle; otherwise the
+        // worst case is losing once and then getting the guaranteed copy.
+        var cyclesPerCopy = ItemProbability >= 0.999 ? 1 : 2;
         for (var obtained = 0; obtained < copies; obtained++)
         {
-            // Worst case: lose the item once per copy unless a guarantee is already pending (not modelled here).
             var first = Math.Max(1, MaxPity - pity);
             pity = 0;
-            var second = MaxPity;
-            pulls += first + second;
+            pulls += first + (cyclesPerCopy - 1) * MaxPity;
         }
         return pulls;
     }
@@ -123,12 +124,14 @@ public sealed class GachaModel
     public static GachaModel Preset(string name, double itemProbability = 0.5)
     {
         // 0.6% base with soft pity from the 74th pull (+6% per pull) and a hard pity at 90.
+        // 0.8% base; pulls 71-80 add 2 percentage points each, 81-90 add 8 each, hard pity at 90.
         var table = new double[91];
         for (var pull = 1; pull <= 90; pull++)
         {
             if (pull >= 90) table[pull] = 1;
-            else if (pull >= 74) table[pull] = Math.Min(1, 0.006 + (pull - 73) * 0.06);
-            else table[pull] = 0.006;
+            else if (pull >= 81) table[pull] = Math.Min(1, 0.008 + 10 * 0.02 + (pull - 80) * 0.08);
+            else if (pull >= 71) table[pull] = Math.Min(1, 0.008 + (pull - 70) * 0.02);
+            else table[pull] = 0.008;
         }
         // 1.6% base, hard pity at 80, no soft ramp (weapon-banner-like shape).
         var weapon = new double[81];

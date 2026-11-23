@@ -18,21 +18,24 @@ public sealed partial class MainViewModel
     private GachaPresetKind _gachaPreset = GachaPresetKind.Character;
     private GachaPreset? _selectedGachaPreset;
     private string _gachaTableText = "";
-    private double _gachaBasePercent = 0.6;
+    private double _gachaBasePercent = 0.8;
     private int _gachaHardPity = 90;
-    private int _gachaSoftPityStart = 74;
-    private double _gachaSoftStepPercent = 6;
+    private int _gachaSoftPityStart = 71;
+    private double _gachaSoftStepPercent = 2;
+    private int _gachaSecondPityStart = 81;
+    private double _gachaSecondStepPercent = 8;
     private double _gachaItemPercent = 50;
     private int _gachaCopies = 1;
     private int _gachaStartPity;
     private int _gachaPulls = 180;
     private string _gachaResult = "";
     private string _gachaTableTextCache = "";
+    private string _gachaProbeText = "";
     private string _gachaStatus = "按 GGanalysis 的 PityBernoulliModel 计算：每抽按当前保底计数查概率，出货后再按「是否为目标」判定。";
 
     public IReadOnlyList<GachaPreset> GachaPresets { get; } =
     [
-        new("角色（0.6% / 90 保底 / 74 起软保底）", GachaPresetKind.Character),
+        new("角色（0.8% / 90 保底 / 71 起 +2%，81 起 +8%）", GachaPresetKind.Character),
         new("武器（1.6% / 80 保底）", GachaPresetKind.Weapon),
         new("自定义", GachaPresetKind.Custom),
     ];
@@ -47,11 +50,13 @@ public sealed partial class MainViewModel
             _gachaPreset = value.Kind;
             if (value.Kind == GachaPresetKind.Character)
             {
-                _gachaBasePercent = 0.6; _gachaHardPity = 90; _gachaSoftPityStart = 74; _gachaSoftStepPercent = 6;
+                _gachaBasePercent = 0.8; _gachaHardPity = 90; _gachaSoftPityStart = 71; _gachaSoftStepPercent = 2;
+                _gachaSecondPityStart = 81; _gachaSecondStepPercent = 8;
             }
             else if (value.Kind == GachaPresetKind.Weapon)
             {
                 _gachaBasePercent = 1.6; _gachaHardPity = 80; _gachaSoftPityStart = 0; _gachaSoftStepPercent = 0;
+                _gachaSecondPityStart = 0; _gachaSecondStepPercent = 0;
             }
             NotifyAllGacha();
             RecomputeGacha();
@@ -93,6 +98,19 @@ public sealed partial class MainViewModel
     {
         get => _gachaSoftStepPercent;
         set => SetGachaValue(ref _gachaSoftStepPercent, Math.Clamp(value, 0, 100));
+    }
+
+    /// <summary>Second soft-pity stage (e.g. 81+ with a bigger step); 0 disables it.</summary>
+    public int GachaSecondPityStart
+    {
+        get => _gachaSecondPityStart;
+        set => SetGachaValue(ref _gachaSecondPityStart, Math.Clamp(value, 0, 200));
+    }
+
+    public double GachaSecondStepPercent
+    {
+        get => _gachaSecondStepPercent;
+        set => SetGachaValue(ref _gachaSecondStepPercent, Math.Clamp(value, 0, 100));
     }
 
     public double GachaItemPercent
@@ -137,6 +155,8 @@ public sealed partial class MainViewModel
         Notify(nameof(GachaHardPity));
         Notify(nameof(GachaSoftPityStart));
         Notify(nameof(GachaSoftStepPercent));
+        Notify(nameof(GachaSecondPityStart));
+        Notify(nameof(GachaSecondStepPercent));
         Notify(nameof(GachaItemPercent));
         Notify(nameof(GachaCopies));
         Notify(nameof(GachaStartPity));
@@ -157,13 +177,29 @@ public sealed partial class MainViewModel
         var baseRate = _gachaBasePercent / 100;
         var step = _gachaSoftStepPercent / 100;
         var softStart = _gachaSoftPityStart <= 0 || _gachaSoftPityStart >= hard ? hard : _gachaSoftPityStart;
+        var secondStep = _gachaSecondStepPercent / 100;
+        var secondStart = _gachaSecondPityStart <= 0 || _gachaSecondPityStart >= hard || secondStep <= 0 ? 0 : _gachaSecondPityStart;
         for (var pull = 1; pull <= hard; pull++)
         {
             if (pull >= hard) table[pull] = 1;
+            else if (secondStart > 0 && pull >= secondStart)
+            {
+                // First stage counts up to the second stage start, then the bigger step takes over.
+                var firstCount = Math.Max(0, secondStart - softStart);
+                table[pull] = Math.Min(1, baseRate + firstCount * step + (pull - secondStart + 1) * secondStep);
+            }
             else if (step > 0 && pull >= softStart) table[pull] = Math.Min(1, baseRate + (pull - softStart + 1) * step);
             else table[pull] = baseRate;
         }
-        _gachaTableTextCache = $"{hard} 抽表（{_gachaBasePercent:0.##}% 起，{softStart} 起软保底 +{_gachaSoftStepPercent:0.##}%/抽）";
+        var picks = new[] { softStart, secondStart, hard }
+            .Where(pull => pull > 0 && pull <= hard)
+            .Distinct()
+            .OrderBy(pull => pull)
+            .ToList();
+        _gachaProbeText = string.Join("；", picks.Select(pull => $"{pull} 抽 {table[pull] * 100:0.##}%"));
+        _gachaTableTextCache = secondStart > 0
+            ? $"{hard} 抽表（{_gachaBasePercent:0.##}% 起，{softStart} 起每抽 +{_gachaSoftStepPercent:0.##}%，{secondStart} 起每抽 +{_gachaSecondStepPercent:0.##}%）"
+            : $"{hard} 抽表（{_gachaBasePercent:0.##}% 起，{softStart} 起每抽 +{_gachaSoftStepPercent:0.##}%）";
         return table;
     }
 
@@ -177,8 +213,10 @@ public sealed partial class MainViewModel
             var expected = model.Expected(_gachaCopies, _gachaStartPity, maxPulls);
             var within = model.ProbabilityWithin(_gachaPulls, _gachaCopies, _gachaStartPity, maxPulls);
             var worst = model.WorstCase(_gachaCopies, _gachaStartPity);
+            var probe = _gachaProbeText;
             GachaResult =
                 $"模型：{_gachaTableTextCache}，出目标概率 {_gachaItemPercent:0.##}%\n"
+                + $"概率示例：{probe}\n"
                 + $"目标 {_gachaCopies} 个（当前已垫 {_gachaStartPity} 抽）："
                 + $"期望 {expected:0.0} 抽，{_gachaPulls} 抽内完成概率 {within * 100:0.00}%，最坏 {worst} 抽";
             GachaStatus = $"已按 GGanalysis 的 PityBernoulliModel 计算（保底表 {table.Count - 1} 抽，目标概率 {model.ItemProbability:0.###}）。";
@@ -188,6 +226,7 @@ public sealed partial class MainViewModel
             GachaStatus = "参数无效：" + ex.Message;
         }
     }
+
 
     /// <summary>Fills the page with the current numbers the first time it is opened.</summary>
     public void PrepareGachaPage()

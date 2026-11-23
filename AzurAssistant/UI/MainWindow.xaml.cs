@@ -54,7 +54,6 @@ public partial class MainWindow : Window
         System.Windows.Media.CompositionTarget.Rendering += OnFrameRendered;
         DataContext = ViewModel = viewModel;
         ApplyAppearance();
-        AdjustRefreshRate();
         _confirmSettingsRestart = confirmSettingsRestart ?? (() => Task.FromResult(MessageBox.Show(this,
             "设置已经修改，是否立即重启助手生效？", "蔚蓝助手", MessageBoxButton.YesNo,
             MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes));
@@ -96,8 +95,8 @@ public partial class MainWindow : Window
         _progressTimer.Start();
         if (ViewModel.TaskRunnerInternal is { } runner) runner.RunCompleted += result => Dispatcher.BeginInvoke(() => OnRunCompleted(result));
         ApplyAppearance();
-        AdjustRefreshRate();
         _refresh.Start();
+        AdjustRefreshRate();
         await CheckUpdatesAsync(automatic: true);
         if (!_closing && !_updateLaunched && !ViewModel.RestartRequested) ViewModel.Initialize();
     }
@@ -183,7 +182,6 @@ public partial class MainWindow : Window
         if (!IsLoaded) return;
         // Base colours change with the theme, so this is the one path that rebuilds the palette.
         ApplyAppearance();
-        AdjustRefreshRate();
         ViewModel.Refresh();
     }
 
@@ -1275,6 +1273,7 @@ public partial class MainWindow : Window
 
     private void AdjustRefreshRate()
     {
+        if (_refresh is null) return;
         var wanted = ViewModel.IsWorking || ViewModel.IsLive ? BusyRefreshMs : IdleRefreshMs;
         if (!ViewModel.WindowVisible) wanted = Math.Max(wanted, 500);
         if ((int)_refresh.Interval.TotalMilliseconds == wanted) return;
