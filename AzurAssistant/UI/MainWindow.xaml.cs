@@ -1055,6 +1055,36 @@ public partial class MainWindow : Window
         CoverAdjustButton.Content = _coverAdjusting ? "退出调整（保存）" : "调整位置（拖动）";
     }
 
+    private async void OnLedgerFromScreen(object sender, RoutedEventArgs e) => await ViewModel.BookLedgerFromScreenAsync();
+
+    private void OnLedgerFromText(object sender, RoutedEventArgs e) => ViewModel.BookLedgerText();
+
+    private void OnAddToCombined(object sender, RoutedEventArgs e) => ViewModel.AddCurrentPlanToCombined();
+
+    private void OnRemoveLastCombined(object sender, RoutedEventArgs e) => ViewModel.RemoveLastCombined();
+
+    private void OnClearCombined(object sender, RoutedEventArgs e) => ViewModel.ClearCombined();
+
+    private void OnExportCombined(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出合并材料清单", Filter = "CSV (*.csv)|*.csv", FileName = $"合并材料-{DateTime.Now:yyyyMMdd}.csv",
+        };
+        if (dialog.ShowDialog(this) == true) ViewModel.ExportCombined(dialog.FileName);
+    }
+
+    private void OnLedgerClear(object sender, RoutedEventArgs e) => ViewModel.ClearLedger();
+
+    private void OnLedgerExport(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "导出结算记账", Filter = "CSV (*.csv)|*.csv", FileName = $"结算记账-{DateTime.Now:yyyyMMdd}.csv",
+        };
+        if (dialog.ShowDialog(this) == true) ViewModel.ExportLedger(dialog.FileName);
+    }
+
     private async void OnRefreshRepository(object sender, RoutedEventArgs e) => await ViewModel.RefreshRepositoryAsync();
 
     private async void OnInstallRepositoryItem(object sender, RoutedEventArgs e)

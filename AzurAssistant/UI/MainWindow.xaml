@@ -753,6 +753,23 @@
          <Button Content="导出 CSV…" Click="OnExportGrowthCsv" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="导出养成CSV" />
          <Button Content="导出 PNG…" Click="OnExportGrowthPng" Padding="12,6" AutomationProperties.Name="导出养成PNG" />
         </StackPanel>
+        <TextBlock Text="多目标合并（把几个目标合成一张材料单）" FontSize="12" FontWeight="SemiBold" Margin="0,8,0,6" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+         <Button Content="加入合并清单" Click="OnAddToCombined" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="加入合并清单" />
+         <Button Content="移除最后一个" Click="OnRemoveLastCombined" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="清空" Click="OnClearCombined" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="导出合并 CSV…" Click="OnExportCombined" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding CombinedSummary}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,4" />
+        <ItemsControl ItemsSource="{Binding CombinedMaterials}" MaxHeight="120" Margin="0,0,0,4">
+         <ItemsControl.ItemTemplate><DataTemplate>
+          <StackPanel Orientation="Horizontal" Margin="0,1">
+           <TextBlock Text="{Binding Name}" FontSize="11" Width="180" />
+           <TextBlock Text="{Binding Need, StringFormat=×{0:N0}}" FontSize="11" FontWeight="SemiBold" />
+          </StackPanel>
+         </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Text="{Binding CombinedStatus}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,10" />
         <TextBlock Text="缺口清单（图标在名字右侧；「拥有」改完自动保存到 growth-inventory.json；最后一列是估算的体力/刷本次数）" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,6" />
         <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
          <ItemsControl ItemsSource="{Binding GrowthMaterials}">
@@ -951,6 +968,27 @@
         </StackPanel>
         <TextBlock Text="{Binding PickedCoordinate}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
         <TextBlock Text="{Binding PickedSnippet}" FontFamily="Consolas" FontSize="11" Margin="0,0,0,16" />
+        <TextBlock Text="功能 3 · 结算记账（OCR）" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="把结算画面上的「物品 ×数量」记下来，累计成收支表。可以识别当前画面，也可以把结算文字粘贴到下面按文本记账。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <Button Content="识别当前画面" Click="OnLedgerFromScreen" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="结算识别" />
+         <Button Content="按文本记账" Click="OnLedgerFromText" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="按文本记账" />
+         <Button Content="导出 CSV…" Click="OnLedgerExport" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="导出记账" />
+         <Button Content="清空" Click="OnLedgerClear" Padding="12,6" />
+        </StackPanel>
+        <TextBox Text="{Binding LedgerText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="70" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontSize="11" Margin="0,0,0,8" AutomationProperties.Name="结算文本" />
+        <TextBlock Text="{Binding LedgerSummary}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,6" />
+        <ListBox ItemsSource="{Binding LedgerEntries}" MaxHeight="160" Margin="0,0,0,6" AutomationProperties.Name="记账记录">
+         <ListBox.ItemTemplate><DataTemplate>
+          <StackPanel Orientation="Horizontal">
+           <TextBlock Text="{Binding TimeText}" FontSize="11" Foreground="{DynamicResource Muted}" Width="90" />
+           <TextBlock Text="{Binding ItemName}" FontSize="11" Width="150" />
+           <TextBlock Text="{Binding AmountText}" FontSize="11" FontWeight="SemiBold" Width="90" />
+           <TextBlock Text="{Binding KindText}" FontSize="10" Foreground="{DynamicResource Muted}" />
+          </StackPanel>
+         </DataTemplate></ListBox.ItemTemplate>
+        </ListBox>
+        <TextBlock Text="{Binding LedgerStatus}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,4" />
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />

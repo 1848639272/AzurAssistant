@@ -26,6 +26,8 @@ internal static class Program
         Run("reminders", ReminderChecks);
         Run("duration estimate", DurationChecks);
         Run("crash reporter", CrashChecks);
+        Run("combined plans", CombinedChecks);
+        Run("ledger", LedgerChecks);
         Run("repository index", RepositoryChecks);
         Run("screen sampling", ScreenChecks);
 
@@ -229,6 +231,63 @@ internal static class Program
             _ => throw new UnauthorizedAccessException("失败")) is null);
         Check("two traces", Directory.GetFiles(directory, "crash-*.txt").Length == 2);
         Directory.Delete(directory, true);
+    }
+
+    private static void CombinedChecks()
+    {
+        GrowthMaterialRow Row(string name, string kind, string id, long need) => new(name, null, kind, id) { Need = need };
+        var hero = new CombinedTarget("角色 · 甲", [Row("尤尼", "10", "2", 1000), Row("灵粹", "3", "1600031", 6)], "");
+        var equip = new CombinedTarget("装备 · 乙", [Row("尤尼", "10", "2", 500), Row("星质原液", "3", "302011", 24)], "");
+        var merged = GrowthPlanCombiner.Combine([hero, equip]);
+        Check("materials merged", merged.Count == 3, string.Join("、", merged.Select(material => material.ToString())));
+        Check("quantities summed", merged.First(material => material.Name == "尤尼").Need == 1500,
+            merged.First(material => material.Name == "尤尼").Need.ToString(CultureInfo.InvariantCulture));
+        Check("sorted by need", merged[0].Name == "尤尼");
+        var rows = GrowthPlanCombiner.AsRows(merged);
+        Check("rows keep identity", rows.Any(row => row.Kind == "10" && row.Id == "2"),
+            string.Join("、", rows.Select(row => row.Key)));
+        Check("empty targets", GrowthPlanCombiner.Combine([]).Count == 0);
+    }
+
+    private static void LedgerChecks()
+    {
+        var lines = new[]
+        {
+            "获得的奖励：尤尼 ×1,500",
+            "纯粹的星脉结晶 x 3",
+            "消耗 体力 30",
+            "12 × 波力果",
+            "这一行没有数量",
+            "",
+            "普通的灵粹*24",
+        };
+        var entries = LedgerParser.Parse(lines, new DateTimeOffset(2026, 1, 2, 10, 0, 0, TimeSpan.FromHours(8)));
+        Console.WriteLine("  parsed: " + string.Join(" | ", entries.Select(entry => entry.ToString() + "/" + entry.KindText)));
+        Check("entries parsed", entries.Count == 5, entries.Count.ToString(CultureInfo.InvariantCulture));
+        Check("quantity with thousands separator",
+            entries.Any(entry => entry.ItemName == "尤尼" && entry.Quantity == 1500),
+            string.Join("、", entries.Select(entry => entry.ItemName)));
+        Check("expense name cleaned", entries.Any(entry => entry.Expense && entry.ItemName == "体力"),
+            string.Join("、", entries.Where(entry => entry.Expense).Select(entry => entry.ItemName)));
+        var crystal = entries.FirstOrDefault(entry => entry.ItemName.Contains("星脉结晶"));
+        Check("name times number", crystal is { Quantity: 3 }, crystal?.ToString() ?? "missing");
+        Check("expense detected", entries.Any(entry => entry.Expense && entry.ItemName.Contains("体力")),
+            string.Join(",", entries.Where(entry => entry.Expense).Select(entry => entry.ItemName)));
+        Check("number times name", entries.Any(entry => entry.Quantity == 12 && entry.ItemName.Contains("波力果")));
+        Check("star separator", entries.Any(entry => entry.Quantity == 24 && entry.ItemName.Contains("灵粹")));
+        Check("no number ignored", entries.All(entry => !entry.ItemName.Contains("这一行")));
+        Check("net totals", LedgerStore.Totals(entries).First().Name.Contains("尤尼"),
+            string.Join("、", LedgerStore.Totals(entries).Select(pair => $"{pair.Name}:{pair.Net}")));
+
+        var path = Path.Combine(Path.GetTempPath(), "azur-ledger-" + Guid.NewGuid().ToString("N") + ".jsonl");
+        var store = new LedgerStore(path);
+        Check("append", store.Append(entries));
+        var loaded = store.Load();
+        Check("reload", loaded.Count == entries.Count, loaded.Count.ToString(CultureInfo.InvariantCulture));
+        var daily = LedgerStore.DailyTotals(loaded, new DateTimeOffset(2026, 1, 2, 12, 0, 0, TimeSpan.FromHours(8)));
+        Check("daily totals", daily.Count > 0, daily.Count.ToString(CultureInfo.InvariantCulture));
+        Check("clear", store.Clear() && store.Load().Count == 0);
+        File.Delete(path);
     }
 
     private static void RepositoryChecks()
