@@ -37,6 +37,10 @@ public sealed record AssistantSettings
     public int ReminderStaminaMinutes { get; init; }
     /// <summary>在线仓库的索引地址（http/https），空表示未配置。</summary>
     public string RepositoryUrl { get; init; } = "";
+    /// <summary>司凤小游戏的识别参数（紧凑 key=value 串）。</summary>
+    public string MinigameConfigText { get; init; } = "";
+    public bool MinigameRhythmAuto { get; init; }
+    public bool MinigameLadderAuto { get; init; }
     /// <summary>关闭窗口时的行为：ask=每次询问，exit=总是完全关闭，tray=总是收到托盘。</summary>
     public string CloseAction { get; init; } = "ask";
     /// <summary>是否显示悬浮窗（HUD）。</summary>

@@ -26,6 +26,7 @@ internal static class Program
         Run("reminders", ReminderChecks);
         Run("duration estimate", DurationChecks);
         Run("crash reporter", CrashChecks);
+        Run("minigame detectors", MinigameChecks);
         Run("gacha model", GachaChecks);
         Run("combined plans", CombinedChecks);
         Run("ledger", LedgerChecks);
@@ -233,6 +234,92 @@ internal static class Program
             _ => throw new UnauthorizedAccessException("失败")) is null);
         Check("two traces", Directory.GetFiles(directory, "crash-*.txt").Length == 2);
         Directory.Delete(directory, true);
+    }
+
+    private static void MinigameChecks()
+    {
+        var config = MinigameConfig.Parse("lanes=3;left=700;right=1220;judge=600;band=44;minpixels=40;cooldown=140;keys=49,50,51");
+        Check("config parse", config.LaneCount == 3 && config.Keys.Length == 3 && config.Keys[0] == 49,
+            $"{config.LaneCount} / {string.Join(",", config.Keys)}");
+        Check("config clamps", MinigameConfig.Parse("judge=99999;band=1;lanes=99").JudgeY == 1080
+            && MinigameConfig.Parse("judge=99999;band=1").BandHeight >= 8,
+            MinigameConfig.Parse("judge=99999").JudgeY.ToString("F0"));
+        var roundTrip = MinigameConfig.Parse(config.Serialize());
+        Check("config round trip", roundTrip.JudgeY == config.JudgeY && roundTrip.LaneRight == config.LaneRight
+            && roundTrip.Keys.SequenceEqual(config.Keys));
+        Check("lane centres", Math.Abs(config.LaneCenter(0) - 786.67) < 0.5 && Math.Abs(config.LaneCenter(2) - 1133.33) < 0.5,
+            $"{config.LaneCenter(0):F1}/{config.LaneCenter(2):F1}");
+
+        // synthetic 1920x1080 frame: a red blob in lane 1, a blue blob in lane 3, on the judge line
+        var frame = MakeFrame(1920, 1080);
+        PaintBlob(frame, 1920, (int)config.LaneCenter(1) - 10, 590, 20, 20, 220, 30, 40);   // red
+        PaintBlob(frame, 1920, (int)config.LaneCenter(2) - 10, 590, 20, 20, 30, 60, 230);   // blue
+        var hits = RhythmAnalyzer.Detect(frame, 1920, 1080, config);
+        Check("rhythm finds two lanes", hits.Count == 2, RhythmAnalyzer.Describe(hits));
+        Check("rhythm lane/colour", hits.Any(hit => hit.Lane == 1 && hit.Color == "red")
+            && hits.Any(hit => hit.Lane == 2 && hit.Color == "blue"), RhythmAnalyzer.Describe(hits));
+
+        // nothing on the judge line -> no hits
+        var empty = MakeFrame(1920, 1080);
+        PaintBlob(empty, 1920, 900, 200, 20, 20, 200, 40, 40);
+        Check("rhythm ignores far notes", RhythmAnalyzer.Detect(empty, 1920, 1080, config).Count == 0);
+
+        // 4K frame with the same layout: coordinates are scaled from reference space
+        var big = MakeFrame(3840, 2160);
+        PaintBlob(big, 3840, (int)(config.LaneCenter(2) * 2) - 20, 1180, 40, 40, 30, 60, 230);
+        var bigHits = RhythmAnalyzer.Detect(big, 3840, 2160, config);
+        Check("rhythm works at 4K", bigHits.Count == 1 && bigHits[0].Lane == 2, RhythmAnalyzer.Describe(bigHits));
+
+        // colour classification gates
+        Check("classify red", RhythmAnalyzer.TryClassify(220, 30, 40, out var red) && red == 0);
+        Check("classify blue", RhythmAnalyzer.TryClassify(30, 60, 230, out var blue) && blue == 1);
+        Check("classify purple", RhythmAnalyzer.TryClassify(150, 40, 210, out var purple) && purple == 2);
+        Check("classify rejects grey", !RhythmAnalyzer.TryClassify(120, 120, 120, out _));
+
+        // ladder: piece above, tower top below, offset decides release
+        var ladder = MinigameConfig.Parse("top=180;toph=160;tower=760;target=960;tol=26");
+        var aligned = MakeFrame(1920, 1080);
+        PaintBlob(aligned, 1920, 950, 220, 20, 20, 240, 240, 240);   // hanging piece centred at 960
+        PaintBlob(aligned, 1920, 940, 750, 40, 20, 240, 200, 60);    // tower top centred at 960
+        var observation = LadderAnalyzer.Detect(aligned, 1920, 1080, ladder);
+        Check("ladder aligned", observation.Aligned, LadderAnalyzer.Describe(observation));
+
+        var offsetFrame = MakeFrame(1920, 1080);
+        PaintBlob(offsetFrame, 1920, 500, 220, 20, 20, 240, 240, 240);
+        PaintBlob(offsetFrame, 1920, 940, 750, 40, 20, 240, 200, 60);
+        var offsetObservation = LadderAnalyzer.Detect(offsetFrame, 1920, 1080, ladder);
+        Check("ladder not aligned", !offsetObservation.Aligned && offsetObservation.Offset < -100,
+            LadderAnalyzer.Describe(offsetObservation));
+
+        var blank = LadderAnalyzer.Detect(MakeFrame(1920, 1080), 1920, 1080, ladder);
+        Check("ladder empty frame", double.IsNaN(blank.PieceX));
+    }
+
+    private static byte[] MakeFrame(int width, int height)
+    {
+        var pixels = new byte[width * height * 4];
+        for (var index = 0; index < pixels.Length; index += 4)
+        {
+            pixels[index] = 30;      // B
+            pixels[index + 1] = 25;  // G
+            pixels[index + 2] = 20;  // R
+            pixels[index + 3] = 255; // A
+        }
+        return pixels;
+    }
+
+    private static void PaintBlob(byte[] frame, int width, int x0, int y0, int w, int h, byte r, byte g, byte b)
+    {
+        var height = frame.Length / (width * 4);
+        for (var y = Math.Max(0, y0); y < Math.Min(height, y0 + h); y++)
+        for (var x = Math.Max(0, x0); x < Math.Min(width, x0 + w); x++)
+        {
+            var index = (y * width + x) * 4;
+            frame[index] = b;
+            frame[index + 1] = g;
+            frame[index + 2] = r;
+            frame[index + 3] = 255;
+        }
     }
 
     private static void GachaChecks()

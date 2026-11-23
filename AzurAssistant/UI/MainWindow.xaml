@@ -428,31 +428,65 @@
        </StackPanel>
        <StackPanel x:Name="MinigamePage" Visibility="{Binding IsMinigamePage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="司凤小游戏" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
-        <TextBlock Text="小游戏辅助（花瓣音游、祖赞卡之梯）。识别思路参考 OK-AzurPromilia 的公开实现，本项目用 C# 重写；接入前需要先确认授权方式。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16" />
+        <TextBlock Text="花瓣音游与祖赞卡之梯的识别 + 自动按键。识别只读画面；按键只在游戏处于前台时发送。先「连接」画面，再打开自动开关；参数可边跑边调。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+         <Button Content="先看一眼（不按键）" Click="OnMinigameAnalyzeOnce" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="小游戏分析一帧" />
+         <Button Content="全部停止" Click="OnMinigameStop" Padding="12,6" AutomationProperties.Name="停止小游戏辅助" />
+        </StackPanel>
 
         <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18,16" Margin="0,0,0,12">
          <StackPanel>
-          <TextBlock Text="花瓣音游" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
-          <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Text="要做的事：在音游玩法里识别轨道上的落点（按颜色区分）与判定线位置，按到达时机自动按键。" />
-          <TextBlock FontSize="11" Foreground="{DynamicResource Subtle}" TextWrapping="Wrap" Margin="0,6,0,0" Text="需要的输入：客户区画面（已连接即可）、三个颜色的判定容差、判定线所在的高度。识别只读画面，不发送输入。" />
+          <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding MinigameRhythmAuto}" Margin="0,0,0,8" AutomationProperties.Name="音游自动按键"><StackPanel><TextBlock Text="花瓣音游：自动按键" FontWeight="SemiBold" /><TextBlock Text="判定带里出现音符时按对应轨道的键" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+          <Grid Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="判定线 Y" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="1" Text="{Binding MinigameJudgeY, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" AutomationProperties.Name="判定线Y" />
+           <TextBlock Grid.Column="2" Text="判定带高" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="3" Text="{Binding MinigameBandHeight, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" AutomationProperties.Name="判定带高" />
+           <TextBlock Grid.Column="4" Text="轨道数" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="5" Text="{Binding MinigameLaneCount, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="轨道数" />
+          </Grid>
+          <Grid Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="左边界" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="1" Text="{Binding MinigameLaneLeft, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" AutomationProperties.Name="轨道左边界" />
+           <TextBlock Grid.Column="2" Text="右边界" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="3" Text="{Binding MinigameLaneRight, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" AutomationProperties.Name="轨道右边界" />
+           <TextBlock Grid.Column="4" Text="最少像素" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="5" Text="{Binding MinigameMinPixels, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="最少像素" />
+          </Grid>
+          <Grid Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="120" /><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="按键（VK）" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="1" Text="{Binding MinigameKeys, UpdateSourceTrigger=LostFocus}" Margin="0,0,10,0" AutomationProperties.Name="轨道按键" />
+           <TextBlock Grid.Column="2" Text="冷却 ms" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="3" Width="90" HorizontalAlignment="Left" Text="{Binding MinigameCooldownMs, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="按键冷却" />
+          </Grid>
+          <TextBlock Text="{Binding MinigameRhythmText}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" />
          </StackPanel>
         </Border>
 
         <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18,16" Margin="0,0,0,12">
          <StackPanel>
-          <TextBlock Text="祖赞卡之梯" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
-          <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Text="要做的事：识别悬挂件的轮廓与塔顶承接面，判断松手时机，让悬挂件落到正确的位置上。" />
-          <TextBlock FontSize="11" Foreground="{DynamicResource Subtle}" TextWrapping="Wrap" Margin="0,6,0,0" Text="需要的输入：客户区画面、各造型的参考轮廓（可先用截图标注生成）、容差阈值。" />
+          <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding MinigameLadderAuto}" Margin="0,0,0,8" AutomationProperties.Name="卡之梯自动松手"><StackPanel><TextBlock Text="祖赞卡之梯：自动松手" FontWeight="SemiBold" /><TextBlock Text="悬挂件中心与目标列的偏差小于容差时按第一个键" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+          <Grid Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="悬挂区顶" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="1" Text="{Binding MinigameLadderTop, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" AutomationProperties.Name="悬挂区顶部" />
+           <TextBlock Grid.Column="2" Text="高度" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="3" Text="{Binding MinigameLadderTopHeight, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" AutomationProperties.Name="悬挂区高度" />
+           <TextBlock Grid.Column="4" Text="承接面 Y" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="5" Text="{Binding MinigameLadderTowerY, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="承接面Y" />
+          </Grid>
+          <Grid Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="目标 X" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="1" Text="{Binding MinigameLadderTargetX, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" AutomationProperties.Name="目标X" />
+           <TextBlock Grid.Column="2" Text="容差" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="3" Text="{Binding MinigameLadderTolerance, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" AutomationProperties.Name="对齐容差" />
+           <Button Grid.Column="4" Content="按当前画面校准目标" Click="OnMinigameCalibrate" Padding="10,5" Margin="0,0,10,0" AutomationProperties.Name="校准目标列" />
+          </Grid>
+          <TextBlock Text="{Binding MinigameLadderText}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" />
          </StackPanel>
         </Border>
 
-        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18,16">
-         <StackPanel>
-          <TextBlock Text="来源与授权" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
-          <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Text="参考实现：github.com/longer-sausage/OK-AzurPromilia（AGPL-3.0）。若直接移植其代码，本程序也需按 AGPL-3.0 发布并提供源码；如不希望这样，则按公开玩法独立实现，仅借鉴思路与参数含义。" />
-          <TextBlock FontSize="11" Foreground="{DynamicResource Subtle}" TextWrapping="Wrap" Margin="0,6,0,0" Text="当前状态：页面与入口已就绪，识别与自动操作尚未接入。" />
-         </StackPanel>
-        </Border>
+        <TextBlock Text="{Binding MinigameStatus}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <TextBlock FontSize="10" Foreground="{DynamicResource Subtle}" TextWrapping="Wrap" Text="说明：坐标都是 1920×1080 参考空间；按键填虚拟键码（1=49、2=50、3=51、空格=32、Z=90）。识别按颜色（红/蓝/紫）分轨道，参数不合适就改「最少像素」和判定带高度。" />
        </StackPanel>
        <StackPanel x:Name="RealtimePage" Visibility="{Binding IsRealtimePage, Converter={StaticResource BoolVisibility}}">
         <Grid Margin="0,0,0,12"><TextBlock Text="辅助选项" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" /><Button x:Name="RealtimePageStartButton" Content="运行实时辅助" Click="OnStartRealtime" IsEnabled="{Binding CanStartRealtime}" Style="{StaticResource PrimaryAction}" HorizontalAlignment="Right" /></Grid>

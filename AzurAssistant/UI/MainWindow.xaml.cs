@@ -1057,6 +1057,12 @@ public partial class MainWindow : Window
         CoverAdjustButton.Content = _coverAdjusting ? "退出调整（保存）" : "调整位置（拖动）";
     }
 
+    private void OnMinigameAnalyzeOnce(object sender, RoutedEventArgs e) => ViewModel.AnalyzeMinigameOnce();
+
+    private void OnMinigameStop(object sender, RoutedEventArgs e) => ViewModel.StopMinigame();
+
+    private void OnMinigameCalibrate(object sender, RoutedEventArgs e) => ViewModel.CalibrateLadderTarget();
+
     private async void OnLedgerFromScreen(object sender, RoutedEventArgs e) => await ViewModel.BookLedgerFromScreenAsync();
 
     private void OnLedgerFromText(object sender, RoutedEventArgs e) => ViewModel.BookLedgerText();
