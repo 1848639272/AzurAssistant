@@ -87,6 +87,10 @@ public partial class MainWindow : Window
         };
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
         _reminderTimer.Start();
+        TaskbarItemInfo = new System.Windows.Shell.TaskbarItemInfo();
+        _progressTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _progressTimer.Tick += (_, _) => UpdateTaskbarProgress();
+        _progressTimer.Start();
         if (ViewModel.TaskRunnerInternal is { } runner) runner.RunCompleted += result => Dispatcher.BeginInvoke(() => OnRunCompleted(result));
         ApplyAppearance();
         _refresh.Start();
@@ -1039,6 +1043,7 @@ public partial class MainWindow : Window
     // ---- 扩展功能：UID 遮挡 ----
     private UidCoverController? _uidCover;
     private DispatcherTimer? _reminderTimer;
+    private DispatcherTimer? _progressTimer;
     private bool _coverAdjusting;
 
     private void OnToggleCoverAdjust(object sender, RoutedEventArgs e)
@@ -1166,6 +1171,29 @@ public partial class MainWindow : Window
         menu.Items.Add(new Separator());
         menu.Items.Add(exit);
         menu.IsOpen = true;
+    }
+
+    /// <summary>Drives the taskbar progress bar and the HUD "remaining" hint from the run history estimate.</summary>
+    private void UpdateTaskbarProgress()
+    {
+        if (TaskbarItemInfo is not { } taskbar) return;
+        var runner = ViewModel.TaskRunnerInternal;
+        if (runner is null || !runner.IsRunning || runner.StartedAt is not { } started)
+        {
+            if (taskbar.ProgressState != System.Windows.Shell.TaskbarItemProgressState.None)
+            {
+                taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
+                taskbar.Description = "";
+            }
+            return;
+        }
+        var elapsed = (DateTimeOffset.Now - started).TotalSeconds;
+        var estimate = ViewModel.EstimateTaskSeconds(runner.CurrentTaskName);
+        var remaining = TaskDurationEstimator.Remaining(elapsed, estimate);
+        taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+        taskbar.ProgressValue = TaskDurationEstimator.Progress(elapsed, estimate, running: true);
+        taskbar.Description = remaining.Length > 0 ? remaining : runner.CurrentTaskName;
+        if (remaining.Length > 0 && ViewModel.HudDetail != remaining) ViewModel.SetHudDetail(remaining);
     }
 
     /// <summary>Shows a bottom-right notification on the configured monitor.</summary>

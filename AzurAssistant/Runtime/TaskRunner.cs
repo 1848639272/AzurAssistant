@@ -22,6 +22,12 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
     public bool IsPaused { get { lock (_gate) return _running && _session?.Execution.IsPaused == true; } }
     public string Status { get; private set; } = "等待开始";
     public TaskResult? LastResult { get; private set; }
+
+    /// <summary>Name of the running task (what the duration estimate is keyed on).</summary>
+    public string CurrentTaskName { get { lock (_gate) return _runTaskName ?? ""; } }
+
+    /// <summary>When the running task started; null while idle.</summary>
+    public DateTimeOffset? StartedAt { get { lock (_gate) return _runStartedAt; } }
     /// <summary>Raised once per finished run, on the run's continuation thread.</summary>
     public event Action<TaskResult>? RunCompleted;
     public bool RequiresElevation { get; private set; }

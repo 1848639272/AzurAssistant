@@ -11,10 +11,47 @@ public partial class App : Application
     private Mutex? _instance;
     private bool _ownsInstance;
     private DailyLogStore? _log;
+    /// <summary>
+    /// Writes a crash trace plus a diagnostic bundle whenever the UI thread, the runtime or a background task throws
+    /// unhandled. UI-thread failures are marked handled so a single bad click does not end the session.
+    /// </summary>
+    private void InstallCrashHandlers()
+    {
+        DispatcherUnhandledException += (_, args) =>
+        {
+            var bundle = WriteCrashBundle("UI 线程", args.Exception);
+            args.Handled = true;
+            var message = "助手遇到一个未处理的错误，已记录。"
+                + (bundle is null ? "" : Environment.NewLine + "诊断包：" + bundle)
+                + Environment.NewLine + Environment.NewLine + args.Exception.Message;
+            MessageBox.Show(message, "蔚蓝助手");
+        };
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            if (args.ExceptionObject is Exception exception) WriteCrashBundle("后台线程", exception);
+        };
+        System.Threading.Tasks.TaskScheduler.UnobservedTaskException += (_, args) =>
+        {
+            WriteCrashBundle("未观察的任务", args.Exception);
+            args.SetObserved();
+        };
+    }
+
+    private string? WriteCrashBundle(string source, Exception exception)
+    {
+        var directory = Path.Combine(Bootstrapper.DataRoot(), "crashes");
+        var log = _log;
+        return CrashReporter.Report(directory, source, exception,
+            path => log is null
+                ? path
+                : new DiagnosticBundle(Bootstrapper.DataRoot(), log).Create(path));
+    }
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         _log = new DailyLogStore(Path.Combine(Bootstrapper.DataRoot(), "logs"));
+        InstallCrashHandlers();
         _log.Write("助手进程启动：AzurAssistant.exe；目标游戏进程：AzurPromilia.exe");
         var automatic = e.Args.Contains("--run-daily") || e.Args.Contains("--exit-after-daily");
         void FailStartup(string message)

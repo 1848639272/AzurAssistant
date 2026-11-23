@@ -310,6 +310,10 @@ public sealed partial class MainViewModel
     /// <summary>Restarts the assistant through the same path the settings page uses.</summary>
     public bool TryRestartAssistant() => restartAssistant?.Invoke() == true;
 
+    /// <summary>Average seconds this task took historically, or null when there is no usable history.</summary>
+    public double? EstimateTaskSeconds(string taskName)
+        => _runHistory is null ? null : TaskDurationEstimator.AverageSeconds(_runHistory.ListAll(), taskName);
+
     // ---- 运行报表 ----
     public void RefreshRunHistory()
     {

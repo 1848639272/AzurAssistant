@@ -104,12 +104,22 @@ public sealed partial class MainViewModel
     public string OverlayMonitorLabel => DisplayMonitors.Resolve(Settings.OverlayMonitor)?.Label ?? "未检测到显示器";
 
     /// <summary>Second line of the floating panel: connection state plus run state.</summary>
+    private string _hudRemaining = "";
+
+    /// <summary>Shows the estimated remaining time on the floating panel.</summary>
+    public void SetHudDetail(string text)
+    {
+        if (_hudRemaining == text) return;
+        _hudRemaining = text;
+        Notify(nameof(HudDetail));
+    }
+
     public string HudDetail
     {
         get
         {
             var state = IsPaused ? "已暂停" : (Runner?.IsRunning == true ? "运行中" : "空闲");
-            return $"{StateText} · {state}";
+            return _hudRemaining.Length > 0 ? $"{StateText} · {state} · {_hudRemaining}" : $"{StateText} · {state}";
         }
     }
 }
