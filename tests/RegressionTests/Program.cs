@@ -254,6 +254,20 @@ internal static class Program
         Check("lane centres", Math.Abs(config.LaneCenter(0) - 786.67) < 0.5 && Math.Abs(config.LaneCenter(2) - 1133.33) < 0.5,
             $"{config.LaneCenter(0):F1}/{config.LaneCenter(2):F1}");
 
+        // ported reference detector: colour bounds and layout math must match the original constants
+        Check("reference colour bounds",
+            RhythmDetector.Colors["blue"].Lower.Val0 == 85 && RhythmDetector.Colors["blue"].Upper.Val0 == 112
+            && RhythmDetector.Colors["red"].Lower.Val0 == 155 && RhythmDetector.Colors["purple"].Upper.Val0 == 145,
+            string.Join(" ", RhythmDetector.Colors.Keys));
+        var layout1080 = RhythmLayout.ForFrame(1920, 1080);
+        var layout4k = RhythmLayout.ForFrame(3840, 2160);
+        Check("layout scale", Math.Abs(layout1080.Scale - 1) < 1e-9 && Math.Abs(layout4k.Scale - 2) < 1e-9
+            && layout1080.XOffset == 0, $"{layout1080.Scale}/{layout4k.Scale}");
+        Check("layout letterbox", RhythmLayout.ForFrame(2560, 1080).XOffset > 0,
+            RhythmLayout.ForFrame(2560, 1080).XOffset.ToString("F1"));
+        Check("judge line", Math.Abs(RhythmDetector.JudgeX - 587) < 1e-9
+            && RhythmDetector.LegendY.SequenceEqual([678, 726, 774]));
+
         // synthetic 1920x1080 frame: a red blob in lane 1, a blue blob in lane 3, on the judge line
         var frame = MakeFrame(1920, 1080);
         PaintBlob(frame, 1920, (int)config.LaneCenter(1) - 10, 590, 20, 20, 220, 30, 40);   // red

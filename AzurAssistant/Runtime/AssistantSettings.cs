@@ -41,6 +41,10 @@ public sealed record AssistantSettings
     public string MinigameConfigText { get; init; } = "";
     public bool MinigameRhythmAuto { get; init; }
     public bool MinigameLadderAuto { get; init; }
+    /// <summary>Use the ported reference detector (layout calibration + note heads) instead of the simple colour bands.</summary>
+    public bool MinigameReferenceRhythm { get; init; }
+    /// <summary>Press when the note head is within this many reference pixels of the judge line.</summary>
+    public int MinigameTriggerWindow { get; init; } = 120;
     /// <summary>关闭窗口时的行为：ask=每次询问，exit=总是完全关闭，tray=总是收到托盘。</summary>
     public string CloseAction { get; init; } = "ask";
     /// <summary>是否显示悬浮窗（HUD）。</summary>

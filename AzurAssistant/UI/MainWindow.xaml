@@ -464,6 +464,8 @@
            <TextBox Grid.Column="7" Width="90" HorizontalAlignment="Left" Text="{Binding MinigameCooldownMs, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="按键冷却" />
           </Grid>
           <TextBlock FontSize="10" Foreground="{DynamicResource Subtle}" TextWrapping="Wrap" Margin="0,0,0,4" Text="键值用虚拟键码：E=69、Q=81、空格=32、1=49。紫色默认 69+81，会同时按下两个键。" />
+          <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding MinigameReferenceRhythm}" Margin="0,6,0,4" AutomationProperties.Name="使用参考实现识别"><StackPanel><TextBlock Text="使用参考实现的精确识别" FontWeight="SemiBold" /><TextBlock Text="按 OK-AzurPromilia 的算法校准 UI 图例并识别音符头（AGPL-3.0）" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,4"><TextBlock Text="触发窗口（参考像素）" VerticalAlignment="Center" FontSize="11" Margin="0,0,8,0" /><TextBox Width="80" Text="{Binding MinigameTriggerWindow, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="触发窗口" /><TextBlock Text="音符头离判定线多近就按键，默认 120" VerticalAlignment="Center" FontSize="10" Foreground="{DynamicResource Subtle}" Margin="8,0,0,0" /></StackPanel>
           <TextBlock Text="{Binding MinigameRhythmText}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" />
          </StackPanel>
         </Border>

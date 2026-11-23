@@ -9,6 +9,7 @@ namespace AzurAssistant.UI;
 public sealed partial class MainViewModel
 {
     private DispatcherTimer? _minigameTimer;
+    private RhythmDetector? _rhythmDetector;
     private readonly Dictionary<int, DateTimeOffset> _laneCooldown = new();
     private DateTimeOffset _ladderLastTap;
     private string _minigameStatus = "先连接游戏画面，再打开下面的自动开关。识别只读画面；按键只在游戏处于前台时发送。";
@@ -34,6 +35,29 @@ public sealed partial class MainViewModel
         {
             if (value == Settings.MinigameLadderAuto) return;
             if (SaveSettings(Settings with { MinigameLadderAuto = value })) { Notify(); UpdateMinigameTimer(); }
+        }
+    }
+
+    /// <summary>Uses the ported reference detector (AGPL, see reference/ok-azurpromilia) instead of the simple bands.</summary>
+    public bool MinigameReferenceRhythm
+    {
+        get => Settings.MinigameReferenceRhythm;
+        set
+        {
+            if (value == Settings.MinigameReferenceRhythm) return;
+            if (SaveSettings(Settings with { MinigameReferenceRhythm = value })) { Notify(); }
+        }
+    }
+
+    /// <summary>How close (reference px) the note head must be to the judge line before pressing.</summary>
+    public int MinigameTriggerWindow
+    {
+        get => Settings.MinigameTriggerWindow;
+        set
+        {
+            var clamped = Math.Clamp(value, 20, 600);
+            if (clamped == Settings.MinigameTriggerWindow) return;
+            if (SaveSettings(Settings with { MinigameTriggerWindow = clamped })) Notify();
         }
     }
 
@@ -145,7 +169,31 @@ public sealed partial class MainViewModel
         var pixels = frame.Pixels.Span;
         var now = DateTimeOffset.Now;
 
-        if (MinigameRhythmAuto)
+        if (MinigameRhythmAuto && MinigameReferenceRhythm)
+        {
+            _rhythmDetector ??= new RhythmDetector();
+            var bytes = frame.Pixels.ToArray();
+            if (!_rhythmDetector.IsActive(bytes, frame.Width, frame.Height))
+            {
+                MinigameRhythmText = "参考识别：没找到右上角的颜色图例，先把游戏切到音游界面。";
+            }
+            else
+            {
+                var notes = _rhythmDetector.Detect(bytes, frame.Width, frame.Height);
+                MinigameRhythmText = RhythmDetector.Describe(notes);
+                foreach (var note in notes)
+                {
+                    if (Math.Abs(note.Head - RhythmDetector.JudgeX) > MinigameTriggerWindow) continue;
+                    var lane = Math.Clamp((int)Math.Round(note.Head), 0, 7);
+                    if (_laneCooldown.TryGetValue(lane, out var last) && now - last < TimeSpan.FromMilliseconds(config.CooldownMs)) continue;
+                    if (!SyntheticInput.IsForegroundOf(frame.ProcessId)) { MinigameStatus = "游戏不在前台，按键已暂停。"; break; }
+                    var combo = config.KeysFor(note.Color);
+                    if (combo.Length > 0) SyntheticInput.TapCombo(combo.Select(key => (ushort)key).ToArray());
+                    _laneCooldown[lane] = now;
+                }
+            }
+        }
+        else if (MinigameRhythmAuto)
         {
             var hits = RhythmAnalyzer.Detect(pixels, frame.Width, frame.Height, config);
             MinigameRhythmText = RhythmAnalyzer.Describe(hits);
