@@ -34,15 +34,30 @@ public sealed class TaskHotkeys : IDisposable
     }
 
     public TaskHotkeys(nint handle, string pauseHotkey, string stopHotkey, Func<Task> pause, Func<Task> stop,
-        Action<string> reportFailure, IGlobalHotkeyApi? api = null)
+        Action<string> reportFailure, IGlobalHotkeyApi? api = null, string? coverHotkey = null, Func<Task>? cover = null)
     {
         if (!HotkeyBinding.TryParsePair(pauseHotkey, stopHotkey, out var pauseBinding, out var stopBinding, out var error))
             throw new ArgumentException(error);
+        IReadOnlyList<Entry> entries;
+        if (cover is not null && !string.IsNullOrWhiteSpace(coverHotkey)
+            && HotkeyBinding.TryParse(coverHotkey, out var coverBinding, out _))
+        {
+            entries =
+            [
+                new(0x415A, "暂停 / 继续", pauseBinding, pause),
+                new(0x415B, "停止所有任务", stopBinding, stop),
+                new(0x415C, "开关 UID 遮挡", coverBinding, cover),
+            ];
+        }
+        else
+        {
+            entries = [new(0x415A, "暂停 / 继续", pauseBinding, pause), new(0x415B, "停止所有任务", stopBinding, stop)];
+        }
         _handle = handle;
         _source = HwndSource.FromHwnd(handle) ?? throw new ArgumentException("快捷键需要已创建的助手窗口。", nameof(handle));
         _api = api ?? new NativeHotkeyApi();
         _reportFailure = reportFailure;
-        _entries = [new(0x415A, "暂停 / 继续", pauseBinding, pause), new(0x415B, "停止所有任务", stopBinding, stop)];
+        _entries = [.. entries];
         _source.AddHook(OnMessage);
         RegisterAll();
     }

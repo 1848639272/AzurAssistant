@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Threading;
 using AzurAssistant.Platform;
 using AzurAssistant.Runtime;
@@ -7,26 +8,30 @@ using AzurAssistant.Runtime;
 namespace AzurAssistant.UI;
 
 /// <summary>
-/// Owns the click-through overlay: follows the game client area (or the assistant window when previewing),
-/// positions the cover rectangle and reports a status line. It keeps working while the game is not running.
+/// Owns the click-through overlay: follows the game client area (or the assistant window when previewing), places one
+/// or more covers and reports a status line. It keeps working while the game is not running.
 /// </summary>
 public sealed class UidCoverController(Window owner, Action<string> reportStatus)
 {
     private readonly DispatcherTimer _follow = new() { Interval = TimeSpan.FromMilliseconds(150) };
     private GameOverlayWindow? _window;
-    private CoverRequest _request = new(false, false, UidCoverGeometry.DefaultX, UidCoverGeometry.DefaultY,
-        UidCoverGeometry.DefaultWidth, UidCoverGeometry.DefaultHeight);
-    private int _coverSaveGuard;
+    private CoverRequest _request = CoverRequest.Default;
     private int _clientWidth;
     private int _clientHeight;
     private double _dpiScale = 1;
 
-    public sealed record CoverRequest(bool Enabled, bool PreviewOnSelf, int X, int Y, int Width, int Height);
+    /// <summary>Everything the overlay needs: which boxes, how they look and whether it is shown at all.</summary>
+    public sealed record CoverRequest(bool Enabled, bool PreviewOnSelf, IReadOnlyList<CoverBox> Boxes, string Style, string Color)
+    {
+        public static CoverRequest Default => new(false, false, [CoverBox.Default], CoverStyles.Solid, "#FFFFFF");
+    }
 
-    /// <summary>Raised when the user dragged the box: x, y, width, height in physical pixels.</summary>
-    public event Action<int, int, int, int>? CoverChanged;
+    /// <summary>Raised when the user dragged a box in adjust mode (index, new box).</summary>
+    public event Action<int, CoverBox>? BoxChanged;
 
     public bool IsAdjusting => _window?.IsAdjusting == true;
+
+    public bool Enabled => _request.Enabled;
 
     public void Start()
     {
@@ -53,7 +58,13 @@ public sealed class UidCoverController(Window owner, Action<string> reportStatus
         Refresh();
     }
 
-    /// <summary>Enters/leaves adjust mode; the overlay becomes interactive so the box can be dragged.</summary>
+    /// <summary>Turns the cover on/off without touching the saved setting (used by the hotkey and the tray menu).</summary>
+    public void SetEnabled(bool enabled)
+    {
+        _request = _request with { Enabled = enabled };
+        Update(_request);
+    }
+
     public void SetAdjusting(bool adjusting)
     {
         if (!_request.Enabled && adjusting)
@@ -65,7 +76,7 @@ public sealed class UidCoverController(Window owner, Action<string> reportStatus
         if (_window is null) return;
         _window.SetAdjusting(adjusting);
         reportStatus(adjusting
-            ? "调整中：拖动白框移动、右下角绿点缩放；改完点「退出调整」保存。"
+            ? "调整中：拖动遮挡块移动；改完点「退出调整」保存。"
             : "已保存位置。");
     }
 
@@ -76,9 +87,7 @@ public sealed class UidCoverController(Window owner, Action<string> reportStatus
             _window?.Hide();
             return;
         }
-
-        if (!TryTarget(out var clientX, out var clientY, out var clientWidth, out var clientHeight, out var scale,
-                out var source))
+        if (!TryTarget(out var clientX, out var clientY, out var clientWidth, out var clientHeight, out var scale, out var source))
         {
             _window?.Hide();
             reportStatus(source);
@@ -88,30 +97,42 @@ public sealed class UidCoverController(Window owner, Action<string> reportStatus
         _clientWidth = clientWidth;
         _clientHeight = clientHeight;
         _dpiScale = scale;
-        var placement = UidCoverGeometry.Compute(clientX, clientY, clientWidth, clientHeight, scale,
-            _request.X, _request.Y, _request.Width, _request.Height);
-        if (!placement.IsValid)
+        var window = new Rect(clientX / scale, clientY / scale, clientWidth / scale, clientHeight / scale);
+        var boxes = _request.Boxes.Count > 0 ? _request.Boxes : [CoverBox.Default];
+        var targets = new List<CoverTarget>();
+        foreach (var box in boxes)
+        {
+            // Reference space -> physical pixels -> DIPs for the overlay, plus the physical screen rectangle.
+            var perX = clientWidth / (double)UidCoverGeometry.ReferenceWidth;
+            var perY = clientHeight / (double)UidCoverGeometry.ReferenceHeight;
+            var physicalX = box.X * perX;
+            var physicalY = box.Y * perY;
+            var physicalWidth = Math.Max(1, box.Width * perX);
+            var physicalHeight = Math.Max(1, box.Height * perY);
+            var dip = new Rect(physicalX / scale, physicalY / scale, physicalWidth / scale, physicalHeight / scale);
+            var screen = new Int32Rect(clientX + (int)Math.Round(physicalX), clientY + (int)Math.Round(physicalY),
+                Math.Max(1, (int)Math.Round(physicalWidth)), Math.Max(1, (int)Math.Round(physicalHeight)));
+            targets.Add(new CoverTarget(dip, screen));
+        }
+        if (targets.Count == 0)
         {
             _window?.Hide();
-            reportStatus("无法计算遮挡位置（客户区尺寸无效）。");
+            reportStatus("没有可用的遮挡框。");
             return;
         }
 
         if (_window is null)
         {
             _window = new GameOverlayWindow();
-            _window.CoverChanged += rect =>
-            {
-                if (_coverSaveGuard > 0) return;
-                var (x, y, w, h) = UidCoverGeometry.ToReference(rect.X, rect.Y, rect.Width, rect.Height,
-                    _clientWidth, _clientHeight, _dpiScale);
-                CoverChanged?.Invoke(x, y, w, h);
-            };
+            _window.BoxChanged += (index, box) => BoxChanged?.Invoke(index, box);
         }
-        _window.Apply(placement);
+        var color = PixelColor.TryParse(_request.Color, out var r, out var g, out var b)
+            ? Color.FromRgb(r, g, b)
+            : Colors.White;
+        _window.Apply(window, targets, boxes, _request.Style, color);
         if (!_window.IsVisible) _window.Show();
-        reportStatus($"遮挡中：{_request.Width}×{_request.Height} @ ({_request.X}, {_request.Y}) · {source}"
-            + (IsAdjusting ? " · 调整模式" : ""));
+        var styleLabel = CoverStyles.Normalize(_request.Style) == CoverStyles.Mosaic ? "马赛克" : "纯色 " + _request.Color;
+        reportStatus($"{targets.Count} 块遮挡（{styleLabel}）· {source}" + (IsAdjusting ? " · 调整模式" : ""));
     }
 
     /// <summary>Resolves the client rect plus DPI scale of the game window, or of the assistant window for preview.</summary>
@@ -187,6 +208,4 @@ public sealed class UidCoverController(Window owner, Action<string> reportStatus
         }
         catch (EntryPointNotFoundException) { return 1; }
     }
-
-
 }

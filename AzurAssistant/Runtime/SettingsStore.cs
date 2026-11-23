@@ -76,6 +76,8 @@ public sealed class SettingsStore
             throw new InvalidDataException("体力提醒间隔应在 0–1440 分钟之间。");
         if (value.CoverUidX is < 0 or > 8192 || value.CoverUidY is < 0 or > 8192)
             throw new InvalidDataException("UID 遮挡的位置应在 0–8192 像素之间。");
+        if (value.CoverUidStyle is not ("solid" or "mosaic")) throw new InvalidDataException("遮挡样式无效。");
+        if (!PixelColor.TryParse(value.CoverUidColor, out _, out _, out _)) throw new InvalidDataException("遮挡颜色需为 #RRGGBB。");
         if (value.CoverUidWidth is < 1 or > 4096 || value.CoverUidHeight is < 1 or > 4096)
             throw new InvalidDataException("UID 遮挡的尺寸应在 1–4096 像素之间。");
         if (value.StepTimeoutSeconds is < 3 or > 300) throw new InvalidDataException("单步超时应在 3–300 秒之间。");

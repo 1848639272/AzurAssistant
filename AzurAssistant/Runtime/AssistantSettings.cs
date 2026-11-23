@@ -23,6 +23,12 @@ public sealed record AssistantSettings
     public int CoverUidY { get; init; } = 1026;
     public int CoverUidWidth { get; init; } = 132;
     public int CoverUidHeight { get; init; } = 26;
+    /// <summary>遮挡样式：solid（纯色）或 mosaic（马赛克）。</summary>
+    public string CoverUidStyle { get; init; } = "solid";
+    /// <summary>纯色遮挡的颜色，格式 #RRGGBB。</summary>
+    public string CoverUidColor { get; init; } = "#FFFFFF";
+    /// <summary>遮挡框列表，格式 "x,y,w,h;x,y,w,h"（1920×1080 参考空间）；为空时用上面的单框。</summary>
+    public string CoverUidBoxes { get; init; } = "";
     /// <summary>没有游戏窗口时，把遮挡层贴在本程序窗口上预览。</summary>
     public bool CoverUidPreviewOnSelf { get; init; }
     /// <summary>每日重置提醒（04:00 体力/委托刷新）。</summary>

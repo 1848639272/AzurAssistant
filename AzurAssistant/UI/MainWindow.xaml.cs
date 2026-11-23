@@ -70,21 +70,23 @@ public partial class MainWindow : Window
         ViewModel.RefreshMonitors();
         ApplyOverlays();
         _uidCover = new UidCoverController(this, ViewModel.SetCoverUidStatus);
-        _uidCover.CoverChanged += (x, y, w, h) =>
+        _uidCover.BoxChanged += (index, box) =>
         {
-            ViewModel.SaveCoverUidRect(x, y, w, h);
+            ViewModel.SaveCoverBoxAt(index, box);
             _uidCover?.Update(ViewModel.CoverUidRequest);
         };
         _uidCover.Start();
         ApplyUidCover();
+        ViewModel.RefreshCoverBoxRows();
+        CoverStyleBox.SelectedIndex = ViewModel.CoverUidStyle == "mosaic" ? 1 : 0;
         ViewModel.LoadReminderState();
         _reminderTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
         _reminderTimer.Tick += (_, _) =>
         {
             foreach (var reminder in ViewModel.TakeDueReminders()) ShowToast(reminder.Title, reminder.Message);
         };
-        _reminderTimer.Start();
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+        _reminderTimer.Start();
         if (ViewModel.TaskRunnerInternal is { } runner) runner.RunCompleted += result => Dispatcher.BeginInvoke(() => OnRunCompleted(result));
         ApplyAppearance();
         _refresh.Start();
@@ -1045,6 +1047,27 @@ public partial class MainWindow : Window
         _coverAdjusting = !_coverAdjusting;
         _uidCover.SetAdjusting(_coverAdjusting);
         CoverAdjustButton.Content = _coverAdjusting ? "退出调整（保存）" : "调整位置（拖动）";
+    }
+
+    private void OnCoverStyleChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // Fires while the XAML is still loading; the view model is not attached yet.
+        if (!IsLoaded) return;
+        if (CoverStyleBox.SelectedItem is not ComboBoxItem { Tag: string tag }) return;
+        ViewModel.CoverUidStyle = tag;
+        ApplyUidCover();
+    }
+
+    private void OnAddCoverBox(object sender, RoutedEventArgs e)
+    {
+        ViewModel.AddCoverBox();
+        ApplyUidCover();
+    }
+
+    private void OnRemoveCoverBox(object sender, RoutedEventArgs e)
+    {
+        ViewModel.RemoveCoverBox(ViewModel.CoverBoxRows.Count - 1);
+        ApplyUidCover();
     }
 
     private void OnPickCoordinate(object sender, RoutedEventArgs e)

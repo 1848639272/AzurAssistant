@@ -880,6 +880,31 @@
         <TextBlock Text="用一块完全不透明的纯白矩形盖住画面左下角的「UID:xxxxx」。矩形跟随游戏客户区，游戏窗口移动/缩放时会自动跟着走；平时这层不挡鼠标（可正常点游戏）。位置和长度都能自己调。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
         <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding CoverUidEnabled}" Margin="0,0,0,10" AutomationProperties.Name="启用UID遮挡"><StackPanel><TextBlock Text="启用 UID 遮挡" FontWeight="SemiBold" /><TextBlock Text="勾选后立刻生效；未开游戏时不会显示" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
         <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding CoverUidPreviewOnSelf}" Margin="0,0,0,12" AutomationProperties.Name="在本窗口预览"><StackPanel><TextBlock Text="在本窗口预览" FontWeight="SemiBold" /><TextBlock Text="没开游戏时，把遮挡层贴在本程序窗口上，方便先摆位置" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="140" /><ColumnDefinition Width="70" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <TextBlock Text="样式" VerticalAlignment="Center" />
+         <ComboBox x:Name="CoverStyleBox" Grid.Column="1" SelectionChanged="OnCoverStyleChanged" Margin="0,0,12,0" AutomationProperties.Name="遮挡样式">
+          <ComboBoxItem Content="纯色" Tag="solid" />
+          <ComboBoxItem Content="马赛克" Tag="mosaic" />
+         </ComboBox>
+         <TextBlock Grid.Column="2" Text="颜色" VerticalAlignment="Center" Margin="0,0,6,0" />
+         <TextBox Grid.Column="3" Text="{Binding CoverUidColor, UpdateSourceTrigger=LostFocus}" Margin="0,0,12,0" AutomationProperties.Name="遮挡颜色" />
+         <TextBlock Grid.Column="4" Text="纯色用 #RRGGBB；马赛克会实时抓取底下的画面做像素化" VerticalAlignment="Center" FontSize="10" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+        </Grid>
+        <TextBlock Text="遮挡框（1920×1080 参考空间，最多 8 个；用「调整位置」可在游戏画面上直接拖动）" FontSize="10" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,4" />
+        <ItemsControl ItemsSource="{Binding CoverBoxRows}" Margin="0,0,0,6">
+         <ItemsControl.ItemTemplate><DataTemplate>
+          <Border Background="{DynamicResource TileBackground}" CornerRadius="6" Padding="8,5" Margin="0,0,0,4">
+           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="150" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Label}" FontSize="11" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Text="{Binding Describe}" FontFamily="Consolas" FontSize="11" VerticalAlignment="Center" />
+           </Grid>
+          </Border>
+         </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+         <Button Content="添加遮挡框" Click="OnAddCoverBox" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="添加遮挡框" />
+         <Button Content="删除最后一个" Click="OnRemoveCoverBox" Padding="12,6" />
+        </StackPanel>
         <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="110" /><ColumnDefinition Width="70" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
          <TextBlock Text="左边距 X" VerticalAlignment="Center" FontSize="12" />
          <TextBox Grid.Column="1" Text="{Binding CoverUidX}" Margin="0,0,14,0" AutomationProperties.Name="遮挡左偏移" />

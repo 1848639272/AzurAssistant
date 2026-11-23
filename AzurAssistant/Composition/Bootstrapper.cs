@@ -121,7 +121,13 @@ public static class Bootstrapper
             if (!enableGlobalHotkeys) return;
             hotkeys = new TaskHotkeys(new System.Windows.Interop.WindowInteropHelper(window).Handle,
                 automation.EffectiveSettings.PauseHotkey, automation.EffectiveSettings.StopHotkey,
-                window.TogglePauseFromHotkeyAsync, window.ViewModel.StopTaskAsync, ReportHotkeyFailure);
+                window.TogglePauseFromHotkeyAsync, window.ViewModel.StopTaskAsync, ReportHotkeyFailure, api: null,
+                coverHotkey: "Ctrl+Alt+U",
+                cover: () =>
+                {
+                    window.Dispatcher.Invoke(window.ViewModel.ToggleCoverUid);
+                    return Task.CompletedTask;
+                });
         };
         window.HotkeyCaptureChanged += suspended => hotkeys?.SetSuspended(suspended);
         window.Loaded += (_, _) =>

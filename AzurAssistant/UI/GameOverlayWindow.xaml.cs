@@ -1,16 +1,23 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Shapes;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using AzurAssistant.Platform;
 using AzurAssistant.Runtime;
 
 namespace AzurAssistant.UI;
 
+/// <summary>One cover to paint: where it sits in the window (DIPs) and which screen pixels it hides.</summary>
+public readonly record struct CoverTarget(Rect Dip, Int32Rect Screen);
+
 /// <summary>
-/// Transparent, click-through overlay that follows a target window's client area and paints an opaque cover
-/// rectangle (UID mask). While adjusting it becomes interactive so the box can be dragged and resized.
+/// Transparent, click-through overlay that follows a target window's client area and paints one or more covers.
+/// A cover is either an opaque colour block or a live mosaic built from a capture of what is underneath; the window
+/// excludes itself from capture, so the read-back is the game rather than the cover.
 /// </summary>
 public partial class GameOverlayWindow : Window
 {
@@ -25,144 +32,142 @@ public partial class GameOverlayWindow : Window
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
     private static extern IntPtr SetWindowLongPtr64(IntPtr hwnd, int index, IntPtr value);
 
+    private readonly System.Windows.Threading.DispatcherTimer _mosaic = new() { Interval = TimeSpan.FromMilliseconds(400) };
+    private readonly List<FrameworkElement> _visuals = [];
+    private CoverTarget[] _targets = [];
+    private CoverBox[] _boxes = [];
+    private string _style = CoverStyles.Solid;
+    private Color _color = Colors.White;
     private bool _adjusting;
-    private bool _dragging;
-    private bool _resizing;
-    private Point _start;
-    private double _startLeft;
-    private double _startTop;
-    private double _startWidth;
-    private double _startHeight;
 
     public GameOverlayWindow()
     {
         InitializeComponent();
-        SourceInitialized += (_, _) => ApplyClickThrough(clickThrough: true);
+        SourceInitialized += (_, _) =>
+        {
+            ApplyClickThrough(true);
+            ScreenCapture.ExcludeFromCapture(new WindowInteropHelper(this).Handle);
+        };
+        _mosaic.Tick += (_, _) => RefreshMosaic();
     }
 
-    /// <summary>Current cover rectangle in DIPs relative to the client area (updated while dragging).</summary>
-    public Rect CoverRect { get; private set; } = new(UidCoverGeometry.DefaultX, UidCoverGeometry.DefaultY,
-        UidCoverGeometry.DefaultWidth, UidCoverGeometry.DefaultHeight);
-
-    /// <summary>Raised when the user finished dragging/resizing, with the rectangle in physical pixels.</summary>
-    public event Action<Rect>? CoverChanged;
+    /// <summary>Raised when a box was dragged in adjust mode, with the new box in reference space.</summary>
+    public event Action<int, CoverBox>? BoxChanged;
 
     public bool IsAdjusting => _adjusting;
 
-    /// <summary>Places the window and the cover according to the computed placement.</summary>
-    public void Apply(UidCoverPlacement placement)
+    public void Apply(Rect window, IReadOnlyList<CoverTarget> targets, IReadOnlyList<CoverBox> boxes, string style, Color color)
     {
-        if (!placement.IsValid) return;
-        Left = placement.WindowLeft;
-        Top = placement.WindowTop;
-        Width = placement.WindowWidth;
-        Height = placement.WindowHeight;
-        CoverRect = new Rect(placement.CoverLeft, placement.CoverTop, placement.CoverWidth, placement.CoverHeight);
+        Left = window.X;
+        Top = window.Y;
+        Width = window.Width;
+        Height = window.Height;
+        _targets = [.. targets];
+        _boxes = [.. boxes];
+        _style = CoverStyles.Normalize(style);
+        _color = color;
         Render();
+        if (_style == CoverStyles.Mosaic)
+        {
+            if (!_mosaic.IsEnabled) _mosaic.Start();
+            RefreshMosaic();
+        }
+        else _mosaic.Stop();
     }
 
-    /// <summary>Turns the adjust mode on/off: it disables click-through and shows the shade, hint and grip.</summary>
     public void SetAdjusting(bool adjusting)
     {
         _adjusting = adjusting;
         ApplyClickThrough(!adjusting);
-        Shade.Visibility = adjusting ? Visibility.Visible : Visibility.Collapsed;
-        Hint.Visibility = adjusting ? Visibility.Visible : Visibility.Collapsed;
-        Grip.Visibility = adjusting ? Visibility.Visible : Visibility.Collapsed;
-        if (adjusting)
-        {
-            // The window must receive mouse input while adjusting.
-            Show();
-            Activate();
-        }
+        if (adjusting) { Show(); Activate(); }
         Render();
     }
 
     private void Render()
     {
-        Canvas.SetLeft(Cover, CoverRect.X);
-        Canvas.SetTop(Cover, CoverRect.Y);
-        Cover.Width = Math.Max(1, CoverRect.Width);
-        Cover.Height = Math.Max(1, CoverRect.Height);
-        Cover.Visibility = Visibility.Visible;
-
-        var w = ActualWidth > 0 ? ActualWidth : Width;
-        var h = ActualHeight > 0 ? ActualHeight : Height;
-        Shade.Width = w;
-        Shade.Height = h;
-        if (_adjusting)
+        Root.Children.Clear();
+        _visuals.Clear();
+        for (var index = 0; index < _targets.Length; index++)
         {
-            Hint.Text = $"拖动白框移动 · 右下角绿点缩放 · {CoverRect.Width:0}×{CoverRect.Height:0}";
-            Canvas.SetLeft(Hint, 12);
-            Canvas.SetTop(Hint, 12);
-            Canvas.SetLeft(Grip, CoverRect.X + Math.Max(1, CoverRect.Width) - 7);
-            Canvas.SetTop(Grip, CoverRect.Y + Math.Max(1, CoverRect.Height) - 7);
+            var target = _targets[index];
+            FrameworkElement element;
+            if (_style == CoverStyles.Mosaic)
+            {
+                var image = new Image { Stretch = Stretch.Fill };
+                RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
+                element = image;
+            }
+            else
+            {
+                element = new Rectangle { Fill = new SolidColorBrush(_color) };
+            }
+            element.Width = Math.Max(1, target.Dip.Width);
+            element.Height = Math.Max(1, target.Dip.Height);
+            Canvas.SetLeft(element, target.Dip.X);
+            Canvas.SetTop(element, target.Dip.Y);
+            if (_adjusting)
+            {
+                element.Cursor = Cursors.SizeAll;
+                var captured = index;
+                element.MouseLeftButtonDown += (_, args) => BeginDrag(captured, element, args);
+            }
+            Root.Children.Add(element);
+            _visuals.Add(element);
+        }
+        RefreshMosaic();
+    }
+
+    private void RefreshMosaic()
+    {
+        if (_style != CoverStyles.Mosaic) return;
+        for (var index = 0; index < _visuals.Count && index < _targets.Length; index++)
+        {
+            if (_visuals[index] is not Image image) continue;
+            var screen = _targets[index].Screen;
+            var block = Math.Max(3, (int)Math.Round(Math.Max(screen.Width / 22.0, screen.Height / 22.0)));
+            image.Source = ScreenCapture.CaptureMosaic(screen.X, screen.Y, screen.Width, screen.Height, block);
         }
     }
 
-    private void OnCoverMouseDown(object sender, MouseButtonEventArgs e)
+    private void BeginDrag(int index, FrameworkElement element, MouseButtonEventArgs args)
     {
         if (!_adjusting) return;
-        _dragging = true;
-        _start = e.GetPosition(this);
-        _startLeft = CoverRect.X;
-        _startTop = CoverRect.Y;
-        Cover.CaptureMouse();
-        e.Handled = true;
+        var start = args.GetPosition(Root);
+        var originX = Canvas.GetLeft(element);
+        var originY = Canvas.GetTop(element);
+        var offsetX = start.X - originX;
+        var offsetY = start.Y - originY;
+        element.CaptureMouse();
+        element.MouseMove += Move;
+        element.MouseLeftButtonUp += Up;
+        args.Handled = true;
+
+        void Move(object? sender, MouseEventArgs moveArgs)
+        {
+            var current = moveArgs.GetPosition(Root);
+            Canvas.SetLeft(element, Math.Clamp(current.X - offsetX, 0, Math.Max(0, ActualWidth - element.Width)));
+            Canvas.SetTop(element, Math.Clamp(current.Y - offsetY, 0, Math.Max(0, ActualHeight - element.Height)));
+        }
+
+        void Up(object? sender, MouseButtonEventArgs upArgs)
+        {
+            element.ReleaseMouseCapture();
+            element.MouseMove -= Move;
+            element.MouseLeftButtonUp -= Up;
+            if (index < _boxes.Length)
+            {
+                var current = _boxes[index];
+                var scale = _targets[index].Screen.Width / Math.Max(1.0, _targets[index].Dip.Width);
+                _boxes[index] = new CoverBox(
+                    (int)Math.Round(Canvas.GetLeft(element) * scale),
+                    (int)Math.Round(Canvas.GetTop(element) * scale),
+                    (int)Math.Round(element.Width * scale),
+                    (int)Math.Round(element.Height * scale));
+                BoxChanged?.Invoke(index, _boxes[index]);
+                _ = current;
+            }
+        }
     }
-
-    private void OnCoverMouseMove(object sender, MouseEventArgs e)
-    {
-        if (!_adjusting || !_dragging) return;
-        var current = e.GetPosition(this);
-        var x = _startLeft + (current.X - _start.X);
-        var y = _startTop + (current.Y - _start.Y);
-        CoverRect = new Rect(Clamp(x, 0, Math.Max(0, ActualWidth - CoverRect.Width)),
-            Clamp(y, 0, Math.Max(0, ActualHeight - CoverRect.Height)), CoverRect.Width, CoverRect.Height);
-        Render();
-    }
-
-    private void OnCoverMouseUp(object sender, MouseButtonEventArgs e)
-    {
-        if (!_dragging) return;
-        _dragging = false;
-        Cover.ReleaseMouseCapture();
-        RaiseChanged();
-    }
-
-    private void OnGripMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (!_adjusting) return;
-        _resizing = true;
-        _start = e.GetPosition(this);
-        _startWidth = CoverRect.Width;
-        _startHeight = CoverRect.Height;
-        Grip.CaptureMouse();
-        e.Handled = true;
-    }
-
-    private void OnGripMouseMove(object sender, MouseEventArgs e)
-    {
-        if (!_adjusting || !_resizing) return;
-        var current = e.GetPosition(this);
-        var w = Math.Max(8, _startWidth + (current.X - _start.X));
-        var h = Math.Max(8, _startHeight + (current.Y - _start.Y));
-        CoverRect = new Rect(CoverRect.X, CoverRect.Y,
-            Math.Min(w, Math.Max(8, ActualWidth - CoverRect.X)), Math.Min(h, Math.Max(8, ActualHeight - CoverRect.Y)));
-        Render();
-    }
-
-    private void OnGripMouseUp(object sender, MouseButtonEventArgs e)
-    {
-        if (!_resizing) return;
-        _resizing = false;
-        Grip.ReleaseMouseCapture();
-        RaiseChanged();
-    }
-
-    private void RaiseChanged() => CoverChanged?.Invoke(CoverRect);
-
-    private static double Clamp(double value, double min, double max) => value < min ? min : value > max ? max : value;
 
     private void ApplyClickThrough(bool clickThrough)
     {

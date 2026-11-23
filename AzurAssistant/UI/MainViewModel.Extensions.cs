@@ -1,6 +1,18 @@
+using System.Collections.ObjectModel;
 using AzurAssistant.Runtime;
 
 namespace AzurAssistant.UI;
+
+/// <summary>One editable cover box row on the extensions page.</summary>
+public sealed record CoverBoxRow(int Index, AzurAssistant.Runtime.CoverBox Box)
+{
+    public string Label => $"遮挡 {Index}";
+    public int X => Box.X;
+    public int Y => Box.Y;
+    public int Width => Box.Width;
+    public int Height => Box.Height;
+    public string Describe => Box.Describe;
+}
 
 /// <summary>扩展功能：以后各种特殊功能放这里。目前包含 UID 遮挡。</summary>
 public sealed partial class MainViewModel
@@ -51,12 +63,86 @@ public sealed partial class MainViewModel
         set => SetCoverValue(value, 1, 4096, Settings.CoverUidHeight, updated => Settings with { CoverUidHeight = updated });
     }
 
+    /// <summary>Flips the cover on/off (used by the Ctrl+Alt+U hotkey).</summary>
+    public void ToggleCoverUid() => CoverUidEnabled = !CoverUidEnabled;
+
     public string CoverUidStatus { get => _coverUidStatus; private set { _coverUidStatus = value; Notify(); } }
 
     /// <summary>Snapshot used by the overlay controller.</summary>
+    public IReadOnlyList<CoverBox> CoverUidBoxList => CoverBoxes.Resolve(Settings.CoverUidBoxes,
+        Settings.CoverUidX, Settings.CoverUidY, Settings.CoverUidWidth, Settings.CoverUidHeight);
+
     public UidCoverController.CoverRequest CoverUidRequest =>
-        new(Settings.CoverUidEnabled, Settings.CoverUidPreviewOnSelf,
-            Settings.CoverUidX, Settings.CoverUidY, Settings.CoverUidWidth, Settings.CoverUidHeight);
+        new(Settings.CoverUidEnabled, Settings.CoverUidPreviewOnSelf, CoverUidBoxList,
+            Settings.CoverUidStyle, Settings.CoverUidColor);
+
+    public string CoverUidStyle
+    {
+        get => CoverStyles.Normalize(Settings.CoverUidStyle);
+        set
+        {
+            var normalized = CoverStyles.Normalize(value);
+            if (normalized == Settings.CoverUidStyle) return;
+            if (SaveSettings(Settings with { CoverUidStyle = normalized })) { Notify(); NotifyCoverUid(); }
+        }
+    }
+
+    public string CoverUidColor
+    {
+        get => Settings.CoverUidColor;
+        set
+        {
+            if (!PixelColor.TryParse(value, out _, out _, out _)) return;
+            if (value == Settings.CoverUidColor) return;
+            if (SaveSettings(Settings with { CoverUidColor = value })) { Notify(); NotifyCoverUid(); }
+        }
+    }
+
+    public ObservableCollection<CoverBoxRow> CoverBoxRows { get; } = [];
+
+    /// <summary>Rebuilds the editable box rows from the saved list.</summary>
+    public void RefreshCoverBoxRows()
+    {
+        CoverBoxRows.Clear();
+        var index = 1;
+        foreach (var box in CoverUidBoxList) CoverBoxRows.Add(new CoverBoxRow(index++, box));
+        Notify(nameof(CoverBoxRows));
+    }
+
+    public void AddCoverBox()
+    {
+        var boxes = CoverUidBoxList.ToList();
+        if (boxes.Count >= CoverBoxes.MaxBoxes) return;
+        boxes.Add(new CoverBox(800, 900, 320, 120));
+        SaveCoverBoxes(boxes);
+    }
+
+    public void RemoveCoverBox(int index)
+    {
+        var boxes = CoverUidBoxList.ToList();
+        if (index < 0 || index >= boxes.Count || boxes.Count == 1) return;
+        boxes.RemoveAt(index);
+        SaveCoverBoxes(boxes);
+    }
+
+    public void SaveCoverBoxes(IReadOnlyList<CoverBox> boxes)
+    {
+        var clamped = boxes.Select(box => CoverBoxes.Clamp(box.X, box.Y, box.Width, box.Height)).ToList();
+        var text = CoverBoxes.Format(clamped);
+        if (!SaveSettings(Settings with { CoverUidBoxes = text })) return;
+        Notify(nameof(CoverUidBoxList));
+        NotifyCoverUid();
+        RefreshCoverBoxRows();
+    }
+
+    /// <summary>Called when a box was dragged on the overlay.</summary>
+    public void SaveCoverBoxAt(int index, CoverBox box)
+    {
+        var boxes = CoverUidBoxList.ToList();
+        if (index < 0 || index >= boxes.Count) return;
+        boxes[index] = box;
+        SaveCoverBoxes(boxes);
+    }
 
     public void SetCoverUidStatus(string status)
     {
