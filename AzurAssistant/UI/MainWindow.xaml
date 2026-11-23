@@ -453,12 +453,17 @@
            <TextBlock Grid.Column="4" Text="最少像素" VerticalAlignment="Center" FontSize="11" />
            <TextBox Grid.Column="5" Text="{Binding MinigameMinPixels, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="最少像素" />
           </Grid>
-          <Grid Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="120" /><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-           <TextBlock Text="按键（VK）" VerticalAlignment="Center" FontSize="11" />
-           <TextBox Grid.Column="1" Text="{Binding MinigameKeys, UpdateSourceTrigger=LostFocus}" Margin="0,0,10,0" AutomationProperties.Name="轨道按键" />
-           <TextBlock Grid.Column="2" Text="冷却 ms" VerticalAlignment="Center" FontSize="11" />
-           <TextBox Grid.Column="3" Width="90" HorizontalAlignment="Left" Text="{Binding MinigameCooldownMs, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="按键冷却" />
+          <Grid Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="90" /><ColumnDefinition Width="80" /><ColumnDefinition Width="90" /><ColumnDefinition Width="80" /><ColumnDefinition Width="110" /><ColumnDefinition Width="96" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <TextBlock Text="红键" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="1" Text="{Binding MinigameKeyRed, UpdateSourceTrigger=LostFocus}" Margin="0,0,10,0" AutomationProperties.Name="红键" />
+           <TextBlock Grid.Column="2" Text="蓝键" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="3" Text="{Binding MinigameKeyBlue, UpdateSourceTrigger=LostFocus}" Margin="0,0,10,0" AutomationProperties.Name="蓝键" />
+           <TextBlock Grid.Column="4" Text="紫键" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="5" Text="{Binding MinigameKeyPurple, UpdateSourceTrigger=LostFocus}" Margin="0,0,10,0" AutomationProperties.Name="紫键双按" />
+           <TextBlock Grid.Column="6" Text="冷却 ms" VerticalAlignment="Center" FontSize="11" />
+           <TextBox Grid.Column="7" Width="90" HorizontalAlignment="Left" Text="{Binding MinigameCooldownMs, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="按键冷却" />
           </Grid>
+          <TextBlock FontSize="10" Foreground="{DynamicResource Subtle}" TextWrapping="Wrap" Margin="0,0,0,4" Text="键值用虚拟键码：E=69、Q=81、空格=32、1=49。紫色默认 69+81，会同时按下两个键。" />
           <TextBlock Text="{Binding MinigameRhythmText}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" />
          </StackPanel>
         </Border>
@@ -481,6 +486,7 @@
            <TextBox Grid.Column="3" Text="{Binding MinigameLadderTolerance, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" AutomationProperties.Name="对齐容差" />
            <Button Grid.Column="4" Content="按当前画面校准目标" Click="OnMinigameCalibrate" Padding="10,5" Margin="0,0,10,0" AutomationProperties.Name="校准目标列" />
           </Grid>
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,4"><TextBlock Text="松手键" VerticalAlignment="Center" FontSize="11" Margin="0,0,8,0" /><TextBox Width="80" Text="{Binding MinigameKeyLadder, UpdateSourceTrigger=LostFocus}" AutomationProperties.Name="松手键" /><TextBlock Text="（默认空格 32）" VerticalAlignment="Center" FontSize="10" Foreground="{DynamicResource Subtle}" Margin="8,0,0,0" /></StackPanel>
           <TextBlock Text="{Binding MinigameLadderText}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" />
          </StackPanel>
         </Border>
@@ -1107,6 +1113,7 @@
          <StackPanel>
           <TextBlock Text="开源项目" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
           <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource Muted}" Text="OpenCvSharp（模板匹配）、RapidOcrNet（OCR）、.NET 10 / WPF。" />
+          <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource Muted}" Margin="0,8,0,0" Text="小游戏的识别思路参考 longer-sausage/OK-AzurPromilia（AGPL-3.0）；因此本项目同样以 AGPL-3.0 发布，完整源码随仓库提供。" />
          </StackPanel>
         </Border>
        </StackPanel>

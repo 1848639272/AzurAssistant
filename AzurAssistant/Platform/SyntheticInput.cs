@@ -41,6 +41,28 @@ public static class SyntheticInput
         return (int)owner == processId;
     }
 
+    /// <summary>Presses several keys at the same time (all downs, hold, then all ups) — used for purple notes.</summary>
+    public static bool TapCombo(IReadOnlyList<ushort> keys, int holdMilliseconds = 30)
+    {
+        if (keys.Count == 0) return false;
+        if (keys.Count == 1) return Tap(keys[0], holdMilliseconds);
+        var downs = new Input[keys.Count];
+        var ups = new Input[keys.Count];
+        for (var index = 0; index < keys.Count; index++)
+        {
+            var scan = (ushort)MapVirtualKey(keys[index], 0);
+            downs[index] = new Input
+            {
+                Type = InputKeyboard, VirtualKey = keys[index], Scan = scan, Flags = scan != 0 ? ScanCode : 0,
+            };
+            ups[index] = downs[index];
+            ups[index].Flags |= KeyUp;
+        }
+        if (SendInput((uint)downs.Length, downs, Marshal.SizeOf<Input>()) != (uint)downs.Length) return false;
+        if (holdMilliseconds > 0) Thread.Sleep(holdMilliseconds);
+        return SendInput((uint)ups.Length, ups, Marshal.SizeOf<Input>()) == (uint)ups.Length;
+    }
+
     /// <summary>Presses and releases one virtual key. Returns false when SendInput was rejected.</summary>
     public static bool Tap(ushort virtualKey, int holdMilliseconds = 30)
     {

@@ -45,7 +45,7 @@ public sealed partial class MainViewModel
 
     public double MinigameJudgeY { get => Minigame.JudgeY; set => SaveMinigame(Minigame with { JudgeY = value }); }
     public double MinigameBandHeight { get => Minigame.BandHeight; set => SaveMinigame(Minigame with { BandHeight = value }); }
-    public int MinigameLaneCount { get => Minigame.LaneCount; set => SaveMinigame(Minigame with { LaneCount = Math.Clamp(value, 1, Minigame.Keys.Length) }); }
+    public int MinigameLaneCount { get => Minigame.LaneCount; set => SaveMinigame(Minigame with { LaneCount = Math.Clamp(value, 1, 12) }); }
     public double MinigameLaneLeft { get => Minigame.LaneLeft; set => SaveMinigame(Minigame with { LaneLeft = value }); }
     public double MinigameLaneRight { get => Minigame.LaneRight; set => SaveMinigame(Minigame with { LaneRight = value }); }
     public int MinigameMinPixels { get => Minigame.MinPixels; set => SaveMinigame(Minigame with { MinPixels = value }); }
@@ -56,20 +56,43 @@ public sealed partial class MainViewModel
     public double MinigameLadderTopHeight { get => Minigame.LadderTopHeight; set => SaveMinigame(Minigame with { LadderTopHeight = value }); }
     public double MinigameLadderTowerY { get => Minigame.LadderTowerY; set => SaveMinigame(Minigame with { LadderTowerY = value }); }
 
-    /// <summary>Keys as "49,50,51" (virtual-key codes) for the lanes.</summary>
-    public string MinigameKeys
+    /// <summary>Virtual key for red notes (default E = 69).</summary>
+    public string MinigameKeyRed
     {
-        get => string.Join(",", Minigame.Keys);
+        get => Minigame.KeyRed.ToString();
+        set { if (TryVk(value, out var vk)) SaveMinigame(Minigame with { KeyRed = vk }); }
+    }
+
+    /// <summary>Virtual key for blue notes (default Q = 81).</summary>
+    public string MinigameKeyBlue
+    {
+        get => Minigame.KeyBlue.ToString();
+        set { if (TryVk(value, out var vk)) SaveMinigame(Minigame with { KeyBlue = vk }); }
+    }
+
+    /// <summary>Purple notes need two keys at once; shown as "69+81".</summary>
+    public string MinigameKeyPurple
+    {
+        get => $"{Minigame.KeyPurpleA}+{Minigame.KeyPurpleB}";
         set
         {
-            var parsed = value.Split([',', ' ', '，'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(part => int.TryParse(part, out var vk) ? vk : 0)
-                .Where(vk => vk is > 0 and <= 0xFF)
-                .ToArray();
-            if (parsed.Length == 0) return;
-            SaveMinigame(Minigame with { Keys = parsed, LaneCount = Math.Min(Minigame.LaneCount, parsed.Length) });
+            var parts = value.Split(['+', ',', '，', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (parts.Length == 0 || !TryVk(parts[0], out var first)) return;
+            var second = parts.Length > 1 && TryVk(parts[1], out var parsed) ? parsed : first;
+            SaveMinigame(Minigame with { KeyPurpleA = first, KeyPurpleB = second });
         }
     }
+
+    /// <summary>Key pressed to release the hanging piece (default space = 32).</summary>
+    public string MinigameKeyLadder
+    {
+        get => Minigame.LadderKey.ToString();
+        set { if (TryVk(value, out var vk)) SaveMinigame(Minigame with { LadderKey = vk }); }
+    }
+
+    private static bool TryVk(string? text, out int virtualKey)
+        => int.TryParse(text?.Trim(), out virtualKey) && virtualKey is > 0 and <= 0xFF;
+
 
     private void SaveMinigame(MinigameConfig config)
     {
@@ -81,7 +104,10 @@ public sealed partial class MainViewModel
         Notify(nameof(MinigameLaneRight));
         Notify(nameof(MinigameMinPixels));
         Notify(nameof(MinigameCooldownMs));
-        Notify(nameof(MinigameKeys));
+        Notify(nameof(MinigameKeyRed));
+        Notify(nameof(MinigameKeyBlue));
+        Notify(nameof(MinigameKeyPurple));
+        Notify(nameof(MinigameKeyLadder));
         Notify(nameof(MinigameLadderTargetX));
         Notify(nameof(MinigameLadderTolerance));
         Notify(nameof(MinigameLadderTop));
@@ -125,14 +151,15 @@ public sealed partial class MainViewModel
             MinigameRhythmText = RhythmAnalyzer.Describe(hits);
             foreach (var hit in hits)
             {
-                if (hit.Lane >= config.Keys.Length) continue;
+                var combo = config.KeysFor(hit.Color);
+                if (combo.Length == 0) continue;
                 if (_laneCooldown.TryGetValue(hit.Lane, out var last) && now - last < TimeSpan.FromMilliseconds(config.CooldownMs)) continue;
                 if (!SyntheticInput.IsForegroundOf(frame.ProcessId))
                 {
                     MinigameStatus = "游戏不在前台，按键已暂停。";
                     break;
                 }
-                SyntheticInput.Tap((ushort)config.Keys[hit.Lane]);
+                SyntheticInput.TapCombo(combo.Select(key => (ushort)key).ToArray());
                 _laneCooldown[hit.Lane] = now;
             }
         }
@@ -143,9 +170,9 @@ public sealed partial class MainViewModel
             MinigameLadderText = LadderAnalyzer.Describe(observation);
             if (observation.Aligned && now - _ladderLastTap > TimeSpan.FromMilliseconds(Math.Max(200, config.CooldownMs)))
             {
-                if (SyntheticInput.IsForegroundOf(frame.ProcessId) && config.Keys.Length > 0)
+                if (SyntheticInput.IsForegroundOf(frame.ProcessId))
                 {
-                    SyntheticInput.Tap((ushort)config.Keys[0]);
+                    SyntheticInput.Tap((ushort)config.LadderKey);
                     _ladderLastTap = now;
                     MinigameStatus = "已松手：悬挂件与承接面对齐。";
                 }

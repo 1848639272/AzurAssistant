@@ -9,13 +9,23 @@ namespace AzurAssistant.Runtime;
 /// </summary>
 public sealed record MinigameConfig(
     int LaneCount, double LaneLeft, double LaneRight, double JudgeY, double BandHeight,
-    int MinPixels, int CooldownMs, int[] Keys, double LadderTop, double LadderTopHeight,
-    double LadderTowerY, double LadderTargetX, double LadderTolerance)
+    int MinPixels, int CooldownMs, int KeyRed, int KeyBlue, int KeyPurpleA, int KeyPurpleB, int LadderKey,
+    double LadderTop, double LadderTopHeight, double LadderTowerY, double LadderTargetX, double LadderTolerance)
 {
+    /// <summary>E for red, Q for blue, E+Q together for purple (the mapping the game uses).</summary>
     public static MinigameConfig Default => new(
         LaneCount: 3, LaneLeft: 700, LaneRight: 1220, JudgeY: 600, BandHeight: 44,
-        MinPixels: 40, CooldownMs: 140, Keys: [0x31, 0x32, 0x33],
+        MinPixels: 40, CooldownMs: 140, KeyRed: 0x45, KeyBlue: 0x51, KeyPurpleA: 0x45, KeyPurpleB: 0x51, LadderKey: 0x20,
         LadderTop: 180, LadderTopHeight: 160, LadderTowerY: 760, LadderTargetX: 960, LadderTolerance: 26);
+
+    /// <summary>Virtual keys to press for a detected note colour (purple needs both at once).</summary>
+    public int[] KeysFor(string color) => color switch
+    {
+        "red" => [KeyRed],
+        "blue" => [KeyBlue],
+        "purple" => [KeyPurpleA, KeyPurpleB],
+        _ => [],
+    };
 
     /// <summary>Parse "lanes=3;left=700;…"; unknown keys and bad values keep the defaults.</summary>
     public static MinigameConfig Parse(string? text, MinigameConfig? fallback = null)
@@ -37,26 +47,21 @@ public sealed record MinigameConfig(
         int Integer(string key, int current, int min, int max)
             => (int)Number(key, current, min, max);
 
-        var keys = config.Keys;
-        if (values.TryGetValue("keys", out var keyText))
-        {
-            var parsed = keyText.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(part => int.TryParse(part, NumberStyles.Integer, CultureInfo.InvariantCulture, out var vk) ? vk : 0)
-                .Where(vk => vk is > 0 and <= 0xFF)
-                .Take(8)
-                .ToArray();
-            if (parsed.Length > 0) keys = parsed;
-        }
+        int Key(string name, int current) => Integer(name, current, 1, 0xFF);
 
         return new MinigameConfig(
-            LaneCount: Integer("lanes", config.LaneCount, 1, keys.Length),
+            LaneCount: Integer("lanes", config.LaneCount, 1, 12),
             LaneLeft: Number("left", config.LaneLeft, 0, 1920),
             LaneRight: Number("right", config.LaneRight, 0, 1920),
             JudgeY: Number("judge", config.JudgeY, 0, 1080),
             BandHeight: Number("band", config.BandHeight, 8, 200),
             MinPixels: Integer("minpixels", config.MinPixels, 4, 5000),
             CooldownMs: Integer("cooldown", config.CooldownMs, 40, 2000),
-            Keys: keys,
+            KeyRed: Key("kred", config.KeyRed),
+            KeyBlue: Key("kblue", config.KeyBlue),
+            KeyPurpleA: Key("kpurplea", config.KeyPurpleA),
+            KeyPurpleB: Key("kpurpleb", config.KeyPurpleB),
+            LadderKey: Key("ladderkey", config.LadderKey),
             LadderTop: Number("top", config.LadderTop, 0, 1080),
             LadderTopHeight: Number("toph", config.LadderTopHeight, 20, 600),
             LadderTowerY: Number("tower", config.LadderTowerY, 0, 1080),
@@ -74,7 +79,11 @@ public sealed record MinigameConfig(
             .Append(";band=").Append(BandHeight.ToString("0.##", CultureInfo.InvariantCulture))
             .Append(";minpixels=").Append(MinPixels)
             .Append(";cooldown=").Append(CooldownMs)
-            .Append(";keys=").Append(string.Join(",", Keys))
+            .Append(";kred=").Append(KeyRed)
+            .Append(";kblue=").Append(KeyBlue)
+            .Append(";kpurplea=").Append(KeyPurpleA)
+            .Append(";kpurpleb=").Append(KeyPurpleB)
+            .Append(";ladderkey=").Append(LadderKey)
             .Append(";top=").Append(LadderTop.ToString("0.##", CultureInfo.InvariantCulture))
             .Append(";toph=").Append(LadderTopHeight.ToString("0.##", CultureInfo.InvariantCulture))
             .Append(";tower=").Append(LadderTowerY.ToString("0.##", CultureInfo.InvariantCulture))

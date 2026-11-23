@@ -238,15 +238,19 @@ internal static class Program
 
     private static void MinigameChecks()
     {
-        var config = MinigameConfig.Parse("lanes=3;left=700;right=1220;judge=600;band=44;minpixels=40;cooldown=140;keys=49,50,51");
-        Check("config parse", config.LaneCount == 3 && config.Keys.Length == 3 && config.Keys[0] == 49,
-            $"{config.LaneCount} / {string.Join(",", config.Keys)}");
+        var config = MinigameConfig.Parse("lanes=3;left=700;right=1220;judge=600;band=44;minpixels=40;cooldown=140");
+        Check("config parse", config.LaneCount == 3 && config.KeyRed == 0x45 && config.KeyBlue == 0x51,
+            $"{config.LaneCount} / {config.KeyRed} / {config.KeyBlue}");
+        Check("colour keys", config.KeysFor("red") is [0x45] && config.KeysFor("blue") is [0x51]
+            && config.KeysFor("purple") is [0x45, 0x51] && config.KeysFor("?") is [],
+            string.Join(",", config.KeysFor("purple")));
+        Check("colour keys parse", MinigameConfig.Parse("kred=90;kblue=81;kpurplea=69;kpurpleb=81").KeysFor("red") is [90]);
         Check("config clamps", MinigameConfig.Parse("judge=99999;band=1;lanes=99").JudgeY == 1080
             && MinigameConfig.Parse("judge=99999;band=1").BandHeight >= 8,
             MinigameConfig.Parse("judge=99999").JudgeY.ToString("F0"));
         var roundTrip = MinigameConfig.Parse(config.Serialize());
         Check("config round trip", roundTrip.JudgeY == config.JudgeY && roundTrip.LaneRight == config.LaneRight
-            && roundTrip.Keys.SequenceEqual(config.Keys));
+            && roundTrip.KeyPurpleA == config.KeyPurpleA && roundTrip.KeyPurpleB == config.KeyPurpleB);
         Check("lane centres", Math.Abs(config.LaneCenter(0) - 786.67) < 0.5 && Math.Abs(config.LaneCenter(2) - 1133.33) < 0.5,
             $"{config.LaneCenter(0):F1}/{config.LaneCenter(2):F1}");
 
