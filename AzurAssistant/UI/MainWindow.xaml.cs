@@ -78,6 +78,7 @@ public partial class MainWindow : Window
         _uidCover.Start();
         ApplyUidCover();
         ViewModel.RefreshCoverBoxRows();
+        ViewModel.LoadRepositorySettings();
         CoverStyleBox.SelectedIndex = ViewModel.CoverUidStyle == "mosaic" ? 1 : 0;
         ViewModel.LoadReminderState();
         _reminderTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
@@ -1052,6 +1053,17 @@ public partial class MainWindow : Window
         _coverAdjusting = !_coverAdjusting;
         _uidCover.SetAdjusting(_coverAdjusting);
         CoverAdjustButton.Content = _coverAdjusting ? "退出调整（保存）" : "调整位置（拖动）";
+    }
+
+    private async void OnRefreshRepository(object sender, RoutedEventArgs e) => await ViewModel.RefreshRepositoryAsync();
+
+    private async void OnInstallRepositoryItem(object sender, RoutedEventArgs e)
+        => await ViewModel.InstallRepositoryItemAsync(RepositoryList.SelectedItem as AzurAssistant.Runtime.RepositoryItem);
+
+    private void OnImportRepositoryIndex(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog { Title = "导入仓库索引", Filter = "索引 JSON (*.json)|*.json", CheckFileExists = true };
+        if (dialog.ShowDialog(this) == true) ViewModel.ImportRepositoryIndex(dialog.FileName);
     }
 
     private void OnCoverStyleChanged(object sender, SelectionChangedEventArgs e)

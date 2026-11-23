@@ -871,7 +871,25 @@
           </DataTemplate></ItemsControl.ItemTemplate>
          </ItemsControl>
         </ScrollViewer>
-       </StackPanel>
+               <TextBlock Text="在线仓库" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6" />
+        <TextBlock Text="填一个索引地址（返回 JSON 的 http/https 链接），就能浏览别人分享的流程 / 任务队列 / 模板包并一键安装；也可以导入本地索引文件。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+         <TextBox Text="{Binding RepositoryUrl, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" AutomationProperties.Name="仓库地址" />
+         <Button Grid.Column="1" Content="刷新" Click="OnRefreshRepository" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="刷新仓库" />
+         <Button Grid.Column="2" Content="安装所选" Click="OnInstallRepositoryItem" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="安装仓库条目" />
+         <Button Grid.Column="3" Content="导入本地索引…" Click="OnImportRepositoryIndex" Padding="12,6" />
+        </Grid>
+        <ListBox x:Name="RepositoryList" ItemsSource="{Binding RepositoryItems}" SelectedIndex="0" MaxHeight="180" Margin="0,0,0,6" AutomationProperties.Name="仓库条目列表">
+         <ListBox.ItemTemplate><DataTemplate>
+          <StackPanel Margin="2">
+           <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" />
+           <TextBlock Text="{Binding Subtitle}" FontSize="10" Foreground="{DynamicResource Muted}" />
+           <TextBlock Text="{Binding Description}" FontSize="10" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+          </StackPanel>
+         </DataTemplate></ListBox.ItemTemplate>
+        </ListBox>
+        <TextBlock Text="{Binding RepositoryStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18" />
+</StackPanel>
        <StackPanel x:Name="ExtensionsPage" Visibility="{Binding IsExtensionsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="扩展功能" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
         <TextBlock Text="这个页面专门放各种特殊功能。目前有：UID 遮挡（下面）。以后新增的功能会继续加在这里。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16" />

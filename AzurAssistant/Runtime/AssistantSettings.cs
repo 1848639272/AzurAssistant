@@ -35,6 +35,8 @@ public sealed record AssistantSettings
     public bool ReminderDailyReset { get; init; }
     /// <summary>体力提醒间隔（分钟）；0 = 关闭。</summary>
     public int ReminderStaminaMinutes { get; init; }
+    /// <summary>在线仓库的索引地址（http/https），空表示未配置。</summary>
+    public string RepositoryUrl { get; init; } = "";
     /// <summary>关闭窗口时的行为：ask=每次询问，exit=总是完全关闭，tray=总是收到托盘。</summary>
     public string CloseAction { get; init; } = "ask";
     /// <summary>是否显示悬浮窗（HUD）。</summary>
