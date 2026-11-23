@@ -12,7 +12,8 @@ public sealed record GrowthCost(string Kind, string Id, string Name, long Quanti
 }
 
 /// <summary>One ascension-like step (hero rank, soul rank, equipment refine, pet evolution or pulse node).</summary>
-public sealed record GrowthStage(string Label, IReadOnlyList<GrowthCost> Costs, IReadOnlyList<GrowthCost> RuneCosts, int Copies)
+public sealed record GrowthStage(string Label, IReadOnlyList<GrowthCost> Costs, IReadOnlyList<GrowthCost> RuneCosts, int Copies,
+    string Kind = "")
 {
     public bool HasRuneCosts => RuneCosts.Count > 0;
 }
@@ -25,6 +26,9 @@ public sealed record GrowthEntry(string Id, string Title, IReadOnlyList<int> Lev
     public bool HasLevelExp => LevelExp.Any(value => value > 0);
     public int MaxStage => Math.Max(1, Stages.Count);
 
+    /// <summary>Target index that means "complete every stage" (one past the last).</summary>
+    public int MaxStageTarget => Stages.Count + 1;
+
     /// <summary>Sum of the EXP needed to walk from <paramref name="fromLevel"/> to <paramref name="toLevel"/>.</summary>
     public long ExpBetween(int fromLevel, int toLevel)
     {
@@ -36,7 +40,9 @@ public sealed record GrowthEntry(string Id, string Title, IReadOnlyList<int> Lev
     }
 
     /// <summary>Label of a 1-based stage index, for the UI hints.</summary>
-    public string StageLabel(int index) => index >= 1 && index <= Stages.Count ? Stages[index - 1].Label : $"阶段 {index}";
+    public string StageLabel(int index) => index >= 1 && index <= Stages.Count
+        ? Stages[index - 1].Label
+        : index == Stages.Count + 1 ? "全部完成" : $"阶段 {index}";
 
     public override string ToString() => $"{Title}（{Id}）";
 }
@@ -170,12 +176,14 @@ public sealed class GrowthData
                 {
                     var label = stage.TryGetProperty("label", out var l) ? l.GetString() ?? "" : "";
                     var copies = stage.TryGetProperty("copies", out var c) && c.ValueKind == JsonValueKind.Number ? c.GetInt32() : 0;
-                    stages.Add(new GrowthStage(label, Costs(stage, "costs"), Costs(stage, "runeCosts"), copies));
+                    var kind = stage.TryGetProperty("kind", out var k) ? k.GetString() ?? "" : "";
+                    stages.Add(new GrowthStage(label, Costs(stage, "costs"), Costs(stage, "runeCosts"), copies, kind));
                 }
             }
             // Older/raw shapes: ranks/upgrades trees are folded into stages by the data builder, but accept them too.
             if (stages.Count == 0) stages.AddRange(Ranks(entry));
-            if (levels.Count > 0) list.Add(new GrowthEntry(id, title, levels, stages));
+            // Equipment has an empty level table: its progress is 强化 stages plus 升星 stars only.
+            if (levels.Count > 0 || stages.Count > 0) list.Add(new GrowthEntry(id, title, levels, stages));
         }
         return list;
     }

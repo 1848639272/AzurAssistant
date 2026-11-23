@@ -37,7 +37,7 @@ public sealed class GrowthMaterialRow(string name, string? iconPath) : System.Co
 public sealed record GrowthCrystal(string Name, int Experience, int Count);
 
 public sealed record GrowthPlan(long Exp, long Gold, IReadOnlyList<GrowthCrystal> Crystals, int CrystalRemainder,
-    IReadOnlyList<GrowthMaterialRow> Materials, int StagesIncluded)
+    IReadOnlyList<GrowthMaterialRow> Materials, int StagesIncluded, string StageBreakdown = "")
 {
     public string Summary
     {
@@ -48,7 +48,11 @@ public sealed record GrowthPlan(long Exp, long Gold, IReadOnlyList<GrowthCrystal
                 : string.Join(" + ", Crystals.Select(crystal => $"{crystal.Name}×{crystal.Count:N0}"));
             var leftover = CrystalRemainder > 0 ? $"（另需 {CrystalRemainder} 点零头，可取整）" : "";
             var gold = Gold > 0 ? $"，尤尼 {Gold:N0}" : "";
-            var stages = StagesIncluded > 0 ? $"，跨 {StagesIncluded} 个阶段" : "";
+            var stages = StagesIncluded > 0
+                ? $"，跨 {StagesIncluded} 个阶段" + (StageBreakdown.Length > 0 ? $"（{StageBreakdown}）" : "")
+                : "";
+            if (Exp == 0)
+                return StagesIncluded > 0 ? $"不需要经验{gold}{stages}（该对象按阶段计材料）" : "没有需要计算的内容。";
             return $"需要经验 {Exp:N0}{gold}{stages}；星脉结晶：{crystals}{leftover}";
         }
     }
@@ -81,16 +85,20 @@ public static class GrowthCalculator
         if (gold > 0) totals["10:2"] = (GoldName, "10:2", gold);
 
         var from = Math.Clamp(request.FromStage, 1, entry.MaxStage);
-        var to = Math.Clamp(request.ToStage, from, entry.MaxStage);
+        var to = Math.Clamp(request.ToStage, from, entry.Stages.Count + 1);
         var included = 0;
+        var kinds = new List<string>();
         for (var stage = from; stage < to; stage++)
         {
             if (stage - 1 >= entry.Stages.Count) break;
             var step = entry.Stages[stage - 1];
             included++;
+            kinds.Add(step.Kind);
             foreach (var cost in step.Costs) Add(cost);
             if (request.IncludeRunes)
                 foreach (var cost in step.RuneCosts) Add(cost);
+            // 升星 also consumes copies of the item itself.
+            if (step.Copies > 0) Add(new GrowthCost("copy", entry.Id, "本体（同款装备）", step.Copies));
         }
 
         var rows = totals.Values.OrderByDescending(entry2 => entry2.Quantity)
@@ -101,7 +109,19 @@ public static class GrowthCalculator
             })
             .ToList();
         var (crystals, remainder) = SplitCrystals(exp, expItems);
-        return new GrowthPlan(exp, gold, crystals, remainder, rows, included);
+        return new GrowthPlan(exp, gold, crystals, remainder, rows, included, Breakdown(kinds));
+    }
+
+    private static string Breakdown(IReadOnlyList<string> kinds)
+    {
+        if (kinds.Count == 0) return "";
+        var names = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["enhance"] = "强化", ["star"] = "升星", ["rank"] = "阶级",
+            ["evolve"] = "进化", ["pulse"] = "源脉",
+        };
+        return string.Join("、", kinds.GroupBy(kind => kind, StringComparer.Ordinal)
+            .Select(group => $"{(names.TryGetValue(group.Key, out var label) ? label : group.Key)} {group.Count()} 段"));
     }
 
     private static string? ResolveIcon(string key, IReadOnlyDictionary<string, string>? icons, string iconDirectory)

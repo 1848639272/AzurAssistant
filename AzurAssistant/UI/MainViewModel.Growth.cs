@@ -61,8 +61,8 @@ public sealed partial class MainViewModel
             if (_selectedGrowthEntry is not { } entry) return "";
             if (entry.MaxStage <= 1) return "该对象没有阶段（只算等级）。";
             var from = entry.StageLabel(Math.Clamp(_growthFromRank, 1, entry.MaxStage));
-            var to = entry.StageLabel(Math.Clamp(_growthToRank, 1, entry.MaxStage));
-            return $"阶段共 {entry.MaxStage} 个：当前 = {_growthFromRank}「{from}」，目标 = {_growthToRank}「{to}」";
+            var to = entry.StageLabel(Math.Clamp(_growthToRank, 1, entry.MaxStageTarget));
+            return $"阶段共 {entry.MaxStage} 个（目标填 {entry.MaxStageTarget} 表示全部完成）：当前 = {_growthFromRank}「{from}」，目标 = {_growthToRank}「{to}」";
         }
     }
 
@@ -90,7 +90,7 @@ public sealed partial class MainViewModel
             {
                 _growthToLevel = Math.Clamp(_growthToLevel, 1, Math.Max(1, value.MaxLevel));
                 _growthFromLevel = Math.Clamp(_growthFromLevel, 1, _growthToLevel);
-                _growthToRank = Math.Clamp(_growthToRank, 1, Math.Max(1, value.MaxStage));
+                _growthToRank = Math.Clamp(_growthToRank, 1, Math.Max(1, value.MaxStageTarget));
                 _growthFromRank = Math.Clamp(_growthFromRank, 1, _growthToRank);
                 Notify(nameof(GrowthFromLevel));
                 Notify(nameof(GrowthToLevel));
@@ -138,7 +138,7 @@ public sealed partial class MainViewModel
         get => _growthToRank;
         set
         {
-            var max = Math.Max(1, _selectedGrowthEntry?.MaxStage ?? 1);
+            var max = Math.Max(1, _selectedGrowthEntry?.MaxStageTarget ?? 1);
             var clamped = Math.Clamp(value, _growthFromRank, max);
             if (clamped == _growthToRank) return;
             _growthToRank = clamped;
@@ -209,7 +209,7 @@ public sealed partial class MainViewModel
         _selectedGrowthEntry = GrowthEntries.FirstOrDefault();
         _growthToLevel = _selectedGrowthEntry?.MaxLevel ?? 100;
         _growthFromLevel = 1;
-        _growthToRank = _selectedGrowthEntry?.MaxStage ?? 1;
+        _growthToRank = _selectedGrowthEntry?.MaxStageTarget ?? 1;
         _growthFromRank = 1;
         Notify(nameof(SelectedGrowthEntry));
         Notify(nameof(GrowthFromLevel));
