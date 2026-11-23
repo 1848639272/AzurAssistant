@@ -69,6 +69,14 @@ public partial class MainWindow : Window
     {
         ViewModel.RefreshMonitors();
         ApplyOverlays();
+        _uidCover = new UidCoverController(this, ViewModel.SetCoverUidStatus);
+        _uidCover.CoverChanged += (x, y, w, h) =>
+        {
+            ViewModel.SaveCoverUidRect(x, y, w, h);
+            _uidCover?.Update(ViewModel.CoverUidRequest);
+        };
+        _uidCover.Start();
+        ApplyUidCover();
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
         if (ViewModel.TaskRunnerInternal is { } runner) runner.RunCompleted += result => Dispatcher.BeginInvoke(() => OnRunCompleted(result));
         ApplyAppearance();
@@ -705,6 +713,8 @@ public partial class MainWindow : Window
     /// <summary>Closes the floating panel, any toast and the tray icon so nothing survives the exit.</summary>
     private void CloseOverlays()
     {
+        _uidCover?.Stop();
+        _uidCover = null;
         if (_hud is not null)
         {
             _hud.Close();
@@ -986,6 +996,29 @@ public partial class MainWindow : Window
         ViewModel.ClearRunHistory();
     }
 
+    // ---- 扩展功能：UID 遮挡 ----
+    private UidCoverController? _uidCover;
+    private bool _coverAdjusting;
+
+    private void OnToggleCoverAdjust(object sender, RoutedEventArgs e)
+    {
+        if (_uidCover is null) return;
+        _coverAdjusting = !_coverAdjusting;
+        _uidCover.SetAdjusting(_coverAdjusting);
+        CoverAdjustButton.Content = _coverAdjusting ? "退出调整（保存）" : "调整位置（拖动）";
+    }
+
+    private void OnResetCoverUid(object sender, RoutedEventArgs e)
+    {
+        _coverAdjusting = false;
+        CoverAdjustButton.Content = "调整位置（拖动）";
+        ViewModel.ResetCoverUid();
+        _uidCover?.SetAdjusting(false);
+        _uidCover?.Update(ViewModel.CoverUidRequest);
+    }
+
+    private void ApplyUidCover() => _uidCover?.Update(ViewModel.CoverUidRequest);
+
     // ---- 悬浮窗 / 托盘 / 通知 ----
     private HudWindow? _hud;
     private ToastWindow? _toast;
@@ -996,6 +1029,7 @@ public partial class MainWindow : Window
         if (e.PropertyName is nameof(MainViewModel.ShowHud) or nameof(MainViewModel.ShowTrayIcon)
             or nameof(MainViewModel.OverlayMonitor))
             ApplyOverlays();
+        if (e.PropertyName is nameof(MainViewModel.CoverUidRequest)) ApplyUidCover();
     }
 
     /// <summary>Creates, places or hides the HUD and the tray icon according to the settings.</summary>

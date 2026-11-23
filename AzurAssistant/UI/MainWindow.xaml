@@ -260,6 +260,9 @@
       <RadioButton x:Name="ToolsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="tools" Checked="OnNavigate" IsChecked="{Binding IsToolsPage, Mode=OneWay}" AutomationProperties.Name="工具与诊断">
        <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE946;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="工具与诊断" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
       </RadioButton>
+      <RadioButton x:Name="ExtensionsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="extensions" Checked="OnNavigate" IsChecked="{Binding IsExtensionsPage, Mode=OneWay}" AutomationProperties.Name="扩展功能">
+       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72E;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="扩展功能" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+      </RadioButton>
      <RadioButton x:Name="SettingsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="settings" Checked="OnNavigate" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" AutomationProperties.Name="设置">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
@@ -845,6 +848,38 @@
           </DataTemplate></ItemsControl.ItemTemplate>
          </ItemsControl>
         </ScrollViewer>
+       </StackPanel>
+       <StackPanel x:Name="ExtensionsPage" Visibility="{Binding IsExtensionsPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="扩展功能" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="这个页面专门放各种特殊功能。目前有：UID 遮挡（下面）。以后新增的功能会继续加在这里。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16" />
+
+        <TextBlock Text="功能 1 · UID 遮挡" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="用一块完全不透明的纯白矩形盖住画面左下角的「UID:xxxxx」。矩形跟随游戏客户区，游戏窗口移动/缩放时会自动跟着走；平时这层不挡鼠标（可正常点游戏）。位置和长度都能自己调。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding CoverUidEnabled}" Margin="0,0,0,10" AutomationProperties.Name="启用UID遮挡"><StackPanel><TextBlock Text="启用 UID 遮挡" FontWeight="SemiBold" /><TextBlock Text="勾选后立刻生效；未开游戏时不会显示" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <CheckBox Style="{StaticResource FeatureOption}" IsChecked="{Binding CoverUidPreviewOnSelf}" Margin="0,0,0,12" AutomationProperties.Name="在本窗口预览"><StackPanel><TextBlock Text="在本窗口预览" FontWeight="SemiBold" /><TextBlock Text="没开游戏时，把遮挡层贴在本程序窗口上，方便先摆位置" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
+        <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="110" /><ColumnDefinition Width="70" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <TextBlock Text="左边距 X" VerticalAlignment="Center" FontSize="12" />
+         <TextBox Grid.Column="1" Text="{Binding CoverUidX}" Margin="0,0,14,0" AutomationProperties.Name="遮挡左偏移" />
+         <TextBlock Grid.Column="2" Text="上边距 Y" VerticalAlignment="Center" FontSize="12" />
+         <TextBox Grid.Column="3" Text="{Binding CoverUidY}" AutomationProperties.Name="遮挡上偏移" />
+        </Grid>
+        <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="110" /><ColumnDefinition Width="70" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <TextBlock Text="宽度" VerticalAlignment="Center" FontSize="12" />
+         <TextBox Grid.Column="1" Text="{Binding CoverUidWidth}" Margin="0,0,14,0" AutomationProperties.Name="遮挡宽度" />
+         <TextBlock Grid.Column="2" Text="高度" VerticalAlignment="Center" FontSize="12" />
+         <TextBox Grid.Column="3" Text="{Binding CoverUidHeight}" AutomationProperties.Name="遮挡高度" />
+        </Grid>
+        <TextBlock Text="坐标系是 1920×1080 参考空间（和识别用的一致，左上角 0,0）：换分辨率/缩放时白框会按比例跟着走，不用重调。默认 X=78、Y=1026、宽 132、高 26，正好盖住 1080p 下左下角的 UID。" Foreground="{DynamicResource Muted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+         <Button x:Name="CoverAdjustButton" Content="调整位置（拖动）" Click="OnToggleCoverAdjust" Padding="12,6" Margin="0,0,8,0" />
+         <Button Content="恢复默认" Click="OnResetCoverUid" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding CoverUidStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,20" AutomationProperties.Name="遮挡状态" />
+
+        <TextBlock Text="功能 2 · 待定" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,12">
+         <TextBlock Text="位置留空，等你想好要什么功能再加。" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" />
+        </Border>
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />

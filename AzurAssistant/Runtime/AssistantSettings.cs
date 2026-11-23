@@ -16,6 +16,15 @@ public sealed record AssistantSettings
     public int TextOpacity { get; init; } = 100;
     /// <summary>背景表面（卡片、输入框、侧栏）透明度百分比 0–100。</summary>
     public int BackgroundOpacity { get; init; } = 100;
+    /// <summary>是否启用 UID 遮挡（扩展功能）。</summary>
+    public bool CoverUidEnabled { get; init; }
+    /// <summary>UID 遮挡矩形相对游戏客户区左上角的像素偏移与尺寸。</summary>
+    public int CoverUidX { get; init; } = 78;
+    public int CoverUidY { get; init; } = 1026;
+    public int CoverUidWidth { get; init; } = 132;
+    public int CoverUidHeight { get; init; } = 26;
+    /// <summary>没有游戏窗口时，把遮挡层贴在本程序窗口上预览。</summary>
+    public bool CoverUidPreviewOnSelf { get; init; }
     /// <summary>关闭窗口时的行为：ask=每次询问，exit=总是完全关闭，tray=总是收到托盘。</summary>
     public string CloseAction { get; init; } = "ask";
     /// <summary>是否显示悬浮窗（HUD）。</summary>

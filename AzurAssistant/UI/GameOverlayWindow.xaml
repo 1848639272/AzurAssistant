@@ -1,0 +1,18 @@
+<Window x:Class="AzurAssistant.UI.GameOverlayWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="蔚蓝助手覆盖层" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+ ShowInTaskbar="False" Topmost="True" ResizeMode="NoResize" ShowActivated="False" Focusable="False"
+ IsHitTestVisible="False" WindowStartupLocation="Manual" AutomationProperties.Name="UID 遮挡覆盖层">
+ <Canvas x:Name="Root">
+  <!-- Pure white, fully opaque cover for the UID area. -->
+  <Rectangle x:Name="Cover" Fill="White" MouseLeftButtonDown="OnCoverMouseDown" MouseMove="OnCoverMouseMove"
+             MouseLeftButtonUp="OnCoverMouseUp" />
+  <!-- Shown only while adjusting: a shade plus a hint. -->
+  <Rectangle x:Name="Shade" Fill="#2200A0A0" Visibility="Collapsed" IsHitTestVisible="False" />
+  <TextBlock x:Name="Hint" Visibility="Collapsed" IsHitTestVisible="False" Foreground="#FF1C6E68" FontSize="12"
+             FontWeight="SemiBold" Background="#F2FFFFFF" Padding="8,4" />
+  <Rectangle x:Name="Grip" Width="14" Height="14" Fill="#FF178C84" Visibility="Collapsed"
+             MouseLeftButtonDown="OnGripMouseDown" MouseMove="OnGripMouseMove" MouseLeftButtonUp="OnGripMouseUp" />
+ </Canvas>
+</Window>

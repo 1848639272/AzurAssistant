@@ -72,6 +72,10 @@ public sealed class SettingsStore
         if (value.BackgroundImagePath is null || value.BackgroundImagePath.Length > 32767) throw new InvalidDataException("背景图路径无效。");
         if (value.OverlayMonitor is < 0 or > 15) throw new InvalidDataException("显示器编号应在 0–15 之间。");
         if (value.CloseAction is not ("ask" or "exit" or "tray")) throw new InvalidDataException("关闭行为设置无效。");
+        if (value.CoverUidX is < 0 or > 8192 || value.CoverUidY is < 0 or > 8192)
+            throw new InvalidDataException("UID 遮挡的位置应在 0–8192 像素之间。");
+        if (value.CoverUidWidth is < 1 or > 4096 || value.CoverUidHeight is < 1 or > 4096)
+            throw new InvalidDataException("UID 遮挡的尺寸应在 1–4096 像素之间。");
         if (value.StepTimeoutSeconds is < 3 or > 300) throw new InvalidDataException("单步超时应在 3–300 秒之间。");
         if (value.StepRetrySeconds is < 0 or > 60) throw new InvalidDataException("重试间隔应在 0–60 秒之间。");
         if (value.ActionSettleMs is < 200 or > 10000) throw new InvalidDataException("操作后等待应在 200–10000 毫秒之间。");
