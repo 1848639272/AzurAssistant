@@ -1,0 +1,26 @@
+<Window x:Class="AzurAssistant.UI.CloseConfirmWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="关闭蔚蓝助手" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+ ShowInTaskbar="False" Width="420"
+ Background="{DynamicResource WindowBackground}" Foreground="{DynamicResource Ink}"
+ FontFamily="Microsoft YaHei UI, Segoe UI" FontSize="13"
+ AutomationProperties.Name="关闭确认">
+ <Border Padding="20,18" Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+  <StackPanel>
+   <TextBlock Text="要完全关闭，还是只收到系统托盘？" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+   <TextBlock Text="收到托盘后任务继续运行，双击托盘图标可以恢复窗口；完全关闭会先停止正在运行的任务。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
+   <CheckBox x:Name="RememberBox" Margin="0,0,0,14" Foreground="{DynamicResource Ink}" AutomationProperties.Name="记住我的选择">
+    <StackPanel>
+     <TextBlock Text="记住我的选择" FontWeight="SemiBold" />
+     <TextBlock Text="之后关闭不再询问；可在「设置 → 悬浮窗与通知 → 关闭窗口时」更改" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" />
+    </StackPanel>
+   </CheckBox>
+   <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+    <Button x:Name="ExitButton" Content="完全关闭" Click="OnExit" Padding="16,8" MinWidth="96" Margin="0,0,8,0" />
+    <Button x:Name="TrayButton" Content="放到系统托盘" Click="OnTray" Padding="16,8" MinWidth="110" Margin="0,0,8,0" />
+    <Button Content="取消" Click="OnCancel" Padding="16,8" MinWidth="72" IsCancel="True" />
+   </StackPanel>
+  </StackPanel>
+ </Border>
+</Window>

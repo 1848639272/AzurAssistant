@@ -16,6 +16,8 @@ public sealed record AssistantSettings
     public int TextOpacity { get; init; } = 100;
     /// <summary>背景表面（卡片、输入框、侧栏）透明度百分比 0–100。</summary>
     public int BackgroundOpacity { get; init; } = 100;
+    /// <summary>关闭窗口时的行为：ask=每次询问，exit=总是完全关闭，tray=总是收到托盘。</summary>
+    public string CloseAction { get; init; } = "ask";
     /// <summary>是否显示悬浮窗（HUD）。</summary>
     public bool ShowHud { get; init; }
     /// <summary>是否显示托盘图标。</summary>

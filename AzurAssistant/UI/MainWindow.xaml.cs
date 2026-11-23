@@ -671,8 +671,22 @@ public partial class MainWindow : Window
         if (_closedCleanly) return;
         e.Cancel = true;
         if (_closing) return;
-        ViewModel.CommitHotkeyEdit();
+
+        // Ask only for a user-initiated close; restarts, updates and shutdown paths must not block on a dialog.
+        if (!SkipClosePrompt && !ViewModel.RestartRequested && !_updateLaunched && !ViewModel.IsRestarting)
+        {
+            var decision = ViewModel.CloseAction == "ask" ? AskCloseDecision() : ToDecision(ViewModel.CloseAction);
+            if (decision == CloseDecision.Cancel) return;
+            if (decision == CloseDecision.Tray && ViewModel.ShowTrayIcon)
+            {
+                Hide();
+                _tray?.Show();
+                return;
+            }
+        }
         _closing = true;
+
+        ViewModel.CommitHotkeyEdit();
         _updateCancellation?.Cancel();
         ClearDailyDragPreview();
         ClearDailyDrop();
@@ -682,6 +696,38 @@ public partial class MainWindow : Window
         _closedCleanly = true;
         // A stopped session may complete synchronously; never reenter Window.Close from its Closing event.
         _ = Dispatcher.BeginInvoke(Close);
+    }
+
+    /// <summary>Set by shutdown/restart paths that must not show the close prompt.</summary>
+    internal static bool SkipClosePrompt { get; set; }
+
+    private static CloseDecision ToDecision(string action) => action switch
+    {
+        "tray" => CloseDecision.Tray,
+        "exit" => CloseDecision.Exit,
+        _ => CloseDecision.Exit,
+    };
+
+    /// <summary>Shows the close dialog and stores the answer when the user asked to remember it.</summary>
+    private CloseDecision AskCloseDecision()
+    {
+        try
+        {
+            var dialog = new CloseConfirmWindow(ViewModel.ShowTrayIcon) { Owner = this };
+            if (dialog.ShowDialog() != true) return CloseDecision.Cancel;
+            if (dialog.Remember)
+                ViewModel.RememberCloseAction(dialog.Decision == CloseDecision.Tray ? "tray" : "exit");
+            return dialog.Decision;
+        }
+        catch (Exception ex) when (ex is System.Windows.Markup.XamlParseException or InvalidOperationException)
+        {
+            // Never block closing because the dialog failed to build.
+            ViewModel.Report("关闭确认框打开失败：" + ex.Message);
+            var fallback = MessageBox.Show(this, "要完全关闭助手吗？\n选择「否」会隐藏到系统托盘。", "蔚蓝助手",
+                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
+            return fallback == MessageBoxResult.Yes ? CloseDecision.Exit
+                : ViewModel.ShowTrayIcon ? CloseDecision.Tray : CloseDecision.Exit;
+        }
     }
 
     // ---- 任务编排 ----

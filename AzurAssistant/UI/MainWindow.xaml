@@ -728,15 +728,15 @@
 
         <TextBlock Text="{Binding GrowthSummary}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
         <TextBlock Text="{Binding GrowthCrystalText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
-        <TextBlock Text="缺口清单（图标在材料名右侧；「拥有」可改，自动算还差多少）" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,6" />
+        <TextBlock Text="缺口清单（材料图标在名字右侧，32×32；「拥有」可改，自动算还差多少）" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,6" />
         <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
          <ItemsControl ItemsSource="{Binding GrowthMaterials}">
           <ItemsControl.ItemTemplate><DataTemplate>
-           <Border Background="{DynamicResource TileBackground}" CornerRadius="7" Padding="10,6" Margin="0,0,0,5">
-            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="230" /><ColumnDefinition Width="110" /><ColumnDefinition Width="120" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+           <Border Background="{DynamicResource TileBackground}" CornerRadius="7" Padding="10,8" Margin="0,0,0,6">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="250" /><ColumnDefinition Width="110" /><ColumnDefinition Width="120" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
               <TextBlock Text="{Binding Name}" FontSize="12" VerticalAlignment="Center" />
-              <Image Source="{Binding IconPath, Converter={StaticResource PathToImage}}" Width="20" Height="20" Margin="6,0,0,0"
+              <Image Source="{Binding IconPath, Converter={StaticResource PathToImage}}" Width="32" Height="32" Margin="8,0,0,0"
                      VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
              </StackPanel>
              <TextBlock Grid.Column="1" Text="{Binding Need, StringFormat=需要 {0:N0}}" VerticalAlignment="Center" FontSize="11" />
@@ -932,7 +932,11 @@
         <CheckBox x:Name="ShowTrayOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding ShowTrayIcon}" Margin="0,0,0,10" AutomationProperties.Name="显示托盘图标"><StackPanel><TextBlock Text="显示托盘图标" FontWeight="SemiBold" /><TextBlock Text="双击托盘恢复窗口；右键菜单可暂停/停止/退出" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
         <CheckBox x:Name="MinimizeToTrayOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding MinimizeToTray}" Margin="0,0,0,10" AutomationProperties.Name="最小化到托盘"><StackPanel><TextBlock Text="最小化时收进托盘" FontWeight="SemiBold" /><TextBlock Text="需要同时开启托盘图标" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
         <CheckBox x:Name="NotifyOnEndOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding NotifyOnTaskEnd}" Margin="0,0,0,10" AutomationProperties.Name="任务结束通知"><StackPanel><TextBlock Text="任务结束时弹出通知" FontWeight="SemiBold" /><TextBlock Text="成功或失败都会在右下角显示一条，4.5 秒后自动消失" Foreground="{DynamicResource Muted}" FontSize="10" Margin="0,4,0,0" /></StackPanel></CheckBox>
-        <Grid Margin="0,0,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="240" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+        <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="240" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+         <TextBlock Text="关闭窗口时" VerticalAlignment="Center" />
+         <ComboBox Grid.Column="1" ItemsSource="{Binding CloseChoices}" SelectedItem="{Binding SelectedCloseChoice}" DisplayMemberPath="Label" Margin="0,0,12,0" AutomationProperties.Name="关闭行为" />
+         <TextBlock Grid.Column="2" Text="选「每次询问」时会在关闭前弹出对话框，并可勾选不再询问" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+        </Grid>        <Grid Margin="0,0,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="240" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
          <TextBlock Text="显示在" VerticalAlignment="Center" />
          <ComboBox Grid.Column="1" ItemsSource="{Binding Monitors}" SelectedValue="{Binding OverlayMonitor}" SelectedValuePath="Index" DisplayMemberPath="Label" Margin="0,0,12,0" AutomationProperties.Name="显示器选择" />
          <TextBlock Grid.Column="2" Text="{Binding OverlayMonitorLabel}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />

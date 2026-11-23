@@ -76,7 +76,7 @@ public static class Bootstrapper
                 if (activeWindow is null) return;
                 await activeWindow.Dispatcher.InvokeAsync(() => CompleteAutomaticExitAsync(Task.FromResult<TaskResult?>(result),
                     () => activeWindow.ViewModel.RestartRequested, activeWindow.ViewModel.StopAsync,
-                    code => System.Windows.Application.Current.Shutdown(code), log.Write,
+                    code => { MainWindow.SkipClosePrompt = true; System.Windows.Application.Current.Shutdown(code); }, log.Write,
                     onlyIfRequested: !commandLineExit)).Task.Unwrap();
             });
         window = new MainWindow(new MainViewModel(preview, log, runner, null, () =>

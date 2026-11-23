@@ -8,6 +8,36 @@ public sealed partial class MainViewModel
 {
     private IReadOnlyList<DisplayMonitor> _monitors = [];
 
+    public sealed record CloseChoice(string Key, string Label);
+
+    /// <summary>Options for the 关闭窗口时 setting.</summary>
+    public IReadOnlyList<CloseChoice> CloseChoices { get; } =
+    [
+        new("ask", "每次询问"),
+        new("exit", "总是完全关闭"),
+        new("tray", "总是收到系统托盘"),
+    ];
+
+    public string CloseAction => Settings.CloseAction;
+
+    public CloseChoice? SelectedCloseChoice
+    {
+        get => CloseChoices.FirstOrDefault(choice => choice.Key == Settings.CloseAction) ?? CloseChoices[0];
+        set
+        {
+            if (value is null || value.Key == Settings.CloseAction) return;
+            if (SaveSettings(Settings with { CloseAction = value.Key })) { Notify(); Notify(nameof(SelectedCloseChoice)); }
+        }
+    }
+
+    /// <summary>Stores the choice made in the close dialog ("exit" or "tray").</summary>
+    public void RememberCloseAction(string action)
+    {
+        if (action is not ("exit" or "tray" or "ask")) return;
+        if (action == Settings.CloseAction) return;
+        if (SaveSettings(Settings with { CloseAction = action })) { Notify(nameof(SelectedCloseChoice)); Notify(nameof(CloseAction)); }
+    }
+
     /// <summary>The active runner, so the window can subscribe to run completion for notifications.</summary>
     internal TaskRunner? TaskRunnerInternal => Runner;
 
