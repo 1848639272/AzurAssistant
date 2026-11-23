@@ -233,6 +233,9 @@
      <RadioButton x:Name="DailyNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="daily" Checked="OnNavigate" IsChecked="{Binding IsDailyPage, Mode=OneWay}" AutomationProperties.Name="一条龙">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8FD;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="一条龙" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
+      <RadioButton x:Name="MinigameNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="minigame" Checked="OnNavigate" IsChecked="{Binding IsMinigamePage, Mode=OneWay}" AutomationProperties.Name="司凤小游戏">
+       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7FC;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="司凤小游戏" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+      </RadioButton>
      <RadioButton x:Name="ScheduleNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="schedule" Checked="OnNavigate" IsChecked="{Binding IsSchedulePage, Mode=OneWay}" AutomationProperties.Name="定时执行">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE823;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="定时执行" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
@@ -420,6 +423,34 @@
            <CheckBox x:Name="CloseAssistantAfterExitGameOption" Content="游戏关闭后同时关闭蔚蓝助手" Style="{StaticResource FeatureOption}"
             IsChecked="{Binding CloseAssistantAfterExitGame}" Margin="0,14,0,0" />
           </StackPanel>
+         </StackPanel>
+        </Border>
+       </StackPanel>
+       <StackPanel x:Name="MinigamePage" Visibility="{Binding IsMinigamePage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="司凤小游戏" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="小游戏辅助（花瓣音游、祖赞卡之梯）。识别思路参考 OK-AzurPromilia 的公开实现，本项目用 C# 重写；接入前需要先确认授权方式。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16" />
+
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18,16" Margin="0,0,0,12">
+         <StackPanel>
+          <TextBlock Text="花瓣音游" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
+          <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Text="要做的事：在音游玩法里识别轨道上的落点（按颜色区分）与判定线位置，按到达时机自动按键。" />
+          <TextBlock FontSize="11" Foreground="{DynamicResource Subtle}" TextWrapping="Wrap" Margin="0,6,0,0" Text="需要的输入：客户区画面（已连接即可）、三个颜色的判定容差、判定线所在的高度。识别只读画面，不发送输入。" />
+         </StackPanel>
+        </Border>
+
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18,16" Margin="0,0,0,12">
+         <StackPanel>
+          <TextBlock Text="祖赞卡之梯" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
+          <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Text="要做的事：识别悬挂件的轮廓与塔顶承接面，判断松手时机，让悬挂件落到正确的位置上。" />
+          <TextBlock FontSize="11" Foreground="{DynamicResource Subtle}" TextWrapping="Wrap" Margin="0,6,0,0" Text="需要的输入：客户区画面、各造型的参考轮廓（可先用截图标注生成）、容差阈值。" />
+         </StackPanel>
+        </Border>
+
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18,16">
+         <StackPanel>
+          <TextBlock Text="来源与授权" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
+          <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Text="参考实现：github.com/longer-sausage/OK-AzurPromilia（AGPL-3.0）。若直接移植其代码，本程序也需按 AGPL-3.0 发布并提供源码；如不希望这样，则按公开玩法独立实现，仅借鉴思路与参数含义。" />
+          <TextBlock FontSize="11" Foreground="{DynamicResource Subtle}" TextWrapping="Wrap" Margin="0,6,0,0" Text="当前状态：页面与入口已就绪，识别与自动操作尚未接入。" />
          </StackPanel>
         </Border>
        </StackPanel>
