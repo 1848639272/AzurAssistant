@@ -18,6 +18,12 @@ public sealed record GrowthStage(string Label, IReadOnlyList<GrowthCost> Costs, 
     public bool HasRuneCosts => RuneCosts.Count > 0;
 }
 
+/// <summary>One repeatable stage that yields materials for a stamina cost.</summary>
+public sealed record GrowthFarm(string Id, string Name, int Stamina, IReadOnlyList<KeyValuePair<string, double>> Yields);
+
+/// <summary>A crafting recipe: costs in, one unit of the keyed product out.</summary>
+public sealed record GrowthRecipe(IReadOnlyList<GrowthCost> Costs);
+
 /// <summary>A hero, pet, soul essence or equipment progression table.</summary>
 public sealed record GrowthEntry(string Id, string Title, IReadOnlyList<int> LevelExp, IReadOnlyList<GrowthStage> Stages)
 {
@@ -65,6 +71,12 @@ public sealed class GrowthData
     public IReadOnlyList<GrowthEntry> Equipments { get; init; } = [];
     public IReadOnlyDictionary<string, string> Icons { get; init; } = new Dictionary<string, string>();
     public IReadOnlyList<(string Name, int Experience)> ExpItems { get; init; } = [];
+    public IReadOnlyList<GrowthFarm> Farms { get; init; } = [];
+    public IReadOnlyList<KeyValuePair<string, GrowthRecipe>> Recipes { get; init; } = [];
+    public int StaminaSeconds { get; init; } = 360;
+    public int DailyResetHour { get; init; } = 4;
+    /// <summary>Materials that only come from shop exchanges / home production, not from farms.</summary>
+    public IReadOnlySet<string> ShopKeys { get; init; } = new HashSet<string>(StringComparer.Ordinal);
 
     public string VersionText => string.IsNullOrWhiteSpace(SourceVersion) ? SchemaVersion : $"{SourceVersion}（数据格式 {SchemaVersion}）";
 
@@ -139,6 +151,40 @@ public sealed class GrowthData
             throw new InvalidDataException("数据里没有找到角色、奇波、灵子或装备的养成表。");
 
         expItems.Sort((left, right) => right.Item2.CompareTo(left.Item2));
+        var farms = new List<GrowthFarm>();
+        if (root.TryGetProperty("farms", out var farmArray) && farmArray.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var farm in farmArray.EnumerateArray())
+            {
+                var id = farm.TryGetProperty("id", out var fid) ? fid.GetString() ?? "" : "";
+                var farmName = farm.TryGetProperty("name", out var fname) ? fname.GetString() ?? id : id;
+                var stamina = farm.TryGetProperty("stamina", out var st) && st.ValueKind == JsonValueKind.Number ? st.GetInt32() : 0;
+                var yields = new List<KeyValuePair<string, double>>();
+                if (farm.TryGetProperty("yields", out var yieldsElement) && yieldsElement.ValueKind == JsonValueKind.Object)
+                    foreach (var property in yieldsElement.EnumerateObject())
+                        if (property.Value.ValueKind == JsonValueKind.Number)
+                            yields.Add(new KeyValuePair<string, double>(property.Name, property.Value.GetDouble()));
+                if (id.Length > 0 && stamina > 0 && yields.Count > 0)
+                    farms.Add(new GrowthFarm(id, farmName, stamina, yields));
+            }
+        }
+
+        var shopKeys = new HashSet<string>(StringComparer.Ordinal);
+        if (root.TryGetProperty("shopKeys", out var shopArray) && shopArray.ValueKind == JsonValueKind.Array)
+            foreach (var entry in shopArray.EnumerateArray())
+                if (entry.GetString() is { Length: > 0 } shopKey) shopKeys.Add(shopKey);
+
+        var recipes = new List<KeyValuePair<string, GrowthRecipe>>();
+        if (root.TryGetProperty("recipes", out var recipeObject) && recipeObject.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var property in recipeObject.EnumerateObject())
+            {
+                var costs = new List<GrowthCost>();
+                if (property.Value.ValueKind == JsonValueKind.Object && property.Value.TryGetProperty("costs", out var costArray))
+                    costs.AddRange(Costs(property.Value, "costs"));
+                recipes.Add(new KeyValuePair<string, GrowthRecipe>(property.Name, new GrowthRecipe(costs)));
+            }
+        }
         return new GrowthData
         {
             SchemaVersion = Text("schemaVersion"),
@@ -151,6 +197,9 @@ public sealed class GrowthData
             Equipments = equipments,
             Icons = icons,
             ExpItems = expItems,
+            Farms = farms,
+            Recipes = recipes,
+            ShopKeys = shopKeys,
         };
     }
 

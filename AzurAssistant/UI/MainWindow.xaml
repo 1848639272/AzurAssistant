@@ -731,21 +731,23 @@
 
         <TextBlock Text="{Binding GrowthSummary}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
         <TextBlock Text="{Binding GrowthCrystalText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" />
-        <TextBlock Text="缺口清单（材料图标在名字右侧，32×32；「拥有」可改，自动算还差多少）" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,6" />
+        <TextBlock Text="{Binding GrowthStaminaText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <TextBlock Text="缺口清单（图标在名字右侧；「拥有」改完自动保存到 growth-inventory.json；最后一列是估算的体力/刷本次数）" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,0,0,6" />
         <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
          <ItemsControl ItemsSource="{Binding GrowthMaterials}">
           <ItemsControl.ItemTemplate><DataTemplate>
            <Border Background="{DynamicResource TileBackground}" CornerRadius="7" Padding="10,8" Margin="0,0,0,6">
-            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="250" /><ColumnDefinition Width="110" /><ColumnDefinition Width="120" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="250" /><ColumnDefinition Width="96" /><ColumnDefinition Width="96" /><ColumnDefinition Width="104" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
               <TextBlock Text="{Binding Name}" FontSize="12" VerticalAlignment="Center" />
               <Image Source="{Binding IconPath, Converter={StaticResource PathToImage}}" Width="32" Height="32" Margin="8,0,0,0"
                      VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
              </StackPanel>
              <TextBlock Grid.Column="1" Text="{Binding Need, StringFormat=需要 {0:N0}}" VerticalAlignment="Center" FontSize="11" />
-             <TextBox Grid.Column="2" Text="{Binding Owned}" Margin="0,0,10,0" FontSize="11" AutomationProperties.Name="拥有数量" />
+             <TextBox Grid.Column="2" Text="{Binding Owned, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" FontSize="11" AutomationProperties.Name="拥有数量" />
              <TextBlock Grid.Column="3" Text="{Binding Suggestion}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />
-            </Grid>
+             <TextBlock Grid.Column="4" Text="{Binding StaminaText}" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource Muted}" />
+             </Grid>
            </Border>
           </DataTemplate></ItemsControl.ItemTemplate>
          </ItemsControl>

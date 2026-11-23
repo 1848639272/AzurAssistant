@@ -11,6 +11,11 @@ public sealed partial class MainViewModel
 {
     private GrowthDataSource? _growthSource;
     private GrowthData? _growth;
+    private GrowthStamina? _stamina;
+    private GrowthInventoryStore? _inventory;
+    private readonly Dictionary<string, long> _owned = new(StringComparer.Ordinal);
+    private System.Windows.Threading.DispatcherTimer? _inventorySave;
+    private string _growthStaminaText = "";
     private string _growthStatus = "";
     private string _growthSummary = "";
     private string _growthCrystalText = "";
@@ -40,11 +45,15 @@ public sealed partial class MainViewModel
 
     private static string IconsDirectory => Path.Combine(AppContext.BaseDirectory, "assets", "growth", "icons");
 
+    private static string InventoryPath => Path.Combine(AppContext.BaseDirectory, "growth-inventory.json");
+
     private string CurrentKind => GrowthKindMap.FirstOrDefault(entry => entry.Label == _growthModule).Kind ?? GrowthData.Hero;
 
     public string GrowthVersionText => _growth is null
         ? "尚未加载数据"
         : $"数据版本 {_growth.VersionText} · 角色 {_growth.Heroes.Count} / 奇波 {_growth.Pets.Count} / 灵子 {_growth.Souls.Count} / 装备 {_growth.Equipments.Count}";
+
+    public string GrowthStaminaText { get => _growthStaminaText; private set { _growthStaminaText = value; Notify(); } }
 
     public string GrowthStatus { get => _growthStatus; private set { _growthStatus = value; Notify(); } }
     public string GrowthSummary { get => _growthSummary; private set { _growthSummary = value; Notify(); } }
@@ -187,6 +196,12 @@ public sealed partial class MainViewModel
     {
         _growthSource ??= new GrowthDataSource(GrowthDataPath);
         _growth = _growthSource.Load();
+        if (_growth is not null) _stamina ??= new GrowthStamina(_growth);
+        if (_inventory is null)
+        {
+            _inventory = new GrowthInventoryStore(InventoryPath);
+            foreach (var pair in _inventory.Load()) _owned[pair.Key] = pair.Value;
+        }
         Notify(nameof(GrowthVersionText));
         if (_growth is null)
         {
@@ -238,7 +253,55 @@ public sealed partial class MainViewModel
             ? ""
             : string.Join("　", plan.Crystals.Select(crystal => $"{crystal.Name} × {crystal.Count:N0}（{crystal.Experience} 经验/个）"))
               + (plan.CrystalRemainder > 0 ? $"　零头 {plan.CrystalRemainder}" : "");
-        foreach (var row in plan.Materials) GrowthMaterials.Add(row);
+        foreach (var row in plan.Materials)
+        {
+            if (_owned.TryGetValue(row.Key, out var owned)) row.Owned = owned;
+            if (_stamina is not null) row.StaminaText = _stamina.Describe(row);
+            row.PropertyChanged += OnGrowthRowChanged;
+            GrowthMaterials.Add(row);
+        }
+        UpdateStaminaTotal();
+    }
+
+    /// <summary>Persists the owned counts the user typed (debounced) and refreshes the totals.</summary>
+    private void OnGrowthRowChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(GrowthMaterialRow.Owned) || sender is not GrowthMaterialRow row) return;
+        _owned[row.Key] = row.Owned;
+        _inventorySave ??= CreateInventoryTimer();
+        _inventorySave.Stop();
+        _inventorySave.Start();
+        UpdateStaminaTotal();
+    }
+
+    private System.Windows.Threading.DispatcherTimer CreateInventoryTimer()
+    {
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            _inventory?.Save(_owned);
+        };
+        return timer;
+    }
+
+    private void UpdateStaminaTotal()
+    {
+        if (_stamina is null || GrowthMaterials.Count == 0)
+        {
+            GrowthStaminaText = "";
+            return;
+        }
+        var (stamina, runs, unavailable) = _stamina.Estimate(GrowthMaterials);
+        var missing = GrowthMaterials.Where(row => row.Missing > 0).ToList();
+        if (missing.Count == 0)
+        {
+            GrowthStaminaText = "材料都够了，不需要刷。";
+            return;
+        }
+        var text = $"剩余材料预计需要 ≈{stamina:N0} 体力，约 {runs} 次副本（按最省体力的副本估，多材料副本的实际消耗更低）";
+        if (unavailable.Count > 0) text += $"；以下材料没有稳定来源：{string.Join("、", unavailable.Take(6))}";
+        GrowthStaminaText = text;
     }
 
     public async Task UpdateGrowthDataAsync(string? url)

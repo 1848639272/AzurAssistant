@@ -6,11 +6,23 @@ public sealed record GrowthRequest(GrowthEntry Entry, int FromLevel, long OwnedE
     bool IncludeRunes);
 
 /// <summary>One material row: how much is needed, owned (user input) and therefore missing, plus its icon.</summary>
-public sealed class GrowthMaterialRow(string name, string? iconPath) : System.ComponentModel.INotifyPropertyChanged
+public sealed class GrowthMaterialRow(string name, string? iconPath, string kind = "", string id = "") : System.ComponentModel.INotifyPropertyChanged
 {
     private long _owned;
 
     public string Name { get; } = name;
+    public string Kind { get; } = kind;
+    public string Id { get; } = id;
+    /// <summary>"kind:id" — the key used by the inventory store and the stamina model.</summary>
+    public string Key => kind.Length > 0 ? $"{kind}:{id}" : name;
+
+    /// <summary>Per-row farming estimate, filled in by the view model.</summary>
+    public string StaminaText
+    {
+        get => _staminaText;
+        set { if (_staminaText == value) return; _staminaText = value; PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(StaminaText))); }
+    }
+    private string _staminaText = "";
     public string? IconPath { get; } = iconPath;
     public bool HasIcon => !string.IsNullOrWhiteSpace(IconPath);
     public long Need { get; set; }
@@ -105,7 +117,9 @@ public static class GrowthCalculator
             .Select(entry2 =>
             {
                 var icon = ResolveIcon(entry2.Key, icons, iconDirectory);
-                return new GrowthMaterialRow(entry2.Name, icon) { Need = entry2.Quantity };
+                var parts = entry2.Key.Split(':');
+                return new GrowthMaterialRow(entry2.Name, icon, parts.Length > 1 ? parts[0] : "", parts.Length > 1 ? parts[1] : "")
+                    { Need = entry2.Quantity };
             })
             .ToList();
         var (crystals, remainder) = SplitCrystals(exp, expItems);
