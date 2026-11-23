@@ -8,6 +8,7 @@ public interface IFlowHost
     Task MoveAsync(double x, double y, CancellationToken token);
     Task ClickAsync(double x, double y, CancellationToken token);
     Task PlayActionAsync(string action, CancellationToken token);
+    Task PressKeyAsync(string key, CancellationToken token);
     Task DelayAsync(int milliseconds, CancellationToken token);
     Task<bool> WaitTemplateAsync(string? pack, string template, int timeoutMs, CancellationToken token);
     Task<bool> TemplateVisibleAsync(string? pack, string template, CancellationToken token);
@@ -24,16 +25,25 @@ public sealed class FlowExecutor(IFlowHost host, TimeSpan? overallTimeout = null
     /// <summary>Hard cap on loop iterations to keep a bad plan from spinning forever.</summary>
     public const int MaxIterations = 1000;
 
-    public async Task<FlowRunResult> RunAsync(FlowDefinition flow, CancellationToken token)
+    /// <summary>
+    /// Runs a flow. <paramref name="startIndex"/> skips that many top-level steps (resume after a failure) and
+    /// <paramref name="onStep"/> reports the index of the step that just finished.
+    /// </summary>
+    public async Task<FlowRunResult> RunAsync(FlowDefinition flow, CancellationToken token, int startIndex = 0,
+        Action<int>? onStep = null)
     {
         flow.Validate();
+        startIndex = Math.Clamp(startIndex, 0, Math.Max(0, flow.Steps.Count));
         var started = Stopwatch.StartNew();
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
         deadline.CancelAfter(overallTimeout ?? TimeSpan.FromMinutes(30));
         var executed = 0;
         try
         {
-            await RunStepsAsync(flow.Steps, 0, deadline.Token, () => executed++).ConfigureAwait(false);
+            var remaining = startIndex > 0 ? flow.Steps.Skip(startIndex).ToList() : flow.Steps.ToList();
+            if (startIndex > 0) host.Log($"从第 {startIndex + 1} 步继续（跳过前 {startIndex} 步）。");
+            var index = startIndex;
+            await RunStepsAsync(remaining, 0, deadline.Token, () => executed++, () => onStep?.Invoke(index++)).ConfigureAwait(false);
             host.Log($"流程「{flow.Name}」完成：{executed} 步，用时 {started.Elapsed.TotalSeconds:F1} 秒");
             return new FlowRunResult(true, $"流程「{flow.Name}」完成（{executed} 步）", executed, started.Elapsed);
         }
@@ -51,7 +61,8 @@ public sealed class FlowExecutor(IFlowHost host, TimeSpan? overallTimeout = null
         }
     }
 
-    private async Task RunStepsAsync(IReadOnlyList<FlowStep> steps, int depth, CancellationToken token, Action count)
+    private async Task RunStepsAsync(IReadOnlyList<FlowStep> steps, int depth, CancellationToken token, Action count,
+        Action? afterStep = null)
     {
         foreach (var step in steps)
         {
@@ -70,6 +81,10 @@ public sealed class FlowExecutor(IFlowHost host, TimeSpan? overallTimeout = null
                 case FlowStep.ActionKind:
                     host.Log(step.Describe());
                     await host.PlayActionAsync(step.Action!, token).ConfigureAwait(false);
+                    break;
+                case FlowStep.Key:
+                    host.Log(step.Describe());
+                    await host.PressKeyAsync(step.Action ?? "", token).ConfigureAwait(false);
                     break;
                 case FlowStep.Delay:
                     host.Log(step.Describe());
@@ -90,6 +105,7 @@ public sealed class FlowExecutor(IFlowHost host, TimeSpan? overallTimeout = null
                     throw new FlowStepException("未知步骤类型：" + step.Kind);
             }
             count();
+            afterStep?.Invoke();
         }
     }
 

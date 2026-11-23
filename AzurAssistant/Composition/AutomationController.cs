@@ -22,7 +22,7 @@ public sealed class AutomationController(
     Func<Action<NavigationStatus>, Action<MapPosition>, IGameTask>? createRouteCapture = null,
     IReadOnlyList<NavigationMap>? navigationMaps = null, Func<GameWindow>? findGameWindow = null,
     Func<WheelchairPlan, IReadOnlyDictionary<string, ActionRecording>, Action<NavigationStatus>, IGameTask>? createWheelchair = null,
-    Func<FlowDefinition, IReadOnlyDictionary<string, ActionRecording>, Action<NavigationStatus>, IGameTask>? createFlow = null)
+    Func<FlowDefinition, IReadOnlyDictionary<string, ActionRecording>, Action<NavigationStatus>, Action<int, int>?, int, IGameTask>? createFlow = null)
 {
     private readonly object _completionGate = new();
     private bool _dailyCompletionPending;
@@ -295,7 +295,9 @@ public sealed class AutomationController(
         }
     }
 
-    public bool StartFlow(FlowDefinition flow, IReadOnlyDictionary<string, ActionRecording> actions)
+    /// <summary>Starts a flow; <paramref name="progress"/> receives (completedSteps, totalSteps) and <paramref name="startIndex"/> resumes.</summary>
+    public bool StartFlow(FlowDefinition flow, IReadOnlyDictionary<string, ActionRecording> actions,
+        Action<int, int>? progress = null, int startIndex = 0)
     {
         lock (_completionGate)
         {
@@ -303,7 +305,7 @@ public sealed class AutomationController(
             if (_actionRecorder is not null) return RejectStart("正在录制动作，请先结束录制。");
             if (createFlow is null) return RejectStart("流程功能未装配。");
             Volatile.Write(ref _navigationStatus, new NavigationStatus(null, DateTimeOffset.Now, "正在启动流程"));
-            return Start(() => createFlow(flow, actions, status => Volatile.Write(ref _navigationStatus, status)),
+            return Start(() => createFlow(flow, actions, status => Volatile.Write(ref _navigationStatus, status), progress, startIndex),
                 new TaskRunOptions(TimeSpan.FromMinutes(flow.TotalSteps * 3 + 5),
                     ResponseTiming: ResponseTiming.FromLowPerformanceMode(EffectiveSettings.LowPerformanceMode)));
         }

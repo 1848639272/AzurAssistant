@@ -559,6 +559,14 @@
          <Button Content="删除" Click="OnDeleteFlow" Padding="12,6" Margin="0,0,8,0" />
          <Button Content="刷新" Click="OnRefreshFlows" Padding="12,6" />
         </StackPanel>
+         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+          <TextBlock Text="由录制生成" VerticalAlignment="Center" FontSize="11" Margin="0,0,8,0" />
+          <ComboBox Width="200" ItemsSource="{Binding FlowActionSources}" SelectedItem="{Binding SelectedFlowActionSource}" Margin="0,0,8,0" AutomationProperties.Name="录制来源" />
+          <Button Content="生成流程" Click="OnConvertActionToFlow" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="由录制生成流程" />
+          <Button Content="从断点继续" Click="OnResumeFlow" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="从断点继续" />
+          <Button Content="清除断点" Click="OnClearFlowProgress" Padding="12,6" />
+         </StackPanel>
+         <TextBlock Text="{Binding FlowResumeText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0" />
         <TextBlock Text="步骤写法：move{x,y} · click{x,y} · action{action} · delay{durationMs} · wait{template,durationMs} · loop{repeat 或 template + body} · if{template + body}；可选 pack（资产包，默认 daily）、negate（反向判断）、body（子步骤）。完整说明见 流程编排说明.txt" Foreground="{DynamicResource Muted}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,4" />        <TextBlock Text="{Binding FlowSummary}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
         <TextBlock Text="{Binding FlowStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,20" />
         <TextBlock Text="任务编排（队列）" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />

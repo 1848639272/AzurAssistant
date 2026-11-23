@@ -800,7 +800,18 @@ public partial class MainWindow : Window
 
     // ---- 流程 ----
     private void OnRunFlow(object sender, RoutedEventArgs e) => ViewModel.RunSelectedFlow();
-    private void OnRefreshFlows(object sender, RoutedEventArgs e) => ViewModel.RefreshFlows();
+    private void OnRefreshFlows(object sender, RoutedEventArgs e)
+    {
+        ViewModel.RefreshFlows();
+        ViewModel.RefreshFlowActionSources();
+        ViewModel.RefreshFlowProgress();
+    }
+
+    private void OnConvertActionToFlow(object sender, RoutedEventArgs e) => ViewModel.ConvertActionToFlow();
+
+    private void OnResumeFlow(object sender, RoutedEventArgs e) => ViewModel.ResumeSelectedFlow();
+
+    private void OnClearFlowProgress(object sender, RoutedEventArgs e) => ViewModel.ClearFlowProgress();
 
     private void OnImportFlow(object sender, RoutedEventArgs e)
     {

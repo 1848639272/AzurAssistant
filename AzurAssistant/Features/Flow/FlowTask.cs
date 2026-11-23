@@ -13,7 +13,8 @@ namespace AzurAssistant.Features.Flow;
 /// same catalogs as the rest of the assistant, so a flow only names a pack and a template id.
 /// </summary>
 public sealed class FlowTask(INavigationRecognizer recognizer, FlowDefinition flow,
-    IReadOnlyDictionary<string, ActionRecording> actions, Action<NavigationStatus> report) : IGameTask
+    IReadOnlyDictionary<string, ActionRecording> actions, Action<NavigationStatus> report,
+    Action<int, int>? progress = null, int startIndex = 0) : IGameTask
 {
     public string Id => "flow-run";
     public string Name => "流程·" + flow.Name;
@@ -23,7 +24,8 @@ public sealed class FlowTask(INavigationRecognizer recognizer, FlowDefinition fl
         flow.Validate();
         var host = new GameFlowHost(context, recognizer, actions, report);
         var executor = new FlowExecutor(host);
-        var result = await executor.RunAsync(flow, token).ConfigureAwait(false);
+        var result = await executor.RunAsync(flow, token, startIndex, index => progress?.Invoke(index, flow.Steps.Count))
+            .ConfigureAwait(false);
         return new(result.Success, result.Message);
     }
 
@@ -74,6 +76,14 @@ public sealed class FlowTask(INavigationRecognizer recognizer, FlowDefinition fl
             _player ??= new ActionPlayer(log: context.Log);
             var paused = context.Execution as TaskPauseController;
             _player.Play(recording, frame.WindowHandle, null, paused is null ? null : () => paused.IsPaused, token);
+        }
+
+        public async Task PressKeyAsync(string key, CancellationToken token)
+        {
+            if (!Enum.TryParse<GameKey>(key, ignoreCase: true, out var gameKey))
+                throw new FlowStepException($"不认识的按键“{key}”。可用：{string.Join(" / ", Enum.GetNames<GameKey>())}");
+            var frame = await FreshAsync(token).ConfigureAwait(false);
+            await context.Input.PressKeyAsync(frame, gameKey, token).ConfigureAwait(false);
         }
 
         public Task DelayAsync(int milliseconds, CancellationToken token) => Task.Delay(milliseconds, token);

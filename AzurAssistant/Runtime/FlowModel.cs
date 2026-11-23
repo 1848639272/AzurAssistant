@@ -24,8 +24,9 @@ public sealed record FlowStep(
     public const string Wait = "wait";
     public const string Loop = "loop";
     public const string If = "if";
+    public const string Key = "key";
 
-    public static readonly string[] Kinds = [Move, Click, ActionKind, Delay, Wait, Loop, If];
+    public static readonly string[] Kinds = [Move, Click, ActionKind, Key, Delay, Wait, Loop, If];
 
     public bool IsBlock => Kind is Loop or If;
 
@@ -34,6 +35,7 @@ public sealed record FlowStep(
         Move => $"移动到 ({X:0.##}, {Y:0.##})",
         Click => $"点击 ({X:0.##}, {Y:0.##})",
         ActionKind => $"执行动作「{Action}」",
+        Key => $"按键 {Action}",
         Delay => $"等待 {DurationMs} ms",
         Wait => $"等待识别 {Pack}/{Template}（超时 {DurationMs} ms）",
         Loop => Template is null ? $"循环 {Repeat} 次（{Body?.Count ?? 0} 步）" : $"循环直到{(Negate ? "看不到" : "看到")} {Pack}/{Template}",
