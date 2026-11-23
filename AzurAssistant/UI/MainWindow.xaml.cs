@@ -686,6 +686,10 @@ public partial class MainWindow : Window
         }
         _closing = true;
 
+        // The HUD and the toast are independent top-level windows: closing only the main window would leave them
+        // on screen (and, with ShutdownMode.OnLastWindowClose, keep the process alive).
+        CloseOverlays();
+
         ViewModel.CommitHotkeyEdit();
         _updateCancellation?.Cancel();
         ClearDailyDragPreview();
@@ -698,6 +702,29 @@ public partial class MainWindow : Window
         _ = Dispatcher.BeginInvoke(Close);
     }
 
+    /// <summary>Closes the floating panel, any toast and the tray icon so nothing survives the exit.</summary>
+    private void CloseOverlays()
+    {
+        if (_hud is not null)
+        {
+            _hud.Close();
+            _hud = null;
+        }
+        if (_toast is not null)
+        {
+            _toast.Close();
+            _toast = null;
+        }
+        _tray?.Dispose();
+        _tray = null;
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        // Guarantee the process ends even if some overlay slipped through.
+        System.Windows.Application.Current?.Shutdown();
+    }
     /// <summary>Set by shutdown/restart paths that must not show the close prompt.</summary>
     internal static bool SkipClosePrompt { get; set; }
 
