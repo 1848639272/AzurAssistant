@@ -891,10 +891,15 @@
         </StackPanel>
         <TextBlock Text="{Binding CoverUidStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,20" AutomationProperties.Name="遮挡状态" />
 
-        <TextBlock Text="功能 2 · 待定" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
-        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,12">
-         <TextBlock Text="位置留空，等你想好要什么功能再加。" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" />
-        </Border>
+        <TextBlock Text="功能 2 · 坐标拾取" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="点「拾取坐标」，整个屏幕会变暗并显示十字线：在游戏画面上点一下，就能得到这个点在客户区的位置，以及 1920×1080 参考坐标（写流程、点技能、标模板都用得到）。右键或 Esc 取消。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+         <Button Content="拾取坐标" Click="OnPickCoordinate" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="拾取坐标按钮" />
+         <Button Content="复制 x/y" Click="OnCopyPickedCoordinate" Padding="12,6" Margin="0,0,8,0" AutomationProperties.Name="复制坐标" />
+         <Button Content="清空" Click="OnClearPickedCoordinate" Padding="12,6" />
+        </StackPanel>
+        <TextBlock Text="{Binding PickedCoordinate}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4" />
+        <TextBlock Text="{Binding PickedSnippet}" FontFamily="Consolas" FontSize="11" Margin="0,0,0,16" />
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />

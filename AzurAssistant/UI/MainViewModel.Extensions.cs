@@ -115,4 +115,58 @@ public sealed partial class MainViewModel
     {
         Notify(nameof(CoverUidRequest));
     }
+
+    // ---- 坐标拾取 ----
+
+    private string _pickedCoordinate = "还没有拾取。点「拾取坐标」后到画面上点一下，会显示客户区坐标和 1920×1080 参考坐标。";
+    private string _pickedSnippet = "";
+
+    public string PickedCoordinate { get => _pickedCoordinate; private set { _pickedCoordinate = value; Notify(); } }
+    public string PickedSnippet { get => _pickedSnippet; private set { _pickedSnippet = value; Notify(); } }
+
+    /// <summary>Converts a screen point into client/reference coordinates against the game window (or this window).</summary>
+    public void PickCoordinateAt(int screenX, int screenY)
+    {
+        int left = 0, top = 0, width = 0, height = 0;
+        var source = "屏幕";
+        try
+        {
+            var game = AzurAssistant.Platform.GameWindow.Find("AzurPromilia");
+            var geometry = game.Observe();
+            left = geometry.X;
+            top = geometry.Y;
+            width = geometry.Width;
+            height = geometry.Height;
+            source = "游戏客户区";
+        }
+        catch (InvalidOperationException)
+        {
+            // No game: fall back to the assistant window so the tool still works while positioning flows.
+            var handle = new System.Windows.Interop.WindowInteropHelper(
+                System.Windows.Application.Current?.MainWindow ?? throw new InvalidOperationException()).Handle;
+            var origin = new AzurAssistant.Platform.NativeMethods.Point();
+            if (handle == IntPtr.Zero
+                || !AzurAssistant.Platform.NativeMethods.GetClientRect(handle, out var client)
+                || !AzurAssistant.Platform.NativeMethods.ClientToScreen(handle, ref origin))
+            {
+                PickedCoordinate = "无法获取窗口客户区，请检查游戏或助手窗口状态。";
+                return;
+            }
+            left = origin.X;
+            top = origin.Y;
+            width = client.Right;
+            height = client.Bottom;
+            source = "助手客户区（没有找到游戏窗口）";
+        }
+
+        var result = AzurAssistant.Runtime.PickCoordinate.FromScreen(screenX, screenY, left, top, width, height);
+        PickedCoordinate = $"{source}：{result.Describe(width, height)}";
+        PickedSnippet = result.InsideClient ? result.Snippet : "";
+    }
+
+    public void ClearPickedCoordinate()
+    {
+        PickedCoordinate = "还没有拾取。点「拾取坐标」后到画面上点一下，会显示客户区坐标和 1920×1080 参考坐标。";
+        PickedSnippet = "";
+    }
 }

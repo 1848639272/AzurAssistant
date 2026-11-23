@@ -1026,6 +1026,22 @@ public partial class MainWindow : Window
         CoverAdjustButton.Content = _coverAdjusting ? "退出调整（保存）" : "调整位置（拖动）";
     }
 
+    private void OnPickCoordinate(object sender, RoutedEventArgs e)
+    {
+        var picker = new PointPickerWindow { Owner = this };
+        if (picker.ShowDialog() != true || picker.ScreenPoint is not { } point) return;
+        ViewModel.PickCoordinateAt((int)Math.Round(point.X), (int)Math.Round(point.Y));
+    }
+
+    private void OnCopyPickedCoordinate(object sender, RoutedEventArgs e)
+    {
+        var snippet = ViewModel.PickedSnippet;
+        if (snippet.Length == 0) return;
+        try { Clipboard.SetText(snippet); } catch (System.Runtime.InteropServices.COMException) { }
+    }
+
+    private void OnClearPickedCoordinate(object sender, RoutedEventArgs e) => ViewModel.ClearPickedCoordinate();
+
     private void OnResetCoverUid(object sender, RoutedEventArgs e)
     {
         _coverAdjusting = false;

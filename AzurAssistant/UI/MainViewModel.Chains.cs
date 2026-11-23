@@ -83,6 +83,24 @@ public sealed partial class MainViewModel
         }
     }
 
+    /// <summary>Runs a saved chain by name; used by the scheduler so a queue can be triggered on a timer.</summary>
+    public async Task<bool> RunChainByNameAsync(string name)
+    {
+        if (_chainRunning) { ChainStatus = "队列正在运行。"; return false; }
+        if (automation is null) return false;
+        var entry = ChainFiles.List().FirstOrDefault(item => item.Chain.Name == name);
+        if (string.IsNullOrWhiteSpace(entry.Chain?.Name))
+        {
+            ChainStatus = $"找不到队列「{name}」。";
+            return false;
+        }
+        _selectedChain = entry;
+        Notify(nameof(SelectedChain));
+        Notify(nameof(ChainSummary));
+        await RunSelectedChainAsync();
+        return true;
+    }
+
     /// <summary>Starts one chain item and resolves when that run finishes.</summary>
     private async Task<TaskResult> StartChainItemAsync(ChainItem item, CancellationToken token)
     {

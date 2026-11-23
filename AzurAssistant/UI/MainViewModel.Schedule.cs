@@ -254,6 +254,11 @@ public sealed partial class MainViewModel
         foreach (var action in SavedActions) ScheduleChoices.Add(new("action:" + action.Name, "动作：" + action.Name));
         LoadWheelchairPlans();
         foreach (var plan in SavedWheelchairPlans) ScheduleChoices.Add(new("wheelchair:" + plan.Name, "轮椅：" + plan.Name));
+        try
+        {
+            foreach (var entry in ChainFiles.List()) ScheduleChoices.Add(new("chain:" + entry.Chain.Name, "队列：" + entry.Chain.Name));
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException) { }
         Notify(nameof(ScheduleChoices));
     }
 
