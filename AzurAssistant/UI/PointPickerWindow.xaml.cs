@@ -14,6 +14,8 @@ public partial class PointPickerWindow : Window
     public PointPickerWindow()
     {
         InitializeComponent();
+        var look = ThemePalette.Current;
+        ThemePalette.Apply(this, look.Dark, look.Ui, look.Text, look.Background, look.Accent);
         Left = SystemParameters.VirtualScreenLeft;
         Top = SystemParameters.VirtualScreenTop;
         Width = SystemParameters.VirtualScreenWidth;

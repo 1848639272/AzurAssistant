@@ -16,6 +16,8 @@ public partial class HudWindow : Window
 
     public HudWindow()
     {
+        // The panel is always dark, so give its buttons the dark palette instead of the light default.
+        ThemePalette.Apply(this, dark: true);
         InitializeComponent();
     }
 

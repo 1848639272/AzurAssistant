@@ -54,6 +54,7 @@ public partial class MainWindow : Window
         System.Windows.Media.CompositionTarget.Rendering += OnFrameRendered;
         DataContext = ViewModel = viewModel;
         ApplyAppearance();
+        AdjustRefreshRate();
         _confirmSettingsRestart = confirmSettingsRestart ?? (() => Task.FromResult(MessageBox.Show(this,
             "设置已经修改，是否立即重启助手生效？", "蔚蓝助手", MessageBoxButton.YesNo,
             MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes));
@@ -61,7 +62,7 @@ public partial class MainWindow : Window
             MessageBoxButton.OK, MessageBoxImage.Information));
         Activated += (_, _) => UpdateHotkeyCapture();
         Deactivated += (_, _) => { ViewModel.CommitHotkeyEdit(); SetHotkeyCapture(false); };
-        _refresh = new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background,
+        _refresh = new DispatcherTimer(TimeSpan.FromMilliseconds(IdleRefreshMs), DispatcherPriority.Background,
             (_, _) => ViewModel.Refresh(), Dispatcher);
     }
 
@@ -86,6 +87,7 @@ public partial class MainWindow : Window
         {
             foreach (var reminder in ViewModel.TakeDueReminders()) ShowToast(reminder.Title, reminder.Message);
         };
+        IsVisibleChanged += (_, _) => SyncWindowVisible();
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
         _reminderTimer.Start();
         TaskbarItemInfo = new System.Windows.Shell.TaskbarItemInfo();
@@ -94,6 +96,7 @@ public partial class MainWindow : Window
         _progressTimer.Start();
         if (ViewModel.TaskRunnerInternal is { } runner) runner.RunCompleted += result => Dispatcher.BeginInvoke(() => OnRunCompleted(result));
         ApplyAppearance();
+        AdjustRefreshRate();
         _refresh.Start();
         await CheckUpdatesAsync(automatic: true);
         if (!_closing && !_updateLaunched && !ViewModel.RestartRequested) ViewModel.Initialize();
@@ -180,6 +183,7 @@ public partial class MainWindow : Window
         if (!IsLoaded) return;
         // Base colours change with the theme, so this is the one path that rebuilds the palette.
         ApplyAppearance();
+        AdjustRefreshRate();
         ViewModel.Refresh();
     }
 
@@ -1144,6 +1148,8 @@ public partial class MainWindow : Window
 
     private void ApplyUidCover() => _uidCover?.Update(ViewModel.CoverUidRequest);
 
+    private void SyncWindowVisible() => ViewModel.WindowVisible = WindowState != WindowState.Minimized && IsVisible;
+
     // ---- 悬浮窗 / 托盘 / 通知 ----
     private HudWindow? _hud;
     private ToastWindow? _toast;
@@ -1261,5 +1267,17 @@ public partial class MainWindow : Window
             Hide();
             _tray?.Show();
         }
+    }
+
+    /// <summary>Idle polling is slower than work polling: the page only needs to follow the game while it runs.</summary>
+    private const int IdleRefreshMs = 250;
+    private const int BusyRefreshMs = 100;
+
+    private void AdjustRefreshRate()
+    {
+        var wanted = ViewModel.IsWorking || ViewModel.IsLive ? BusyRefreshMs : IdleRefreshMs;
+        if (!ViewModel.WindowVisible) wanted = Math.Max(wanted, 500);
+        if ((int)_refresh.Interval.TotalMilliseconds == wanted) return;
+        _refresh.Interval = TimeSpan.FromMilliseconds(wanted);
     }
 }

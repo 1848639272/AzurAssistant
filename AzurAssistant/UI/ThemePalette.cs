@@ -49,8 +49,8 @@ public sealed class ThemePalette : ResourceDictionary
         AddBrush("WindowBackground", dark ? "#000000" : "#E7EDF0");
         AddBrush("SidebarBackground", dark ? "#0D0D0D" : "#DFE7EB");
         AddBrush("CardBackground", dark ? "#1B1B1B" : "#FFFFFF");
-        AddBrush("TileBackground", dark ? "#262626" : "#F2F6F8");
-        AddBrush("InputBackground", dark ? "#141414" : "#FFFFFF");
+        AddBrush("TileBackground", dark ? "#2B2B2B" : "#F2F6F8");
+        AddBrush("InputBackground", dark ? "#1E1E1E" : "#FFFFFF");
         AddBrush("BorderBrush", dark ? "#6E6E6E" : "#D2DEE4");
         AddBrush("InputBorderBrush", dark ? "#9A9A9A" : "#B5C7CA");
         AddBrush("DividerBrush", dark ? "#4F4F4F" : "#DCE6EA");
@@ -89,10 +89,15 @@ public sealed class ThemePalette : ResourceDictionary
     public Color AccentColor => _accent;
 
     /// <summary>Creates a palette and pushes it into the scope's resources; returns it for later in-place updates.</summary>
+    /// <summary>The look last applied to the main window, so dialogs and overlays can match it.</summary>
+    public static (bool Dark, int Ui, int Text, int Background, Color? Accent) Current { get; private set; } =
+        (false, 100, 100, 100, null);
+
     public static ThemePalette Apply(FrameworkElement scope, bool dark, int uiOpacity = 100, int textOpacity = 100,
         int backgroundOpacity = 100, Color? accent = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        Current = (dark, Clamp(uiOpacity), Clamp(textOpacity), Clamp(backgroundOpacity), accent);
         var palette = new ThemePalette(dark, Clamp(uiOpacity), Clamp(textOpacity), Clamp(backgroundOpacity), accent);
         palette._scope = scope;
         foreach (var (key, brush) in palette._brushes) scope.Resources[key] = brush;

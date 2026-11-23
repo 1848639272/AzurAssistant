@@ -266,6 +266,9 @@
      <RadioButton x:Name="SettingsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="settings" Checked="OnNavigate" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" AutomationProperties.Name="设置">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
+      <RadioButton x:Name="CreditsNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="credits" Checked="OnNavigate" IsChecked="{Binding IsCreditsPage, Mode=OneWay}" AutomationProperties.Name="贡献相关">
+       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8F4;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="贡献相关" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
+      </RadioButton>
     </StackPanel>
      </ScrollViewer>
     <StackPanel Grid.Row="3" Margin="5,0,0,0">
@@ -699,13 +702,12 @@
        </StackPanel>
        <StackPanel x:Name="GrowthPage" Visibility="{Binding IsGrowthPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="养成计算" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-         <TextBlock Text="{Binding GrowthVersionText}" VerticalAlignment="Center" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,12,0" />
-         <Button Content="更新数据（promilia.wiki）" Click="OnUpdateGrowthData" Padding="12,6" Margin="0,0,8,0" />
-         <Button Content="导入本地 JSON…" Click="OnImportGrowthData" Padding="12,6" />
-        </StackPanel>
-        <TextBlock Text="{Binding GrowthStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
-
+         <TextBlock Text="{Binding GrowthVersionText}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6" />
+         <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+          <Button Content="更新数据（promilia.wiki）" Click="OnUpdateGrowthData" Padding="12,6" Margin="0,0,8,0" />
+          <Button Content="导入本地 JSON…" Click="OnImportGrowthData" Padding="12,6" />
+         </StackPanel>
+         <TextBlock Text="{Binding GrowthStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14" />
         <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,0,14">
          <StackPanel>
           <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="220" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
@@ -793,9 +795,37 @@
        </StackPanel>
        <StackPanel x:Name="GachaPage" Visibility="{Binding IsGachaPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="抽卡分析" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,10" />
-        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="16,14">
-         <TextBlock Text="这个页面先占位，内容待补充。" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" />
-        </Border>
+         <ComboBox ItemsSource="{Binding GachaPresets}" SelectedItem="{Binding SelectedGachaPreset}" DisplayMemberPath="Label" Margin="0,0,0,10" AutomationProperties.Name="抽卡模板" />
+         <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="110" /><ColumnDefinition Width="96" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+          <TextBlock Text="基础概率 %" VerticalAlignment="Center" FontSize="11" />
+          <TextBox Grid.Column="1" Text="{Binding GachaBasePercent, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,12,0" AutomationProperties.Name="基础概率" />
+          <TextBlock Grid.Column="2" Text="硬保底抽" VerticalAlignment="Center" FontSize="11" />
+          <TextBox Grid.Column="3" Text="{Binding GachaHardPity, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="硬保底" />
+         </Grid>
+         <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="110" /><ColumnDefinition Width="96" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+          <TextBlock Text="软保底起" VerticalAlignment="Center" FontSize="11" />
+          <TextBox Grid.Column="1" Text="{Binding GachaSoftPityStart, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,12,0" AutomationProperties.Name="软保底起点" />
+          <TextBlock Grid.Column="2" Text="每抽 +%" VerticalAlignment="Center" FontSize="11" />
+          <TextBox Grid.Column="3" Text="{Binding GachaSoftStepPercent, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="软保底步长" />
+         </Grid>
+         <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="110" /><ColumnDefinition Width="96" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+          <TextBlock Text="出目标 %" VerticalAlignment="Center" FontSize="11" />
+          <TextBox Grid.Column="1" Text="{Binding GachaItemPercent, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,12,0" AutomationProperties.Name="出目标概率" />
+          <TextBlock Grid.Column="2" Text="要几个" VerticalAlignment="Center" FontSize="11" />
+          <TextBox Grid.Column="3" Text="{Binding GachaCopies, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="目标数量" />
+         </Grid>
+         <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="96" /><ColumnDefinition Width="110" /><ColumnDefinition Width="96" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+          <TextBlock Text="已垫抽数" VerticalAlignment="Center" FontSize="11" />
+          <TextBox Grid.Column="1" Text="{Binding GachaStartPity, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,12,0" AutomationProperties.Name="已垫抽数" />
+          <TextBlock Grid.Column="2" Text="预算抽数" VerticalAlignment="Center" FontSize="11" />
+          <TextBox Grid.Column="3" Text="{Binding GachaPulls, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="预算抽数" />
+         </Grid>
+         <TextBlock Text="自定义保底表（可选，用分号隔开，第 1 项对应第 1 抽）；留空则用上面的参数生成" FontSize="10" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,4" />
+         <TextBox Text="{Binding GachaTableText, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="10" Height="46" AcceptsReturn="True" TextWrapping="Wrap" Margin="0,0,0,10" AutomationProperties.Name="自定义保底表" />
+         <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,12" Margin="0,0,0,8">
+          <TextBlock Text="{Binding GachaResult}" FontSize="12" TextWrapping="Wrap" AutomationProperties.Name="抽卡结果" />
+         </Border>
+         <TextBlock Text="{Binding GachaStatus}" Foreground="{DynamicResource Muted}" FontSize="10" TextWrapping="Wrap" />
        </StackPanel>
        <StackPanel x:Name="ToolsPage" Visibility="{Binding IsToolsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="语言包" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
@@ -989,6 +1019,31 @@
          </DataTemplate></ListBox.ItemTemplate>
         </ListBox>
         <TextBlock Text="{Binding LedgerStatus}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,4" />
+       </StackPanel>
+       <StackPanel x:Name="CreditsPage" Visibility="{Binding IsCreditsPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock Text="贡献相关" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <TextBlock Text="这一页只放文字说明：谁做了什么、数据从哪来、用了哪些开源项目。等想好再往里加。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16" />
+
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18,16" Margin="0,0,0,12">
+         <StackPanel>
+          <TextBlock Text="养成数据" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
+          <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource Muted}" Text="角色、奇波、灵子、装备的养成表与材料产出，来自 promilia.wiki 的养成规划器（progression-planner-v2）。材料图标同样取自该站。" />
+         </StackPanel>
+        </Border>
+
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18,16" Margin="0,0,0,12">
+         <StackPanel>
+          <TextBlock Text="抽卡概率参考" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
+          <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource Muted}" Text="抽卡分析的概率模型（含保底与软保底）参考 OneBST/GGanalysis 公开的模型与说明；本项目用 C# 重新实现，不包含其代码。" />
+         </StackPanel>
+        </Border>
+
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="18,16">
+         <StackPanel>
+          <TextBlock Text="开源项目" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
+          <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource Muted}" Text="OpenCvSharp（模板匹配）、RapidOcrNet（OCR）、.NET 10 / WPF。" />
+         </StackPanel>
+        </Border>
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
         <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />

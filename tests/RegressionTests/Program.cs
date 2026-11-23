@@ -26,9 +26,11 @@ internal static class Program
         Run("reminders", ReminderChecks);
         Run("duration estimate", DurationChecks);
         Run("crash reporter", CrashChecks);
+        Run("gacha model", GachaChecks);
         Run("combined plans", CombinedChecks);
         Run("ledger", LedgerChecks);
         Run("repository index", RepositoryChecks);
+        Run("2k/4k geometry", ResolutionChecks);
         Run("screen sampling", ScreenChecks);
 
         Console.WriteLine();
@@ -233,6 +235,49 @@ internal static class Program
         Directory.Delete(directory, true);
     }
 
+    private static void GachaChecks()
+    {
+        // Every pull is the wanted item: expected exactly 1 pull.
+        var always = new GachaModel([1.0, 1.0], 1.0);
+        Check("always hit", Math.Abs(always.Expected(1, 0, 10) - 1) < 1e-9, always.Expected(1, 0, 10).ToString("F6"));
+
+        // Hard pity only at 10 pulls: the item is guaranteed on the 10th.
+        var table = new double[11];
+        for (var index = 0; index <= 10; index++) table[index] = index >= 10 ? 1 : 0;
+        var hard = new GachaModel(table, 1.0);
+        Check("hard pity expected", Math.Abs(hard.Expected(1, 0, 40) - 10) < 1e-9, hard.Expected(1, 0, 40).ToString("F6"));
+        Check("hard pity within 10", Math.Abs(hard.ProbabilityWithin(10, 1, 0, 40) - 1) < 1e-9,
+            hard.ProbabilityWithin(10, 1, 0, 40).ToString("F6"));
+        Check("hard pity within 9", hard.ProbabilityWithin(9, 1, 0, 40) < 1e-9);
+
+        // 50/50 with guarantee-in-model: two hard-pity items needed on average per copy at p=0.5.
+        var banner = new GachaModel(table, 0.5);
+        var expected = banner.Expected(1, 0, 200);
+        Check("50/50 raises expectation", Math.Abs(expected - 20) < 0.2, expected.ToString("F3"));
+
+        // Starting pity shortens the run.
+        Check("start pity shortens", hard.Expected(1, 9, 40) < hard.Expected(1, 0, 40),
+            $"{hard.Expected(1, 9, 40):F2} < {hard.Expected(1, 0, 40):F2}");
+
+        // More copies need more pulls and the worst case adds up.
+        Check("two copies", hard.Expected(2, 0, 80) > hard.Expected(1, 0, 80));
+        Check("worst case", hard.WorstCase(1, 0) == 20 && hard.WorstCase(2, 0) == 40,
+            $"{hard.WorstCase(1, 0)}/{hard.WorstCase(2, 0)}");
+
+        // Preset tables are sane and probabilities are monotonic in pulls.
+        var character = GachaModel.Preset("character");
+        var within100 = character.ProbabilityWithin(100, 1, 0, 200);
+        var within200 = character.ProbabilityWithin(200, 1, 0, 200);
+        Check("preset monotonic", within100 > 0.5 && within200 > within100 && within200 <= 1.0,
+            $"{within100:P1} → {within200:P1}");
+        Check("preset table shape", character.MaxPity == 90 && character.PityTable[90] == 1.0,
+            $"{character.MaxPity} 抽");
+        Check("table parse", GachaModel.ParseTable("0.6,0.6,1").Count == 3
+            && Math.Abs(GachaModel.ParseTable("0.6,0.6,1")[0] - 0.6) < 1e-12
+            && Math.Abs(GachaModel.ParseTable("60,60,100")[0] - 0.6) < 1e-12,
+            GachaModel.ParseTable("60,60,100")[0].ToString("F4"));
+    }
+
     private static void CombinedChecks()
     {
         GrowthMaterialRow Row(string name, string kind, string id, long need) => new(name, null, kind, id) { Need = need };
@@ -310,6 +355,39 @@ internal static class Program
         Check("invalid json reported", RepositoryIndex.Parse("{not json}") is { Items.Count: 0 } parsed && parsed.Error is not null);
         Check("target folder", RepositoryTarget.FolderFor("flow") == "flows" && RepositoryTarget.FolderFor("chain") == "chains",
             RepositoryTarget.FolderFor("flow"));
+    }
+
+    private static void ResolutionChecks()
+    {
+        // UID cover keeps the same reference rectangle at every client size.
+        foreach (var (width, height, scale, label) in new[]
+        {
+            (1920, 1080, 1.0, "1080p@100%"), (2560, 1440, 1.0, "2K@100%"),
+            (3840, 2160, 1.5, "4K@150%"), (2560, 1440, 1.25, "2K@125%"), (1280, 720, 1.0, "720p@100%"),
+        })
+        {
+            var placement = UidCoverGeometry.Compute(0, 0, width, height, scale, 78, 1026, 132, 26);
+            var expectX = 78 * (width / 1920.0) / scale;
+            var expectY = 1026 * (height / 1080.0) / scale;
+            Check($"cover {label}", placement.IsValid && Math.Abs(placement.CoverLeft - expectX) < 0.01
+                && Math.Abs(placement.CoverTop - expectY) < 0.01, $"{placement.CoverLeft:F1},{placement.CoverTop:F1}");
+        }
+
+        // Picker converts a screen point back to the same reference point at any client size.
+        foreach (var (width, height, label) in new[] { (1920, 1080, "1080p"), (2560, 1440, "2K"), (3840, 2160, "4K") })
+        {
+            var clientX = 100;
+            var clientY = 50;
+            var screenX = clientX + width / 2;
+            var screenY = clientY + height / 2;
+            var result = PickCoordinate.FromScreen(screenX, screenY, clientX, clientY, width, height);
+            Check($"picker {label}", result.InsideClient && Math.Abs(result.ReferenceX - 960) <= 1
+                && Math.Abs(result.ReferenceY - 540) <= 1, $"{result.ReferenceX},{result.ReferenceY}");
+        }
+
+        // The reference pixel grid drives the UID default: 78,1026 must stay inside 1080p.
+        Check("reference defaults", UidCoverGeometry.DefaultX + UidCoverGeometry.DefaultWidth <= UidCoverGeometry.ReferenceWidth
+            && UidCoverGeometry.DefaultY + UidCoverGeometry.DefaultHeight <= UidCoverGeometry.ReferenceHeight);
     }
 
     private static void ScreenChecks()

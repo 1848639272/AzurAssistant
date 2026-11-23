@@ -29,6 +29,9 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     private readonly ApplicationPreferences _startupPreferences = ApplicationPreferences.From(automation?.Settings ?? new());
     private bool _navigating;
     private TimeSpan _lastPreviewUpdate;
+    private TimeSpan _lastLogPoll;
+    /// <summary>Set by the window: when it is minimised or hidden nothing on screen needs the preview bitmap.</summary>
+    public bool WindowVisible { get; set; } = true;
     private string? _displayedDailyOrder;
     private bool _exitGameSettingsExpanded;
     private string? _exitGameDelayText;
@@ -37,6 +40,9 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     public ObservableCollection<DailyTaskOption> OrderedDailyTasks { get; } = [];
     private TaskRunner? Runner => automation?.Runner ?? runner;
     private bool IsBusy => automation?.IsBusy ?? (Runner?.IsRunning == true);
+
+    /// <summary>Public view of "a task is running", used by the window to poll faster while working.</summary>
+    public bool IsWorking => IsBusy;
     private AssistantSettings Settings => automation?.Settings ?? _localSettings;
     private AssistantSettings EffectiveSettings => automation?.EffectiveSettings ?? _startupPreferences.ApplyTo(_localSettings);
     public bool HasPendingSettings => automation?.HasPendingSettings
@@ -63,7 +69,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         get => _selectedPage;
         set
         {
-            if (value is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "actions" or "wheelchair" or "schedule" or "growth" or "gacha" or "tools" or "extensions" or "feedback" or "settings") || value == _selectedPage) return;
+            if (value is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "actions" or "wheelchair" or "schedule" or "growth" or "gacha" or "tools" or "extensions" or "feedback" or "settings" or "credits") || value == _selectedPage) return;
             _selectedPage = value;
             Notify(string.Empty);
         }
@@ -80,9 +86,10 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     public bool IsGachaPage => SelectedPage == "gacha";
     public bool IsToolsPage => SelectedPage == "tools";
     public bool IsExtensionsPage => SelectedPage == "extensions";
+    public bool IsCreditsPage => SelectedPage == "credits";
     public bool IsFeedbackPage => SelectedPage == "feedback";
     public bool IsSettingsPage => SelectedPage == "settings";
-    public string PageTitle => SelectedPage switch { "daily" => "一条龙", "realtime" => "实时辅助", "navigation" => "导航测试", "routes" => "路线管理", "actions" => "动作录制", "wheelchair" => "轮椅功能", "schedule" => "定时执行", "growth" => "养成计算", "gacha" => "抽卡分析", "tools" => "工具与诊断", "extensions" => "扩展功能", "feedback" => "问题反馈", "settings" => "设置", _ => "控制台" };
+    public string PageTitle => SelectedPage switch { "daily" => "一条龙", "realtime" => "实时辅助", "navigation" => "导航测试", "routes" => "路线管理", "actions" => "动作录制", "wheelchair" => "轮椅功能", "schedule" => "定时执行", "growth" => "养成计算", "gacha" => "抽卡分析", "tools" => "工具与诊断", "extensions" => "扩展功能", "credits" => "贡献相关", "feedback" => "问题反馈", "settings" => "设置", _ => "控制台" };
     public bool CanConfigure => !IsBusy && !IsRestarting && !IsUpdateBusy;
     public bool IsUpdateBusy { get; private set; }
     public string UpdateStatus { get; private set; } = "GitHub 更新仓库尚未配置";
@@ -490,7 +497,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     /// <returns>True only after a replacement assistant was started and this window may close.</returns>
     public async Task<bool> NavigateAsync(string page, Func<Task<bool>> confirmRestart)
     {
-        if (_navigating || page is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "actions" or "wheelchair" or "schedule" or "growth" or "gacha" or "tools" or "extensions" or "feedback" or "settings") || page == SelectedPage) return false;
+        if (_navigating || page is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "actions" or "wheelchair" or "schedule" or "growth" or "gacha" or "tools" or "extensions" or "feedback" or "settings" or "credits") || page == SelectedPage) return false;
         _navigating = true;
         try
         {
@@ -611,6 +618,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         Message = current.Message;
         // Preview rendering is independent of the frame feed used by running tasks.
         var displayFrame = ShowPreview ? frame : null;
+        var imageChanged = false;
         var previewInterval = TimeSpan.FromMilliseconds(EffectiveSettings.LowPerformanceMode ? 400 : 200);
         if (displayFrame is null || !ReferenceEquals(_displayedFrame, displayFrame)
             && (PreviewImage is null || now - _lastPreviewUpdate >= previewInterval))

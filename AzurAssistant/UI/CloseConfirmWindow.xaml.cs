@@ -15,6 +15,8 @@ public partial class CloseConfirmWindow : Window
     public CloseConfirmWindow(bool trayAvailable)
     {
         InitializeComponent();
+        var look = ThemePalette.Current;
+        ThemePalette.Apply(this, look.Dark, look.Ui, look.Text, look.Background, look.Accent);
         if (trayAvailable) return;
         TrayButton.IsEnabled = false;
         TrayButton.ToolTip = "托盘图标已关闭，无法收到托盘；请先在设置里启用托盘图标。";
