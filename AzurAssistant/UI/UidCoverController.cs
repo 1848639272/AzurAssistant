@@ -124,6 +124,11 @@ public sealed class UidCoverController(Window owner, Action<string> reportStatus
         {
             var handle = new WindowInteropHelper(owner).Handle;
             if (handle == IntPtr.Zero) { source = "预览：助手窗口尚未就绪。"; return false; }
+            if (NativeMethods.GetForegroundWindow() != handle)
+            {
+                source = "预览：助手窗口不在前台，已隐藏（只在本窗口前台时显示）。";
+                return false;
+            }
             var origin = new NativeMethods.Point();
             if (!NativeMethods.GetClientRect(handle, out var client) || !NativeMethods.ClientToScreen(handle, ref origin))
             {
@@ -143,6 +148,11 @@ public sealed class UidCoverController(Window owner, Action<string> reportStatus
         {
             var game = GameWindow.Find("AzurPromilia");
             var geometry = game.Observe();
+            if (!IsForeground(game.Handle, game.ProcessId))
+            {
+                source = "游戏不在前台，已隐藏（只在游戏画面上显示）。";
+                return false;
+            }
             x = geometry.X;
             y = geometry.Y;
             width = geometry.Width;
@@ -156,6 +166,16 @@ public sealed class UidCoverController(Window owner, Action<string> reportStatus
             source = "未找到游戏窗口：" + ex.Message + "（可勾选「在本窗口预览」先摆好位置）";
             return false;
         }
+    }
+
+    /// <summary>True when the foreground window belongs to the target process (so the cover never floats over other apps).</summary>
+    private static bool IsForeground(IntPtr target, int processId)
+    {
+        var foreground = NativeMethods.GetForegroundWindow();
+        if (foreground == IntPtr.Zero) return false;
+        if (foreground == target) return true;
+        NativeMethods.GetWindowThreadProcessId(foreground, out var pid);
+        return (int)pid == processId;
     }
 
     private static double GameDpi(IntPtr handle)
