@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 1,
-  "Version": "2.0.0",
+  "Version": "2.2.0",
   "Maps": [
     {
       "Id": "200000",
@@ -16,7 +16,7 @@
       "LocalMapScale": 0.931,
       "MovementScale": 1.0,
       "WorldTemplate": "world-village",
-      "Source": "maptest/results/textures/tex_miniMap_200000.png",
+      "Source": "蓝色星原：旅谣 · 夏露露村小地图",
       "SourcePackage": "2302423",
       "Teleports": [
         {
@@ -27,7 +27,7 @@
           "TitleTemplate": "village-star-node-title",
           "IconTemplate": "teleport-icon",
           "ArrivalMapId": "200000",
-          "Source": "录屏素材/地图测试/夏露露村/夏露露村传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "b7adf35a464548dffd0f9503b53843dbd297136a9f084afede54753f551257b1",
           "LandingX": 1255.6,
           "LandingY": 709.2,
@@ -43,14 +43,15 @@
       "Width": 8192,
       "Height": 8192,
       "MapFile": "valley-map.png",
-      "MapSha256": "313916cb30e7d619712cf0090bf9ee613a046b74ac7e37290ca22397251dc257",
+      "MapSha256": "ed8e307629e7ff33832c402838687cbb5e260c17841c590136d76f35944aa9b4",
       "FeatureFile": "valley-features.bin",
-      "FeatureSha256": "ba0066ac9c861481eb0bff432acd0d78e918526e919787fd5fc643e3220f0860",
+      "FeatureSha256": "4cb3e24c7f4f9f37c68c9c772aca532428eb4397b7b957c069c612fed93f53ab",
       "LocalMapScale": 1.3052,
       "MovementScale": 1.4019334049409236,
       "WorldTemplate": "world-valley",
-      "Source": "maptest/results/stitched/map_100000_8192.png",
-      "SourcePackage": "2302423",
+      "Source": "tex_miniMap_100000_{row}_{column}",
+      "SourcePackage": "3217420",
+      "TeleportSourcePackage": "2302423",
       "Teleports": [
         {
           "Id": "valley-wind-woods",
@@ -60,7 +61,7 @@
           "TitleTemplate": "valley-wind-woods-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷倚风林地传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "5c4c08a8747c8330d2bd757f732d71749843bb5d982a00fc5a1c3827f05e04f1",
           "ArrivalRadius": 252.34801288936623
         },
@@ -72,7 +73,7 @@
           "TitleTemplate": "valley-thunder-ruins-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷唤雷遗迹传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "777856defb89ae4d3119be0fe10f983c3681c932f134695d39fd7f4ea5929c68",
           "ArrivalRadius": 252.34801288936623
         },
@@ -84,7 +85,7 @@
           "TitleTemplate": "valley-dinatum-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷帝那图姆传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "f692f962d255dce8c65d894943dff8b015c39e26c6955398a4ee045462b8ab82",
           "ArrivalRadius": 252.34801288936623
         },
@@ -96,7 +97,7 @@
           "TitleTemplate": "valley-wind-path-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷沐风小径传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "35bd202c21962007d8d74a53f2f65df61823cb8bdf3b32093eead5df3c1dc25b",
           "ArrivalRadius": 252.34801288936623
         },
@@ -108,7 +109,7 @@
           "TitleTemplate": "valley-fishing-hut-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷渔屋传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "02590897ba47a6ea46aeb5dc805f1cdac665d7a0a073a135956541430873b14b",
           "ArrivalRadius": 252.34801288936623
         },
@@ -120,7 +121,7 @@
           "TitleTemplate": "valley-wolf-plain-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷狼嚎平原传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "cf111ab7f757e5f14324603303dd7e65bd3a6a4bb2cc067d9adaeb377f5443d2",
           "ArrivalRadius": 252.34801288936623
         },
@@ -132,7 +133,7 @@
           "TitleTemplate": "valley-rock-highlands-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷缘岩山地传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "45d218543669729a7a013e08dab4e1d04d7c9231da44c4e1fcb45be7b2bcd0d8",
           "ArrivalRadius": 252.34801288936623
         },
@@ -144,7 +145,7 @@
           "TitleTemplate": "valley-deep-ravine-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷谷地深涧传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "abfe7f56b3308afcf1b51eb332b8afc636a8ffe5dbad5995636a036aaed4d909",
           "ArrivalRadius": 252.34801288936623
         },
@@ -156,7 +157,7 @@
           "TitleTemplate": "valley-shadow-valley-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷迹影崖谷传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "67a0bea86e921c4d61362dbf3ea605e9bab2b77123f458cc5e625a93fe052254",
           "ArrivalRadius": 252.34801288936623
         },
@@ -168,7 +169,7 @@
           "TitleTemplate": "valley-city-gate-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷通向弗利斯城邦传送点，实际传送到达的地点在弗利斯城邦入口.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "02e90128164525a395cfd8f1651960287d558305084fa91c192d2b38d9d6a263",
           "ArrivalRadius": 252.34801288936623
         },
@@ -180,21 +181,21 @@
           "TitleTemplate": "valley-mist-woods-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷雾叶密林传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "4b583f06a428f30c87acb058159490daf340b556678d58e9076ab0909c477650",
           "ArrivalRadius": 252.34801288936623
         },
         {
           "Id": "valley-wind-hollow",
           "Name": "风障山坞",
-          "X": 5503.482,
-          "Y": 3857.095,
+          "X": 5444.5,
+          "Y": 3821.4,
           "TitleTemplate": "valley-wind-hollow-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "100000",
-          "Source": "录屏素材/地图测试/新芽山谷/新芽山谷风障山坞传送点.jpg",
-          "SourceSha256": "3560f8fcc1542758a6e19d161951b24aab6508d68f0b840569186dc35eaafd82",
-          "ArrivalRadius": 252.34801288936623
+          "Source": "游戏界面 · 公测 3217420",
+          "ArrivalRadius": 252.34801288936623,
+          "CoordinateSourcePackage": "3217420"
         }
       ]
     },
@@ -206,14 +207,15 @@
       "Width": 8192,
       "Height": 8192,
       "MapFile": "city-map.png",
-      "MapSha256": "6269c5616d992d126dcbb2d6ed3e6f813111c5719596da77be1f6acff752fc5c",
+      "MapSha256": "4e05c8516dc81c32698a7997b4b1d3b50968f339586a735e188f5b069e795b7f",
       "FeatureFile": "city-features.bin",
-      "FeatureSha256": "d71daea92da6513cd8c718836838466b8d5ef5cca139bdce6b555b5948623184",
+      "FeatureSha256": "d1b983409a75ca6a9ad0ce31260ee4173c881ae7785a8e00b269668c448f295a",
       "LocalMapScale": 1.1238,
       "MovementScale": 1.2070891514500535,
       "WorldTemplate": "world-city",
-      "Source": "maptest/results/stitched/map_101000_8192.png",
-      "SourcePackage": "2302423",
+      "Source": "tex_miniMap_101000_{row}_{column}",
+      "SourcePackage": "3217420",
+      "TeleportSourcePackage": "2302423",
       "Teleports": [
         {
           "Id": "city-fertile-valley",
@@ -223,7 +225,7 @@
           "TitleTemplate": "city-fertile-valley-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦丰饶谷地传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "84675e9aeb1e832b49d0fb1de25e3b2f48a1391be9ad8a8cc8e788868f3c08ce",
           "ArrivalRadius": 217.27604726100964
         },
@@ -235,7 +237,7 @@
           "TitleTemplate": "city-renyang-pass-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦壬阳关传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "32846bdf3e44b412be758a6cd3e8039b720c15b56c0c0a5ea87d5352155f0a71",
           "ArrivalRadius": 217.27604726100964
         },
@@ -247,7 +249,7 @@
           "TitleTemplate": "city-giant-leaf-path-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦巨叶迷径传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "3d214bd3389b72d10300168ea50333ef28daff928e8f4e0b0af2633514c61c58",
           "ArrivalRadius": 217.27604726100964
         },
@@ -259,7 +261,7 @@
           "TitleTemplate": "city-fris-city-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦弗利斯城传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "ea24da168137d52bc31a80f7616ec3e5c321d65522741279d578c577b5d74f1a",
           "ArrivalRadius": 217.27604726100964
         },
@@ -271,7 +273,7 @@
           "TitleTemplate": "city-speaker-altar-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦执言者祭坛传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "db717f71775134934b0e2a9b585712921456e38752241d3536731bdef460c879",
           "ArrivalRadius": 217.27604726100964
         },
@@ -283,7 +285,7 @@
           "TitleTemplate": "city-waterfall-lake-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦瀑布湖传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "a261d63c56b1380913f5b027e7d7a710b2bab70ee05ca2fe9d57a72f09861a5e",
           "ArrivalRadius": 217.27604726100964
         },
@@ -295,7 +297,7 @@
           "TitleTemplate": "city-flower-crown-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦繁花冠冕传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "a7d05791ee1e075c8468ca51239acfa0b0c4fd7cde1f530b3a8ac631b099c581",
           "ArrivalRadius": 217.27604726100964
         },
@@ -307,7 +309,7 @@
           "TitleTemplate": "city-last-battle-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦终战之痕传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "c70860faea5a92af1bf2eabe974f0ca12b04999e0a926a2508ca7e168a5e3b44",
           "ArrivalRadius": 217.27604726100964
         },
@@ -319,7 +321,7 @@
           "TitleTemplate": "city-flower-woods-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦花林幽境传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "b3fda5b8653e7e27061bb4cd5de0f18b61f7d84ce2bc52917972c1e0ae613dfa",
           "ArrivalRadius": 217.27604726100964
         },
@@ -331,7 +333,7 @@
           "TitleTemplate": "city-winter-lake-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦融冬湖传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "74f51c4a2ed039828cc4bfdbb692c1060e12254b676bfffcc04d3ec38fbe611d",
           "ArrivalRadius": 217.27604726100964
         },
@@ -343,7 +345,7 @@
           "TitleTemplate": "city-winter-falls-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦融冬飞瀑传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "0add9af2937c71a30cff68c02f965909bd7be6a9856c00c4bde7f63a333132bf",
           "ArrivalRadius": 217.27604726100964
         },
@@ -355,7 +357,7 @@
           "TitleTemplate": "city-lost-forest-title",
           "IconTemplate": "map-node-icon",
           "ArrivalMapId": "101000",
-          "Source": "录屏素材/地图测试/弗利斯城邦/弗利斯城邦迷迹森林传送点.jpg",
+          "Source": "蓝色星原：旅谣 · 游戏界面",
           "SourceSha256": "3d9afe12412ad3ff7f2e3fe6e25e980a4c0ff899be220010aced7e38cca3f8c8",
           "ArrivalRadius": 217.27604726100964
         }

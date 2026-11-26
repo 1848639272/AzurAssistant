@@ -1,55 +1,91 @@
+using System.Diagnostics;
 using AzurAssistant.Contracts;
 using AzurAssistant.Game.Interaction;
 
 namespace AzurAssistant.Game.Navigation;
 
-/// <summary>Pauses movement for a confirmed collectible; shares the route's input lease and fresh frame source.</summary>
+/// <summary>Handles the selected collectible while stationary at a verified waypoint.</summary>
 public sealed class NavigationPickup(TaskContext context, NavigationSession session, IPickupRecognizer recognizer)
 {
-    private TimeSpan _nextCheck;
-    private string? _pending;
-    public bool ShouldPause(FrameSnapshot frame)
+    private static readonly TimeSpan ToolActionWait = TimeSpan.FromSeconds(10);
+
+    public async Task CollectAsync(MapPosition target, CancellationToken token)
     {
-        return context.Execution.Elapsed >= _nextCheck && recognizer.IsPromptVisible(frame);
-    }
-    public async Task CollectAsync(CancellationToken token)
-    {
-        string? previous = null;
-        var emptyFrames = 0;
-        var generation = context.Execution.Generation;
+        string? previous = null, pending = null;
+        var previousCheckClear = false;
+        var gatherInterval = TimeSpan.FromMilliseconds(250);
+        var nextCheck = context.Execution.Elapsed;
         var confirmedAt = TimeSpan.Zero;
-        using var deadline = context.Execution.CreateDeadline(token); deadline.CancelAfter(TimeSpan.FromSeconds(8));
+        var generation = context.Execution.Generation;
+        using var deadline = context.Execution.CreateDeadline(token);
+        deadline.CancelAfter(TimeSpan.FromSeconds(12));
         try
         {
-            for (var read = 0; read < 20; read++)
+            while (true)
             {
-                var current = await session.LocateMinimapAsync("拾取前确认当前位置", deadline.Token);
+                var remaining = nextCheck - context.Execution.Elapsed;
+                if (remaining > TimeSpan.Zero) await context.Execution.DelayAsync(remaining, deadline.Token);
+                nextCheck = context.Execution.Elapsed + gatherInterval;
+                var observeAfter = Stopwatch.GetElapsedTime(0);
+                var current = await session.WaitAsync(o => o.Frame.SystemTimestamp > observeAfter, "到点采集观察", deadline.Token,
+                    timeoutSeconds: 30, stableMilliseconds: 0, minimapOnly: true);
                 if (generation != context.Execution.Generation)
-                { generation = context.Execution.Generation; previous = null; emptyFrames = 0; }
-                var observed = await recognizer.ReadAsync(current.Frame, deadline.Token);
+                {
+                    generation = context.Execution.Generation;
+                    previous = null;
+                    previousCheckClear = false;
+                }
+                var at = current.Frame.SystemTimestamp;
+                if (current.Position is not { } position)
+                {
+                    previous = null;
+                    previousCheckClear = false;
+                    continue;
+                }
+                if (!position.SameMap(target) || position.DistanceTo(target) > 4)
+                    throw new NavigationException("已离开路线采集点，停止本次采集。");
+                var observed = await recognizer.ReadAsync(current.Frame, deadline.Token, verifyAbsence: true);
                 if (!context.Execution.IsObservationCurrent(current.Frame)) throw new ObservationInvalidatedException();
-                if (!NavigationSession.Fresh(current.Frame)) { previous = null; continue; }
-                if (observed.Blocked) break;
+                if (observed.Blocked || !NavigationSession.Fresh(current.Frame))
+                {
+                    previous = null;
+                    previousCheckClear = false;
+                    continue;
+                }
                 if (observed.Candidate is not { } item)
                 {
                     previous = null;
-                    if (++emptyFrames >= 2) { _pending = null; break; }
+                    if (previousCheckClear)
+                    {
+                        context.Log("到点采集结束：连续两次检查均确认大世界操作提示可见，F 和交互行已消失");
+                        return;
+                    }
+                    previousCheckClear = true;
                     continue;
                 }
-                emptyFrames = 0;
-                if (item.Key == _pending) break;
-                if (previous != item.Key) { previous = item.Key; confirmedAt = current.Frame.SystemTimestamp; }
-                else if (current.Frame.SystemTimestamp - confirmedAt >= TimeSpan.FromMilliseconds(150))
+                previousCheckClear = false;
+                if (pending == item.Key) { previous = null; continue; }
+                if (previous != item.Key) { previous = item.Key; confirmedAt = at; continue; }
+                if (at - confirmedAt < TimeSpan.FromMilliseconds(150)) continue;
+                await context.Input.PressKeyAsync(current.Frame, GameKey.Interact, deadline.Token);
+                if (item.Kind is PickupKind.Logging or PickupKind.Mining)
                 {
-                    await context.Input.PressKeyAsync(current.Frame, GameKey.Interact, deadline.Token);
-                    context.Log("路线拾取：" + (item.Name.Length == 0 ? "当前选中采集物" : item.Name));
-                    _pending = item.Key; previous = null;
-                    await context.Execution.DelayAsync(TimeSpan.FromMilliseconds(500), deadline.Token);
+                    var action = item.Kind == PickupKind.Logging ? "砍树" : "挖矿";
+                    context.Log($"到点{action}：已对「{item.Name}」发送 F，原地等待 {ToolActionWait.TotalSeconds} 秒");
+                    // The prompt disappears when the animation starts. Only the route token bounds this wait.
+                    await context.Execution.DelayAsync(ToolActionWait, token);
+                    context.Log($"到点{action}：已等满 {ToolActionWait.TotalSeconds} 秒，继续路线");
+                    return;
                 }
+                pending = item.Key;
+                previous = null;
+                context.Log($"到点拾取：已对「{item.Name}」发送 F，每 250 毫秒检查一次交互界面");
+                nextCheck = context.Execution.Elapsed + gatherInterval;
             }
         }
         catch (OperationCanceledException) when (!token.IsCancellationRequested)
-        { context.Log("本次拾取观察达到时限，继续路线；不重复未确认结果的交互。"); }
-        finally { _nextCheck = context.Execution.Elapsed + TimeSpan.FromSeconds(2); }
+        {
+            throw new NavigationException(pending is null ? "到点采集未能确认交互状态，路线已停止。" : "到点采集后未能确认 F 提示消失，路线已停止。");
+        }
     }
 }

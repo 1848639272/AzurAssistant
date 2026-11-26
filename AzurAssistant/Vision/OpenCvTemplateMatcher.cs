@@ -10,6 +10,8 @@ public sealed record TemplateMatch(double Score, ClientPoint Center);
 
 public static class OpenCvTemplateMatcher
 {
+    public const double DefaultUiThreshold = 0.80;
+
     public static ImageTemplate Create(int width, int height, ReadOnlySpan<byte> bgra, TemplateChannel channel = TemplateChannel.Gray)
     {
         using var color = new Mat(height, width, MatType.CV_8UC4);
@@ -24,7 +26,7 @@ public static class OpenCvTemplateMatcher
         return new(width, height, pixels, channel);
     }
 
-    public static TemplateMatch Match(FrameSnapshot frame, ImageTemplate template, PixelRegion search)
+    public static TemplateMatch Match(FrameSnapshot frame, ImageTemplate template, PixelRegion search, bool allowInvertedContrast = false)
     {
         search.Validate(frame.Width, frame.Height);
         if (template.Width > search.Width || template.Height > search.Height)
@@ -43,7 +45,8 @@ public static class OpenCvTemplateMatcher
         Marshal.Copy(template.ChannelPixels, 0, target.Data, template.ChannelPixels.Length);
         using var scores = new Mat();
         Cv2.MatchTemplate(gray, target, scores, TemplateMatchModes.CCoeffNormed);
-        Cv2.MinMaxLoc(scores, out _, out var best, out _, out var point);
+        Cv2.MinMaxLoc(scores, out var minimum, out var best, out var minimumPoint, out var point);
+        if (allowInvertedContrast && -minimum > best) { best = -minimum; point = minimumPoint; }
         return new(double.IsFinite(best) ? best : 0,
             new ClientPoint(search.X + point.X + template.Width / 2, search.Y + point.Y + template.Height / 2));
     }

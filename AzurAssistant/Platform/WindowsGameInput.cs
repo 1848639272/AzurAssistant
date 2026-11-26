@@ -5,7 +5,7 @@ using AzurAssistant.Contracts;
 namespace AzurAssistant.Platform;
 
 /// <summary>Foreground-only Windows keyboard and mouse input, revalidated against the source frame.</summary>
-public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
+public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput, IGameWindowFocus
 {
     private sealed record ActivationTiming(TimeSpan Timeout, TimeSpan RetryInterval, TimeSpan PollInterval);
     private ActivationTiming _activationTiming = new(TimeSpan.FromSeconds(3), TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(40));
@@ -19,6 +19,8 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
     [StructLayout(LayoutKind.Explicit)] private struct InputUnion { [FieldOffset(0)] public MouseInput Mouse; [FieldOffset(0)] public KeyboardInput Keyboard; }
     [StructLayout(LayoutKind.Sequential)] private struct Input { public uint Type; public InputUnion Value; }
     [DllImport("user32.dll")] private static extern bool ShowWindowAsync(nint window, int command);
+    [StructLayout(LayoutKind.Sequential)] private struct FlashInfo { public uint Size; public nint Window; public uint Flags, Count, Timeout; }
+    [DllImport("user32.dll")] private static extern bool FlashWindowEx(ref FlashInfo info);
     [DllImport("user32.dll")] private static extern bool SetForegroundWindow(nint window);
     [DllImport("user32.dll")] private static extern int GetSystemMetrics(int index);
     [DllImport("user32.dll", SetLastError = true)] private static extern bool GetClipCursor(out NativeMethods.Rect rectangle);
@@ -36,15 +38,87 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         _activationTiming = new(timeout, retryInterval, pollInterval);
     }
 
+    [StructLayout(LayoutKind.Sequential)] private struct LastInputInfo { public uint Size, Time; }
+    [DllImport("user32.dll")] private static extern bool GetLastInputInfo(ref LastInputInfo info);
+
+    public uint? LastInputTick
+    {
+        get
+        {
+            var info = new LastInputInfo { Size = (uint)Marshal.SizeOf<LastInputInfo>() };
+            return GetLastInputInfo(ref info) ? info.Time : null;
+        }
+    }
+
+    public bool IsOtherProcessForeground => _target is { } target && NativeMethods.GetWindowThreadProcessId(
+        NativeMethods.GetForegroundWindow(), out var pid) != 0 && pid != target.ProcessId;
+
+    public async Task PrepareForObservationAsync(CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        SelectActivationTarget();
+        var target = _target!;
+        if (!NativeMethods.IsIconic(target.Handle)) return;
+        ShowWindowAsync(target.Handle, 4); // SW_SHOWNOACTIVATE restores the client for capture without requesting focus.
+        var timer = Stopwatch.StartNew();
+        while (NativeMethods.IsIconic(target.Handle) && timer.Elapsed < _activationTiming.Timeout)
+            await Task.Delay(_activationTiming.PollInterval, token);
+        target.Observe();
+    }
+
+    private void SelectActivationTarget()
+    {
+        var target = findWindow();
+        if (ProcessPrivileges.IsElevated(target.ProcessId) && !ProcessPrivileges.IsElevated(Environment.ProcessId))
+            throw new ElevationRequiredException();
+        _target = target;
+    }
+
+    public bool IsTargetForeground => _target is { } window && NativeMethods.GetForegroundWindow() == window.Handle &&
+        !NativeMethods.IsIconic(window.Handle) && GameWindow.Exists(window.Handle, window.ProcessId);
+
+    public bool HasMovedSince(FrameSnapshot frame)
+    {
+        if (_target is not { } target || frame.WindowHandle != target.Handle || frame.ProcessId != target.ProcessId) return false;
+        var geometry = target.Observe();
+        return geometry.Width == frame.ContentWidth && geometry.Height == frame.ContentHeight &&
+            (geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop);
+    }
+
+    public async Task<bool> TryActivateOnceAsync(CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        var target = _target ?? throw new InvalidOperationException("还没有选定游戏窗口。");
+        if (!GameWindow.Exists(target.Handle, target.ProcessId)) throw new InvalidOperationException("原游戏窗口已关闭。");
+        var timer = Stopwatch.StartNew();
+        if (NativeMethods.IsIconic(target.Handle))
+        {
+            ShowWindowAsync(target.Handle, 9); // SW_RESTORE is asynchronous across window threads.
+            while (NativeMethods.IsIconic(target.Handle) && timer.Elapsed < _activationTiming.Timeout)
+                await Task.Delay(_activationTiming.PollInterval, token);
+        }
+        if (IsTargetForeground) return true;
+        // Windows can deny a background caller. Notify through the game taskbar button while waiting for actual focus.
+        if (!SetForegroundWindow(target.Handle))
+        {
+            var flash = new FlashInfo { Size = (uint)Marshal.SizeOf<FlashInfo>(), Window = target.Handle, Flags = 2, Count = 1 };
+            FlashWindowEx(ref flash);
+        }
+        while (timer.Elapsed < _activationTiming.Timeout)
+        {
+            if (IsTargetForeground) return true;
+            await Task.Delay(_activationTiming.PollInterval, token);
+        }
+        return IsTargetForeground;
+    }
+
     public async Task ActivateAsync(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         var timing = _activationTiming;
         ReleaseAll();
-        _target = findWindow();
-        if (ProcessPrivileges.IsElevated(_target.ProcessId) && !ProcessPrivileges.IsElevated(Environment.ProcessId))
-            throw new ElevationRequiredException();
-        if (NativeMethods.IsIconic(_target.Handle)) ShowWindowAsync(_target.Handle, 9);
+        SelectActivationTarget();
+        if (NativeMethods.IsIconic(_target!.Handle)) ShowWindowAsync(_target.Handle, 9);
         SetForegroundWindow(_target.Handle);
         var timer = Stopwatch.StartNew();
         var lastAttempt = -1L;
@@ -75,13 +149,14 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         if (frame.WindowHandle != target.Handle || frame.ProcessId != target.ProcessId)
             throw new InvalidOperationException("观察帧来自其他游戏窗口，已停止输入。");
         if (age < TimeSpan.Zero || age > TimeSpan.FromSeconds(1)
-            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop || geometry.Width != frame.Width || geometry.Height != frame.Height)
+            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop
+            || geometry.Width != frame.ContentWidth || geometry.Height != frame.ContentHeight)
             throw new InputUnavailableException("观察帧或窗口位置已变化，等待重新观察。");
         if (point.X < 0 || point.Y < 0 || point.X >= frame.Width || point.Y >= frame.Height)
             throw new InvalidOperationException("点击位置超出游戏客户区。");
-        if (NativeMethods.GetForegroundWindow() != target.Handle)
-            throw new InputUnavailableException("游戏不在前台，等待切回游戏。");
-        var desktop = new NativeMethods.Point { X = geometry.X + point.X, Y = geometry.Y + point.Y };
+        RequireForeground(target);
+        var native = ToNative(frame, point);
+        var desktop = new NativeMethods.Point { X = geometry.X + native.X, Y = geometry.Y + native.Y };
         if (GetAncestor(WindowFromPoint(desktop), 2) != target.Handle)
             throw new InputUnavailableException("目标位置被其他窗口遮挡，等待恢复。");
         if (!GetClipCursor(out var clip))
@@ -89,7 +164,8 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         if (desktop.X < clip.Left || desktop.X >= clip.Right || desktop.Y < clip.Top || desktop.Y >= clip.Bottom)
             throw new InputUnavailableException("游戏暂时限制鼠标移动范围，等待目标可点击。");
         token.ThrowIfCancellationRequested();
-        if (NativeMethods.GetForegroundWindow() != target.Handle || target.Observe() != geometry)
+        RequireForeground(target);
+        if (target.Observe() != geometry)
             throw new InputUnavailableException("点击前窗口状态变化，等待重新观察。");
         var move = MouseEvent(0x8000 | 0x4000 | 0x0001);
         move.Value.Mouse.X = (int)((long)(desktop.X - GetSystemMetrics(76)) * 65535 / Math.Max(1, GetSystemMetrics(78) - 1));
@@ -97,7 +173,8 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         token.ThrowIfCancellationRequested();
         if (!GetClipCursor(out clip))
             throw new InvalidOperationException("无法检查鼠标可移动范围，未点击。");
-        if (NativeMethods.GetForegroundWindow() != target.Handle || target.Observe() != geometry
+        RequireForeground(target);
+        if (target.Observe() != geometry
             || GetAncestor(WindowFromPoint(desktop), 2) != target.Handle
             || desktop.X < clip.Left || desktop.X >= clip.Right || desktop.Y < clip.Top || desktop.Y >= clip.Bottom
             || WindowsGraphicsFrameSource.SystemNow - frame.SystemTimestamp > TimeSpan.FromSeconds(1))
@@ -120,8 +197,8 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         token.ThrowIfCancellationRequested();
         var target = ValidateObservation(frame);
         if (!GetCursorPos(out var pointer)) throw new InvalidOperationException("无法读取鼠标当前位置，未点击。");
-        if (pointer.X < frame.ClientLeft || pointer.X >= frame.ClientLeft + frame.Width
-            || pointer.Y < frame.ClientTop || pointer.Y >= frame.ClientTop + frame.Height
+        if (pointer.X < frame.ClientLeft || pointer.X >= frame.ClientLeft + frame.ContentWidth
+            || pointer.Y < frame.ClientTop || pointer.Y >= frame.ClientTop + frame.ContentHeight
             || GetAncestor(WindowFromPoint(pointer), 2) != target.Handle)
             throw new InputUnavailableException("鼠标不在游戏客户区或被遮挡，已停止输入。");
         token.ThrowIfCancellationRequested();
@@ -143,10 +220,28 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         if (frame.WindowHandle != target.Handle || frame.ProcessId != target.ProcessId)
             throw new InvalidOperationException("观察帧来自其他游戏窗口，已停止输入。");
         if (age < TimeSpan.Zero || age > TimeSpan.FromSeconds(1)
-            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop || geometry.Width != frame.Width || geometry.Height != frame.Height
-            || NativeMethods.GetForegroundWindow() != target.Handle)
+            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop
+            || geometry.Width != frame.ContentWidth || geometry.Height != frame.ContentHeight)
             throw new InputUnavailableException("输入前观察帧或游戏前台已失效，请重新开始。");
+        RequireForeground(target);
         return target;
+    }
+
+    private static void RequireForeground(GameWindow target)
+    {
+        if (NativeMethods.GetForegroundWindow() != target.Handle) throw new ForegroundLostException();
+    }
+
+    /// <summary>Maps a reference-space client point onto the frame's native client pixels.</summary>
+    internal static ClientPoint ToNative(FrameSnapshot frame, ClientPoint point)
+    {
+        if (!frame.IsNormalized) return point;
+        // Map the last reference pixel to the last physical pixel while preserving the usual scale elsewhere.
+        static int Scale(int value, int from, int to)
+            => value == from - 1 ? to - 1 : (int)Math.Round((double)value * to / from, MidpointRounding.AwayFromZero);
+        return new ClientPoint(
+            Math.Clamp(Scale(point.X, frame.Width, frame.ContentWidth), 0, frame.ContentWidth - 1),
+            Math.Clamp(Scale(point.Y, frame.Height, frame.ContentHeight), 0, frame.ContentHeight - 1));
     }
 
     public async Task DragAsync(FrameSnapshot frame, ClientPoint from, ClientPoint to, CancellationToken token)
@@ -158,7 +253,8 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
             var target = ValidateObservation(frame);
             if (point.X < 0 || point.Y < 0 || point.X >= frame.Width || point.Y >= frame.Height)
                 throw new ArgumentOutOfRangeException(nameof(point));
-            var desktop = new NativeMethods.Point { X = frame.ClientLeft + point.X, Y = frame.ClientTop + point.Y };
+            var desktopPoint = ToNative(frame, point);
+            var desktop = new NativeMethods.Point { X = frame.ClientLeft + desktopPoint.X, Y = frame.ClientTop + desktopPoint.Y };
             if (!GetClipCursor(out var clip)) throw new InvalidOperationException("无法检查拖动范围。");
             if (GetAncestor(WindowFromPoint(desktop), 2) != target.Handle || desktop.X < clip.Left
                 || desktop.X >= clip.Right || desktop.Y < clip.Top || desktop.Y >= clip.Bottom)
@@ -194,7 +290,7 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
             }
         }
         catch (InputUnavailableException error) when (_leftHeld)
-        { throw new InvalidOperationException("拖动中窗口或观察失效，已停止后续移动。", error); }
+        { throw new InterruptedDragException("拖动中窗口或观察失效，已松开鼠标。", error); }
         finally { ReleaseAll(); }
     }
 
@@ -209,13 +305,14 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput
         if (frame.WindowHandle != target.Handle || frame.ProcessId != target.ProcessId)
             throw new InvalidOperationException("观察帧来自其他游戏窗口，已停止输入。");
         if (age < TimeSpan.Zero || age > TimeSpan.FromSeconds(1)
-            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop || geometry.Width != frame.Width || geometry.Height != frame.Height
-            || NativeMethods.GetForegroundWindow() != target.Handle)
+            || geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop
+            || geometry.Width != frame.ContentWidth || geometry.Height != frame.ContentHeight)
             throw new InputUnavailableException("按键前观察帧或游戏前台已失效，等待重新观察。");
         var scan = checked((ushort)MapVirtualKey((uint)key, 0));
         if (scan == 0) throw new InvalidOperationException("无法映射游戏按键。");
         token.ThrowIfCancellationRequested();
-        if (NativeMethods.GetForegroundWindow() != target.Handle || target.Observe() != geometry
+        RequireForeground(target);
+        if (target.Observe() != geometry
             || WindowsGraphicsFrameSource.SystemNow - frame.SystemTimestamp > TimeSpan.FromSeconds(1))
             throw new InputUnavailableException("按键前窗口或观察已变化，等待重新观察。");
         try

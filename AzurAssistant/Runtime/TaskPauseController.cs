@@ -13,6 +13,7 @@ public sealed class TaskPauseController : TaskExecution, IDisposable
     private TimeSpan _activeTime;
     private long _activeSince = Stopwatch.GetTimestamp();
     private TimeSpan _observationBoundary = TimeSpan.MinValue;
+    private bool _recoveringFocus;
     private bool _pauseRequested, _paused, _finishing, _ended;
     private int _generation;
 
@@ -21,6 +22,26 @@ public sealed class TaskPauseController : TaskExecution, IDisposable
     public override int Generation { get { lock (_gate) return _generation; } }
     public override bool IsObservationCurrent(FrameSnapshot observation)
     { lock (_gate) return !_ended && observation.SystemTimestamp > _observationBoundary; }
+
+    internal void SetFocusRecovery(bool active)
+    {
+        lock (_gate)
+        {
+            _activeTime = ElapsedLocked();
+            _activeSince = Stopwatch.GetTimestamp();
+            _recoveringFocus = active;
+            PulseLocked();
+        }
+    }
+
+    internal void InvalidateObservations(bool changeGeneration = true)
+    {
+        lock (_gate)
+        {
+            _observationBoundary = Stopwatch.GetElapsedTime(0);
+            if (changeGeneration) _generation++;
+        }
+    }
 
     public override async Task WaitAsync(CancellationToken token)
     {
@@ -56,6 +77,7 @@ public sealed class TaskPauseController : TaskExecution, IDisposable
                 if (_pauseRequested) continue;
                 remaining = due - ElapsedLocked();
                 if (remaining <= TimeSpan.Zero) return;
+                if (_recoveringFocus) remaining = Timeout.InfiniteTimeSpan;
                 changed = _changed.Task;
             }
             using var timer = CancellationTokenSource.CreateLinkedTokenSource(token);
@@ -173,7 +195,7 @@ public sealed class TaskPauseController : TaskExecution, IDisposable
         _action.Release();
     }
 
-    private TimeSpan ElapsedLocked() => _pauseRequested || _ended
+    private TimeSpan ElapsedLocked() => _pauseRequested || _recoveringFocus || _ended
         ? _activeTime : _activeTime + Stopwatch.GetElapsedTime(_activeSince);
     private void ThrowIfEnded(CancellationToken token)
     { if (_ended) throw new OperationCanceledException("当前功能已结束。", token); }

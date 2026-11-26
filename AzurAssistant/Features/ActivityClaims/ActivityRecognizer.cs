@@ -27,7 +27,7 @@ public sealed class ActivityRecognizer : IDailyUiRecognizer
         _templates = new(directory);
         _layout = JsonSerializer.Deserialize<Layout>(File.ReadAllText(Path.Combine(directory, "layout.json")))
             ?? throw new InvalidDataException("日常周常布局为空。");
-        if (_layout.SchemaVersion != 1 || _layout.ChestCenters is not { Length: 5 } || _layout.RowCenters is not { Length: 6 }
+        if (_layout.SchemaVersion != 1 || _layout.ChestCenters is not { Length: 5 } || _layout.RowCenters is not { Length: 5 or 6 }
             || _layout.ChestCenters.Any(x => x < 70 || x > 1850) || _layout.RowCenters.Any(y => y < 30 || y > 880)
             || _layout.ChestAlertOffset is not { X: >= -60 and <= -10, Y: >= 0 and <= 60 })
             throw new InvalidDataException("日常周常布局版本或槽位无效。");
@@ -64,7 +64,9 @@ public sealed class ActivityRecognizer : IDailyUiRecognizer
                 var region = new PixelRegion(1625, _layout.RowCenters[i] - 30, 143, 65);
                 var claim = Match(day ? "row-claim-day" : "row-claim-week", region, $"claim-{i}");
                 var settled = !claim && (Match("row-progress", region, $"settled-{i}")
-                    || Match("row-go", region, $"settled-{i}") || Match("row-claimed", region, $"settled-{i}"));
+                    || Match("row-go", region, $"settled-{i}") || Match("row-claimed", region, $"settled-{i}")
+                    || _layout.RowCenters.Length == 5 && (Match("row-locked", region, $"settled-{i}")
+                        || day && Match("row-go-day", region, $"settled-{i}") || Match("row-go-highlighted", region, $"settled-{i}")));
                 rowStates.Add(claim ? "ready" : settled ? "settled" : "unknown");
             }
             var chests = new ActivityChest[5];
@@ -94,6 +96,7 @@ public sealed class ActivityRecognizer : IDailyUiRecognizer
             int? activity = ParseActivity(text);
             if (activity is null) { text = await _ocr.ReadAsync(frame, token, _layout.Activity, 1); activity = ParseActivity(text); }
             if (activity is null) { text = await _ocr.ReadAsync(frame, token, _layout.ActivityValue, 2); activity = ParseActivity(text); }
+            if (activity is null && _layout.RowCenters.Length == 5 && Match("zero-activity")) activity = 0;
             var taskName = "";
             if (targets.ContainsKey("claim-0"))
             {

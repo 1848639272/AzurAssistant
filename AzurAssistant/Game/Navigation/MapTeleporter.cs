@@ -26,6 +26,7 @@ public sealed class MapTeleporter(TaskContext context, INavigationRecognizer rec
             ?? (recognizer.Maps.Count == 1 && o.Page != NavigationPage.WorldMap ? recognizer.Layout.MapId : null);
         var current = await WaitAsync(o => o.Page != NavigationPage.Unknown, "确认传送起点", token,
             stability: NavigationStability.Target);
+        if (current.Page == NavigationPage.MainMenu) current = await session.EnsureWorldAsync(token);
         for (var transition = 0; transition < 6; transition++)
         {
             if (Displayed(current) == mapId && current.Page is NavigationPage.LocalMap or NavigationPage.TeleportDetail or NavigationPage.OverlapChoices) break;
@@ -60,7 +61,7 @@ public sealed class MapTeleporter(TaskContext context, INavigationRecognizer rec
                     ? o.Page == NavigationPage.WorldMap && o.WorldRegion is not null
                     : (o.Page is NavigationPage.LocalMap or NavigationPage.TeleportDetail or NavigationPage.OverlapChoices)
                         && Displayed(o) is { } shown && (expectedLocalMap is null || shown == expectedLocalMap),
-                "确认地图切换结果", token, stability: NavigationStability.Target);
+                expectWorldMap ? $"等待世界地图上的{map.Name}入口" : "确认地图切换结果", token, stability: NavigationStability.Target);
         }
         if (Displayed(current) != mapId) throw new NavigationException("未进入指定地图，已停止。");
         if (current.Page is NavigationPage.TeleportDetail or NavigationPage.OverlapChoices && current.SelectedName != target.Name)

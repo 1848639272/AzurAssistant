@@ -17,10 +17,10 @@ namespace AzurAssistant.UI;
 public partial class MainWindow : Window
 {
     private readonly DispatcherTimer _refresh;
+    private bool _startupHandled;
     private bool _closing;
     private bool _closedCleanly;
     private bool _navigating;
-    private readonly Func<Task<bool>> _confirmSettingsRestart;
     private readonly Action<string> _showHotkeyMessage;
     public bool IsCapturingHotkey { get; private set; }
     public event Action<bool>? HotkeyCaptureChanged;
@@ -38,15 +38,12 @@ public partial class MainWindow : Window
     ];
     public MainViewModel ViewModel { get; }
 
-    public MainWindow(MainViewModel viewModel, Func<Task<bool>>? confirmSettingsRestart = null,
-        Action<string>? showHotkeyMessage = null)
+    public MainWindow(MainViewModel viewModel, Action<string>? showHotkeyMessage = null)
     {
         InitializeComponent();
         DataContext = ViewModel = viewModel;
         ThemePalette.Apply(this, ViewModel.EffectiveDarkMode);
-        _confirmSettingsRestart = confirmSettingsRestart ?? (() => Task.FromResult(MessageBox.Show(this,
-            "设置已经修改，是否立即重启助手生效？", "蔚蓝助手", MessageBoxButton.YesNo,
-            MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes));
+        ViewModel.ThemeChanged += dark => ThemePalette.Apply(this, dark);
         _showHotkeyMessage = showHotkeyMessage ?? (message => MessageBox.Show(this, message, "蔚蓝助手",
             MessageBoxButton.OK, MessageBoxImage.Information));
         Activated += (_, _) => UpdateHotkeyCapture();
@@ -57,7 +54,10 @@ public partial class MainWindow : Window
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (_startupHandled) return;
+        _startupHandled = true;
         _refresh.Start();
+        ShowFirstInstallNotice();
         await CheckUpdatesAsync(automatic: true);
         if (!_closing && !_updateLaunched && !ViewModel.RestartRequested) ViewModel.Initialize();
     }
@@ -71,10 +71,23 @@ public partial class MainWindow : Window
     private void OnNavigationTeleport(object sender, RoutedEventArgs e) => ViewModel.StartNavigation(NavigationTestMode.Teleport);
     private void OnNavigationMove(object sender, RoutedEventArgs e) => ViewModel.StartNavigation(NavigationTestMode.Move);
     private void OnUseObservedCoordinate(object sender, RoutedEventArgs e) => ViewModel.UseObservedCoordinate();
+    private void OnAddDailyRoute(object sender, RoutedEventArgs e) => ViewModel.AddDailyRoute();
+    private void OnRemoveDailyRoute(object sender, RoutedEventArgs e)
+    { if (sender is FrameworkElement { DataContext: DailyRouteRow row }) ViewModel.RemoveDailyRoute(row.Index); }
+    private void OnMoveDailyRoute(object sender, RoutedEventArgs e)
+    { if (sender is FrameworkElement { DataContext: DailyRouteRow row, Tag: string direction }) ViewModel.MoveDailyRoute(row.Index, direction == "up" ? -1 : 1); }
     private void OnBeginRouteRecording(object sender, RoutedEventArgs e) => ViewModel.BeginRouteRecording();
     private async void OnCaptureRoutePoint(object sender, RoutedEventArgs e)
     {
         await ViewModel.CaptureRoutePointAsync();
+        if (!_closing) Activate();
+    }
+    private async void OnRecordTeleport(object sender, RoutedEventArgs e)
+    {
+        var picker = new RouteTeleportWindow { Owner = this, DataContext = ViewModel };
+        ThemePalette.Apply(picker, ViewModel.EffectiveDarkMode);
+        if (picker.ShowDialog() != true || ViewModel.SelectedTeleport is null) return;
+        await ViewModel.CaptureRoutePointAsync(teleport: true);
         if (!_closing) Activate();
     }
     private void OnCancelRouteRecording(object sender, RoutedEventArgs e) => ViewModel.CancelRouteRecording();
@@ -93,15 +106,18 @@ public partial class MainWindow : Window
         var dialog = new SaveFileDialog { Title = "导出路线", Filter = "路线 JSON (*.json)|*.json", FileName = System.IO.Path.GetFileName(route.Path), DefaultExt = ".json" };
         if (dialog.ShowDialog(this) == true) ViewModel.ExportSelectedRoute(dialog.FileName);
     }
-    private async void OnNavigate(object sender, RoutedEventArgs e)
+    private void OnDeleteRoute(object sender, RoutedEventArgs e) =>
+        ViewModel.DeleteSelectedRoute(route => MessageBox.Show(this,
+            $"确定删除本地路线“{route.Name}”？\n{System.IO.Path.GetFileName(route.Path)}\n\n一条龙中引用这条路线的项目也会移除。",
+            "删除路线", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes);
+    private void OnNavigate(object sender, RoutedEventArgs e)
     {
         if (_navigating || _closing || sender is not FrameworkElement { Tag: string page }) return;
         ViewModel.CommitHotkeyEdit();
         _navigating = true;
         try
         {
-            if (await ViewModel.NavigateAsync(page, _confirmSettingsRestart)) Close();
-            else ViewModel.Refresh();
+            ViewModel.Navigate(page);
         }
         finally { _navigating = false; }
     }
@@ -109,7 +125,7 @@ public partial class MainWindow : Window
     {
         var dialog = new OpenFileDialog
         {
-            Title = "选择游戏启动文件", Filter = "游戏程序 (*.exe)|*.exe", CheckFileExists = true,
+            Title = "选择游戏启动器", Filter = "启动器 (*.exe)|*.exe", CheckFileExists = true,
             Multiselect = false, FileName = ViewModel.GameExecutablePath
         };
         if (dialog.ShowDialog(this) == true) ViewModel.GameExecutablePath = dialog.FileName;

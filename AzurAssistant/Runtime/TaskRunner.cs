@@ -5,7 +5,8 @@ namespace AzurAssistant.Runtime;
 
 public sealed record TaskRunOptions(TimeSpan? Timeout, Func<CancellationToken, Task>? PrepareAsync = null,
     bool RequiresGameInput = true, ResponseTiming? ResponseTiming = null,
-    Func<TaskExecution, CancellationToken, Task>? PrepareWithExecutionAsync = null);
+    Func<TaskExecution, IGameInput, CancellationToken, Task>? PrepareWithExecutionAsync = null, bool RecoverForeground = false,
+    TimeSpan? MinimumClickInterval = null, TimeSpan? CaptureInterval = null, bool RandomInteractionDelay = false);
 
 public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator input, DailyLogStore log,
     IFailureScreenshotStore? failureScreenshots = null)
@@ -71,7 +72,7 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
             var result = await session.Execution.ToggleAsync(
                 () => session.Lease?.ReleaseAll(),
                 token => session.HasActivated && (!session.HasStartedPreview || preview.IsRunning) && session.Lease is { } lease
-                    ? lease.ActivateForResumeAsync(token) : Task.CompletedTask,
+                    ? lease.PrepareForResumeAsync(token) : Task.CompletedTask,
                 runToken);
             lock (_gate)
             {
@@ -114,12 +115,15 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
             try
             {
                 session.Lease = input.Acquire(options.ResponseTiming, execution);
+                if (options.RandomInteractionDelay) session.Lease.SetInteractionDelay(() => Random.Shared.Next(101));
+                if (options.MinimumClickInterval is { } interval) session.Lease.SetClickInterval(execution, interval);
+                if (options.RecoverForeground) session.Lease.EnableForegroundRecovery(execution, message => log.Write(message));
                 await preview.StopAsync();
                 await execution.WaitAsync(token);
                 if (options.PrepareWithExecutionAsync is { } controlledPrepare)
                 {
                     SetStatus($"{task.Name}：正在准备");
-                    await controlledPrepare(execution, token);
+                    await controlledPrepare(execution, session.Lease, token);
                 }
                 else if (options.PrepareAsync is { } prepare)
                 {
@@ -129,12 +133,11 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
                 await execution.WaitAsync(token);
                 if (options.RequiresGameInput)
                 {
-                    SetStatus($"{task.Name}：正在将游戏置于前台");
-                    // Initial activation stays on the caller's foreground UI thread where possible.
-                    await session.Lease.ActivateAsync(token);
+                    SetStatus(options.RecoverForeground ? $"{task.Name}：正在准备游戏窗口" : $"{task.Name}：正在将游戏置于前台");
+                    await session.Lease.PrepareForObservationAsync(token);
                     session.HasActivated = true;
                     await execution.WaitAsync(token);
-                    preview.Start();
+                    preview.Start(options.CaptureInterval);
                     session.HasStartedPreview = true;
                     SetStatus($"{task.Name}：正在观察游戏画面");
                 }
@@ -229,16 +232,21 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
         public Exception? PauseFailure;
     }
 
-    private sealed class ExecutionFrameFeed(IFrameFeed frames, TaskExecution execution) : IFrameFeed
+    private sealed class ExecutionFrameFeed(CapturePreviewService frames, TaskExecution execution) : IFrameFeed
     {
-        public async Task<FrameSnapshot> ReadAfterAsync(TimeSpan timestamp, CancellationToken token)
+        public Task<FrameSnapshot> ReadAfterAsync(TimeSpan timestamp, CancellationToken token)
+            => ReadAsync(timestamp, false, token);
+        public async Task<FrameSnapshot?> ReadForInputCheckAsync(TimeSpan timestamp, CancellationToken token)
+            => await ReadAsync(timestamp, true, token);
+
+        private async Task<FrameSnapshot> ReadAsync(TimeSpan timestamp, bool expedite, CancellationToken token)
         {
             while (true)
             {
                 await execution.WaitAsync(token);
                 var generation = execution.Generation;
                 FrameSnapshot observation;
-                try { observation = await frames.ReadAfterAsync(timestamp, token); }
+                try { observation = await frames.ReadAfterAsync(timestamp, expedite, token); }
                 catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
                 catch { await execution.WaitAsync(token); throw; }
                 await execution.WaitAsync(token);

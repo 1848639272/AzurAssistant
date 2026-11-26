@@ -8,12 +8,17 @@ public interface IGameTask
 }
 
 /// <summary>Reports task outcome; application exit is a host intent consumed only after run cleanup has completed.</summary>
-public sealed record TaskResult(bool Success, string Message, bool FailureReported = false, bool RequestApplicationExit = false);
+public sealed record TaskResult(bool Success, string Message, bool FailureReported = false, bool RequestApplicationExit = false)
+{
+    public bool AllowPageRecovery { get; init; } = true;
+}
 public sealed class ElevationRequiredException() : InvalidOperationException("游戏以管理员权限运行，请先以管理员身份重启助手，再运行功能。");
 /// <summary>An input precondition is unavailable. A continuing hold releases its owned key before this error propagates.</summary>
+public sealed class InterruptedDragException(string message, Exception inner) : InvalidOperationException(message, inner);
+internal sealed class ForegroundLostException() : InputUnavailableException("游戏暂时不在前台，需要重新观察。");
 public class InputUnavailableException(string message) : InvalidOperationException(message);
 /// <summary>Resuming invalidated an observation before any input was sent; callers must observe again.</summary>
-public sealed class ObservationInvalidatedException() : InputUnavailableException("暂停恢复后原画面已失效，请重新观察。");
+public sealed class ObservationInvalidatedException() : InputUnavailableException("窗口状态变化，原画面已失效，请重新观察。");
 public sealed record TaskContext(IFrameFeed Frames, IGameInput Input, Action<string> Log,
     ITaskFailureReporter? Failures = null, TaskExecution? ExecutionControl = null)
 {
@@ -41,6 +46,9 @@ public interface ITaskFailureReporter
 public interface IFrameFeed
 {
     Task<FrameSnapshot> ReadAfterAsync(TimeSpan timestamp, CancellationToken token);
+    // Request a prompt, read-only frame for the next part of an input gesture. A blocking overlay can veto it.
+    async Task<FrameSnapshot?> ReadForInputCheckAsync(TimeSpan timestamp, CancellationToken token)
+        => await ReadAfterAsync(timestamp, token);
 }
 
 public readonly record struct ClientPoint(int X, int Y);
@@ -53,9 +61,21 @@ public interface IContinuousKeyHold : IDisposable
     Task RefreshAsync(FrameSnapshot observation, CancellationToken token);
 }
 
+/// <summary>Foreground ownership and client geometry of the explicitly selected input window.</summary>
+public interface IGameWindowFocus
+{
+    Task PrepareForObservationAsync(CancellationToken token);
+    uint? LastInputTick { get; }
+    bool IsOtherProcessForeground { get; }
+    bool IsTargetForeground { get; }
+    bool HasMovedSince(FrameSnapshot frame);
+    Task<bool> TryActivateOnceAsync(CancellationToken token);
+}
+
 public interface IGameInput
 {
     Task ActivateAsync(CancellationToken token);
+    Task PrepareForObservationAsync(CancellationToken token) => ActivateAsync(token);
     Task ClickAsync(FrameSnapshot observation, ClientPoint point, CancellationToken token);
     /// <summary>A bounded left-button drag, cancelled and released when the foreground or viewport changes.</summary>
     Task DragAsync(FrameSnapshot observation, ClientPoint from, ClientPoint to, CancellationToken token)

@@ -39,6 +39,7 @@ internal sealed class CommissionSession(TaskContext context, ICommissionRecogniz
                 if (frame.Id <= _lastId || frame.SystemTimestamp <= _after || !Fresh(frame) || !context.Execution.IsObservationCurrent(frame))
                 { previous = null; await context.Execution.DelayAsync(timing.PollInterval, deadline.Token); continue; }
                 CheckIdentity(frame);
+                if (previous is not null && !previous.Frame.SameViewport(frame)) previous = null;
                 _after = frame.SystemTimestamp; _lastId = frame.Id;
                 var recognitionStarted = Now;
                 var ui = await recognizer.ObserveAsync(frame, read, deadline.Token);
@@ -145,9 +146,7 @@ internal sealed class CommissionSession(TaskContext context, ICommissionRecogniz
     private void CheckIdentity(FrameSnapshot frame)
     {
         _identity ??= frame;
-        if (_identity.WindowHandle != frame.WindowHandle || _identity.ProcessId != frame.ProcessId
-            || _identity.ViewportVersion != frame.ViewportVersion || _identity.ClientLeft != frame.ClientLeft || _identity.ClientTop != frame.ClientTop
-            || _identity.Width != frame.Width || _identity.Height != frame.Height)
+        if (!_identity.SameClientSurface(frame))
             throw new InputUnavailableException("委托执行中窗口或视口已变化，请重新开始。");
     }
     private static bool Same(CommissionObservation a, CommissionObservation b) => a.EvidenceKey == b.EvidenceKey

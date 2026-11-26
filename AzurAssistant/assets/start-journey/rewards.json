@@ -12,16 +12,15 @@
         "Height": 185
       },
       "Threshold": 0.85,
-      "Sha256": "FCFFD1C3B824970E9CF7B4A369AF845C32E2781D1A5151F88D2F09ED497ABA5B",
-      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
-      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
+      "Sha256": "7B2D5877C2D104820C16F446E434A33B77E8588F1C167D97C51502717A99C650",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 180,
-        "Y": 110,
-        "Width": 265,
-        "Height": 112
+        "X": 162,
+        "Y": 104,
+        "Width": 183,
+        "Height": 67
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "login-close": {
       "File": "login-close.png",
@@ -32,28 +31,27 @@
         "Height": 70
       },
       "Threshold": 0.88,
-      "Sha256": "4B701155A928B4680163BF57657ADD9FC04AA801E5A3B586D10FF159E6201020",
-      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
-      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
+      "Sha256": "652410BB4ECFF3A44EF576DEDBE63ADD827E2C065B9DF06ECEA792F235EB92D4",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1855,
-        "Y": 26,
-        "Width": 33,
-        "Height": 33
+        "X": 1857,
+        "Y": 31,
+        "Width": 28,
+        "Height": 28
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "login-arrow-top": {
       "File": "login-arrow-top.png",
       "Search": {
-        "X": 544,
-        "Y": 832,
-        "Width": 812,
-        "Height": 31
+        "X": 576,
+        "Y": 829,
+        "Width": 748,
+        "Height": 43
       },
       "Threshold": 0.88,
       "Sha256": "EA8ECEE4123311C5DDF004B1D7D899539C6CBA92F8F299E1A6D7E36BF8BEEE19",
-      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
       "SourceCrop": {
         "X": 938,
@@ -72,16 +70,15 @@
         "Height": 25
       },
       "Threshold": 0.88,
-      "Sha256": "43659A68CC2411F225BB20D2171D92A57390E5800395DAF5A784DA53E8DAC85C",
-      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
-      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
+      "Sha256": "9CFE5D6B0B164868D8D8736307E7401F880B6FE1F355BDF2865C7804F3AB2921",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 938,
+        "X": 588,
         "Y": 1035,
         "Width": 24,
         "Height": 15
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "claimed-check": {
       "File": "login-card-check-claimed.png",
@@ -93,7 +90,7 @@
       },
       "Threshold": 0.78,
       "Sha256": "61304FA3B0833C4B385F52186E7FC51D908666416287FB6408AE23B629AD8FB7",
-      "Source": "录屏素材\\进入游戏\\step3领取后状态，点击右上角x关闭.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
       "SourceCrop": {
         "X": 938,
@@ -112,16 +109,15 @@
         "Height": 98
       },
       "Threshold": 0.94,
-      "Sha256": "59BC09498644A02A5626C5BA280D56304FDCC5A4592559426E074B85861AA707",
-      "Source": "录屏素材\\进入游戏\\step3领取后状态，点击右上角x关闭.jpg",
-      "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
+      "Sha256": "5C6C732CA9B70D57A80BB32996CDCB6995676E2D559C7DAC9967DFE4F4B28621",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1021,
+        "X": 669,
         "Y": 915,
         "Width": 12,
         "Height": 78
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "login-highlight": {
       "File": "login-card-edge-highlighted.png",
@@ -132,16 +128,15 @@
         "Height": 98
       },
       "Threshold": 0.94,
-      "Sha256": "AE119983B88478B7F827AFF4256573F9C9E43B9F44BCF2DC7EB29BE4BB3D44BC",
-      "Source": "录屏素材\\进入游戏\\step2进入游戏可能有奖励可领取.jpg",
-      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
+      "Sha256": "0F3453B46BE616F1C7A1CC3388AD91402D2CCB3D6A26CEAC9CEE06C4BED03496",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 901,
+        "X": 552,
         "Y": 915,
         "Width": 12,
         "Height": 78
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "monthly-label": {
       "File": "monthly-label.png",
@@ -152,16 +147,15 @@
         "Height": 70
       },
       "Threshold": 0.87,
-      "Sha256": "C7963775A562CA5784064A87865FCD4B9359D7A4132E8758D93103F15E215543",
-      "Source": "录屏素材\\进入游戏\\step4如有月卡会提示领取，但是实际上等个几秒他会自动领取.jpg",
-      "SourceSha256": "9BFE0487086DCF201E5AB7BC78F929433D5B89AD4C7046B8935926395CBB856D",
+      "Sha256": "DB8FAB6A9D5F2ED51F8AAE440CD28DAB4288917344D4A2362910712FA9E98B05",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
         "X": 842,
         "Y": 948,
-        "Width": 164,
-        "Height": 27
+        "Width": 158,
+        "Height": 25
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "monthly-prompt": {
       "File": "monthly-prompt.png",
@@ -172,16 +166,15 @@
         "Height": 65
       },
       "Threshold": 0.87,
-      "Sha256": "862D176BBA9796D81DCC815BDF5A5766EE9158805CA2904E1BD4CB52F576499E",
-      "Source": "录屏素材\\进入游戏\\step4如有月卡会提示领取，但是实际上等个几秒他会自动领取.jpg",
-      "SourceSha256": "9BFE0487086DCF201E5AB7BC78F929433D5B89AD4C7046B8935926395CBB856D",
+      "Sha256": "A65EE172BFA84D167D66C2F29A0A4DCD1259AE859274D76A5BFD5861CE815D03",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 826,
-        "Y": 991,
-        "Width": 236,
-        "Height": 25
+        "X": 833,
+        "Y": 990,
+        "Width": 230,
+        "Height": 23
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "reward-title": {
       "File": "reward-title.png",
@@ -193,7 +186,7 @@
       },
       "Threshold": 0.85,
       "Sha256": "73FBD5B0483878F5EC86B807E9BE56EB52D2E728B56931D02D770B7BA63889FA",
-      "Source": "录屏素材\\进入游戏\\step5月卡自动领取后，点击空白处退出.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "21CC47A5F41F6B9A3115437A817AEFF86180AF79C990621F0591C10340E55BC7",
       "SourceCrop": {
         "X": 928,
@@ -213,7 +206,7 @@
       },
       "Threshold": 0.85,
       "Sha256": "B599C633E19C5CCF92E2D9855C2DA6A366886924254278A54B3675F4D598A29C",
-      "Source": "录屏素材\\进入游戏\\step5月卡自动领取后，点击空白处退出.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "21CC47A5F41F6B9A3115437A817AEFF86180AF79C990621F0591C10340E55BC7",
       "SourceCrop": {
         "X": 871,
@@ -232,16 +225,15 @@
         "Y": 906
       },
       "Threshold": 0.94,
-      "Sha256": "760C95BFF822C237CDA9BC008A48DCD7B6B79AC2997E67D2EAD8B7F3117D7C0C",
-      "Source": "录屏素材\\进入游戏\\step3领取后状态，点击右上角x关闭.jpg",
-      "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
+      "Sha256": "E682ADAA28F555D8F25270C609AB4BDEB325254C4CA70E1813EA85AFEACA0BA1",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1138,
-        "Height": 78,
+        "X": 1020,
+        "Y": 915,
         "Width": 12,
-        "Y": 915
+        "Height": 78
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "future-card-edge-3": {
       "File": "login-card-edge-future-variant-3.png",
@@ -253,7 +245,7 @@
       },
       "Threshold": 0.94,
       "Sha256": "21169D1666A09107749CD46BF1FF8DDD61181DC32D57981455E9E34CA91A9618",
-      "Source": "录屏素材\\进入游戏\\step3领取后状态，点击右上角x关闭.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
       "SourceCrop": {
         "X": 1254,
@@ -262,6 +254,82 @@
         "Y": 915
       },
       "Version": "1.0.0"
+    },
+    "reward-dismiss-faint": {
+      "File": "reward-dismiss-faint.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "0E3A90558ECF0732EDA7FA16242808F4EBC4BCB6C84F93C8044D5EA47C06E50F",
+      "Crop": {
+        "X": 889,
+        "Y": 801,
+        "Width": 142,
+        "Height": 18
+      },
+      "Search": {
+        "X": 845,
+        "Y": 773,
+        "Width": 235,
+        "Height": 72
+      }
+    },
+    "future-card-edge-4": {
+      "File": "login-card-edge-future-variant-4.png",
+      "Threshold": 0.94,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "C62616A398377E64498C2D154B39D74B3164F0A4FB6838112EF681B7F42CEC34",
+      "Crop": {
+        "X": 785,
+        "Y": 915,
+        "Width": 12,
+        "Height": 78
+      },
+      "Search": {
+        "X": 544,
+        "Y": 906,
+        "Width": 812,
+        "Height": 98
+      }
+    },
+    "future-card-edge-5": {
+      "File": "login-card-edge-future-variant-5.png",
+      "Threshold": 0.94,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "E4FBCB10967072E2B52362B65805318460E240EE7EDBA222334F390F83ECA08D",
+      "Crop": {
+        "X": 902,
+        "Y": 915,
+        "Width": 12,
+        "Height": 78
+      },
+      "Search": {
+        "X": 544,
+        "Y": 906,
+        "Width": 812,
+        "Height": 98
+      }
+    },
+    "future-card-edge-6": {
+      "File": "login-card-edge-future-variant-6.png",
+      "Threshold": 0.94,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "6435286EA9703E9B47AF4B43B75F3003356942C6558CCC1E78FE227B8A402FAA",
+      "Crop": {
+        "X": 1136,
+        "Y": 915,
+        "Width": 12,
+        "Height": 78
+      },
+      "Search": {
+        "X": 544,
+        "Y": 906,
+        "Width": 812,
+        "Height": 98
+      }
     }
   }
 }

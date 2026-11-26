@@ -93,10 +93,10 @@ public sealed class NavigationSession(TaskContext context, INavigationRecognizer
     {
         var current = await WaitAsync(o => o.Page != NavigationPage.Unknown, "确认导航起点", token);
         if (current.Page == NavigationPage.World && current.Position is not null) return current;
-        if (current.Page == NavigationPage.LocalMap && current.Position is not null)
+        if (current.Page == NavigationPage.MainMenu || current.Page == NavigationPage.LocalMap && current.Position is not null)
         {
-            await ActAsync(current, o => o.Page == NavigationPage.LocalMap && o.Position is not null,
-                (o, ct) => context.Input.PressKeyAsync(o.Frame, GameKey.Escape, ct), "关闭地图", token);
+            await ActAsync(current, o => o.Page == current.Page && (o.Page == NavigationPage.MainMenu || o.Position is not null),
+                (o, ct) => context.Input.PressKeyAsync(o.Frame, GameKey.Escape, ct), "返回大世界", token);
             return await WaitAsync(o => o.Page == NavigationPage.World && o.Position is not null, "确认世界坐标", token);
         }
         throw new NavigationException("请让角色处于已支持地图的世界画面，或打开当前角色所在的本地地图。");
@@ -148,7 +148,8 @@ public sealed class NavigationSession(TaskContext context, INavigationRecognizer
                 var remaining = TimeSpan.FromSeconds(1) - (context.Execution.Elapsed - confirmed);
                 if (remaining > TimeSpan.Zero) await context.Execution.DelayAsync(remaining, token);
             }
-            if (!Fresh(current.Frame)) current = await LocateMinimapAsync("切换移动状态前更新定位", token);
+            _after = Now;
+            current = await LocateMinimapAsync("按Ctrl前重新确认位置", token);
             if (generation != context.Execution.Generation) throw new ObservationInvalidatedException();
             var before = _movementMode;
             context.Log("发送Ctrl切换移动状态，等待新文字结果");
@@ -158,8 +159,6 @@ public sealed class NavigationSession(TaskContext context, INavigationRecognizer
             await context.Execution.DelayAsync(TimeSpan.FromMilliseconds(300), token);
             using var deadline = context.Execution.CreateDeadline(token);
             deadline.CancelAfter(TimeSpan.FromSeconds(4));
-            MovementMode previous = MovementMode.Unknown;
-            var firstAt = TimeSpan.Zero;
             try
             {
                 while (true)
@@ -169,14 +168,15 @@ public sealed class NavigationSession(TaskContext context, INavigationRecognizer
                     // Stationary toast confirmation needs a fresh text frame, not another expensive map registration.
                     var frame = await context.Frames.ReadAfterAsync(_after, deadline.Token);
                     if (!AcceptFrame(frame))
-                    { previous = MovementMode.Unknown; await context.Execution.DelayAsync(TimeSpan.FromMilliseconds(30), deadline.Token); continue; }
+                    { await context.Execution.DelayAsync(TimeSpan.FromMilliseconds(30), deadline.Token); continue; }
                     var observed = await recognizer.ReadMovementModeAsync(frame, deadline.Token);
                     if (generation != context.Execution.Generation) throw new ObservationInvalidatedException();
-                    if (!context.Execution.IsObservationCurrent(frame) || !Fresh(frame) || observed == MovementMode.Unknown || observed == before)
-                    { previous = MovementMode.Unknown; continue; }
-                    if (previous != observed) { previous = observed; firstAt = frame.SystemTimestamp; }
-                    else if (frame.SystemTimestamp - firstAt >= TimeSpan.FromMilliseconds(150))
-                    { _movementMode = observed; _modeConfirmedAt = context.Execution.Elapsed; break; }
+                    // The toast is evidence from a post-input frame. OCR latency does not change its capture time.
+                    if (!context.Execution.IsObservationCurrent(frame) || observed == MovementMode.Unknown || observed == before) continue;
+                    _movementMode = observed;
+                    _modeConfirmedAt = context.Execution.Elapsed;
+                    context.Log($"Ctrl提示确认：{(observed == MovementMode.Walk ? "步行" : "奔跑")}，帧 {frame.Id}，读完时帧龄 {Age(frame).TotalMilliseconds:F0}ms");
+                    break;
                 }
             }
             catch (OperationCanceledException) when (!token.IsCancellationRequested)
@@ -185,7 +185,8 @@ public sealed class NavigationSession(TaskContext context, INavigationRecognizer
         if (generation != context.Execution.Generation) throw new ObservationInvalidatedException();
         if (_movementMode != desired) throw new NavigationException("未确认所需移动状态，已停止。");
         context.Log(desired == MovementMode.Walk ? "文字确认步行状态，用于转向及近点校准" : "文字确认奔跑状态，开始持续前进");
-        return await LocateMinimapAsync("移动状态确认后定位", token);
+        _after = Now;
+        return await LocateMinimapAsync("移动状态确认后获取新定位", token);
     }
 
     public async Task ConfirmArrivalAsync(MapPosition target, CancellationToken token)
@@ -197,8 +198,12 @@ public sealed class NavigationSession(TaskContext context, INavigationRecognizer
 
     public IReadOnlyList<NavigationMap> Maps => recognizer.Maps;
     public Task TeleportAsync(CancellationToken token) => TeleportAsync(recognizer.Layout.MapId, recognizer.Layout.Teleport.Id, token);
-    public Task TeleportAsync(string mapId, string teleportId, CancellationToken token) =>
-        new MapTeleporter(context, recognizer, this).RunAsync(mapId, teleportId, token);
+    public Task TeleportAsync(string mapId, string teleportId, CancellationToken token)
+    {
+        _movementMode = MovementMode.Unknown;
+        _modeConfirmedAt = null;
+        return new MapTeleporter(context, recognizer, this).RunAsync(mapId, teleportId, token);
+    }
 
     private static bool Same(NavigationObservation a, NavigationObservation b, NavigationStability stability) => a.Page == b.Page && a.DisplayedMapId == b.DisplayedMapId && (stability switch
     {

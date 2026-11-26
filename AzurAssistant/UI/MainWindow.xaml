@@ -227,9 +227,6 @@
      <RadioButton x:Name="RealtimeNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="realtime" Checked="OnNavigate" IsChecked="{Binding IsRealtimePage, Mode=OneWay}" AutomationProperties.Name="实时辅助">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE945;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="实时辅助" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
-     <RadioButton x:Name="MapNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="navigation" Checked="OnNavigate" IsChecked="{Binding IsNavigationPage, Mode=OneWay}" AutomationProperties.Name="导航测试">
-      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE707;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="导航测试" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
-     </RadioButton>
      <RadioButton x:Name="RoutesNavigation" Style="{StaticResource NavigationItem}" GroupName="Navigation" Tag="routes" Checked="OnNavigate" IsChecked="{Binding IsRoutesPage, Mode=OneWay}" AutomationProperties.Name="路线管理">
       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8AB;" FontFamily="Segoe Fluent Icons" FontSize="17" Margin="0,0,13,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /><TextBlock Text="路线管理" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" /></StackPanel>
      </RadioButton>
@@ -240,7 +237,7 @@
     <StackPanel Grid.Row="3" Margin="5,0,0,0">
      <Border Background="{DynamicResource DividerBrush}" Height="1" Margin="0,0,0,16" />
      <TextBlock Text="AZUR ASSISTANT" Foreground="{DynamicResource Subtle}" FontSize="10" FontWeight="SemiBold" />
-     <TextBlock Text="v0.1.0 beta" Foreground="{DynamicResource Subtle}" FontSize="11" Margin="0,6,0,0" />
+     <TextBlock Text="v1.0.0_rc1_20261126" Foreground="{DynamicResource Subtle}" FontSize="11" Margin="0,6,0,0" />
     </StackPanel>
    </Grid>
   </Border>
@@ -249,7 +246,7 @@
    <Grid Margin="0,0,0,20">
     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
     <TextBlock Text="{Binding PageTitle}" FontSize="28" FontWeight="SemiBold" />
-    <TextBlock x:Name="SettingsRestartHint" Grid.Column="1" Text="修改设置需重启助手生效" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource Muted}" FontSize="11" VerticalAlignment="Center" Margin="18,0,16,0" TextTrimming="CharacterEllipsis" />
+    <TextBlock x:Name="SettingsHint" Grid.Column="1" Text="设置自动保存，任务参数在下次运行时生效" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource Muted}" FontSize="11" VerticalAlignment="Center" Margin="18,0,16,0" TextTrimming="CharacterEllipsis" />
     <Border Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="16" Padding="12,7">
      <StackPanel Orientation="Horizontal">
       <Ellipse Width="7" Height="7" Margin="0,0,7,0"><Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Fill" Value="{DynamicResource InactiveInk}" /><Style.Triggers><DataTrigger Binding="{Binding IsLive}" Value="True"><Setter Property="Fill" Value="{DynamicResource SuccessInk}" /></DataTrigger><DataTrigger Binding="{Binding IsFaulted}" Value="True"><Setter Property="Fill" Value="{DynamicResource WarningInk}" /></DataTrigger></Style.Triggers></Style></Ellipse.Style></Ellipse>
@@ -320,6 +317,23 @@
           </Border>
          </DataTemplate></ItemsControl.ItemTemplate>
         </ItemsControl>
+        <Border x:Name="DailyRoutesRow" Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,11" Margin="0,5,0,0" IsEnabled="{Binding CanConfigure}">
+         <StackPanel><CheckBox x:Name="CustomRoutesOption" Content="自定义路线" IsChecked="{Binding CustomRoutes}" Style="{StaticResource FeatureOption}"/>
+          <StackPanel Visibility="{Binding CustomRoutes, Converter={StaticResource BoolVisibility}}" Margin="0,12,0,0">
+           <DockPanel Margin="0,0,0,8"><Button x:Name="AddDailyRouteButton" DockPanel.Dock="Right" Content="添加路线" Click="OnAddDailyRoute" Margin="8,0,0,0"/>
+            <ComboBox ItemsSource="{Binding SavedRoutes}" SelectedItem="{Binding SelectedRoute}" DisplayMemberPath="Name" AutomationProperties.Name="选择已保存路线"/></DockPanel>
+           <ItemsControl ItemsSource="{Binding DailyRouteRows}"><ItemsControl.ItemTemplate><DataTemplate>
+            <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+             <TextBlock Text="{Binding Label}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+             <WrapPanel Grid.Column="1"><CheckBox Content="拾取辅助" IsChecked="{Binding AutoPickup}" VerticalAlignment="Center" Margin="5,0" ToolTip="仅在到点后采集、挖矿和砍树"/>
+              <Button Content="↑" Tag="up" Click="OnMoveDailyRoute" ToolTip="上移" Padding="6,3"/><Button Content="↓" Tag="down" Click="OnMoveDailyRoute" ToolTip="下移" Padding="6,3"/>
+              <Button Content="删除" Click="OnRemoveDailyRoute" Padding="7,3" Margin="5,0,0,0"/></WrapPanel>
+            </Grid>
+           </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+           <TextBlock Text="{Binding DailyRouteHint}" FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,4,0,0"/>
+          </StackPanel>
+         </StackPanel>
+        </Border>
         <Border x:Name="ExitGameRow" Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,11" Margin="0,5,0,0">
          <StackPanel>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
@@ -345,21 +359,63 @@
        <StackPanel x:Name="RealtimePage" Visibility="{Binding IsRealtimePage, Converter={StaticResource BoolVisibility}}">
         <Grid Margin="0,0,0,12"><TextBlock Text="辅助选项" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" /><Button x:Name="RealtimePageStartButton" Content="运行实时辅助" Click="OnStartRealtime" IsEnabled="{Binding CanStartRealtime}" Style="{StaticResource PrimaryAction}" HorizontalAlignment="Right" /></Grid>
         <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,10" Margin="0,0,0,8"><CheckBox x:Name="AutoSkipDialogueOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoSkipDialogue}" AutomationProperties.Name="自动跳过对话"><StackPanel><TextBlock Text="自动跳过对话" FontWeight="SemiBold" /><TextBlock Text="识别剧情画面后点击快进箭头" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,4,0,0" /></StackPanel></CheckBox></Border>
-        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,10"><CheckBox x:Name="AutoPickupOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoPickup}" AutomationProperties.Name="自动拾取采集物"><StackPanel><TextBlock Text="自动拾取采集物" FontWeight="SemiBold" /><TextBlock Text="识别采集提示后按 F，剧情期间暂停采集" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,4,0,0" /></StackPanel></CheckBox></Border>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,10" Margin="0,0,0,8"><CheckBox x:Name="AutoPickupOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoPickup}" AutomationProperties.Name="自动拾取采集物"><StackPanel><TextBlock Text="自动拾取采集物" FontWeight="SemiBold" /><TextBlock Text="拾取当前选中的普通采集物" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,4,0,0" /></StackPanel></CheckBox></Border>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,10" Margin="0,0,0,8"><CheckBox x:Name="AutoMiningOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoMining}" AutomationProperties.Name="自动挖矿"><StackPanel><TextBlock Text="自动挖矿" FontWeight="SemiBold" /><TextBlock Text="采集当前选中的矿物" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,4,0,0" /></StackPanel></CheckBox></Border>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,10" Margin="0,0,0,8"><CheckBox x:Name="AutoLoggingOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoLogging}" AutomationProperties.Name="自动砍树"><StackPanel><TextBlock Text="自动砍树" FontWeight="SemiBold" /><TextBlock Text="采集当前选中的树木" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,4,0,0" /></StackPanel></CheckBox></Border>
+        <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="14,10"><CheckBox x:Name="HideUidOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding HideUid}" AutomationProperties.Name="隐藏 UID"><StackPanel><TextBlock Text="隐藏 UID" FontWeight="SemiBold" /><TextBlock Text="用边缘渐隐的圆角矩形遮住游戏左下角的 UID" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,4,0,0" /></StackPanel></CheckBox></Border>
        </StackPanel>
-       <StackPanel x:Name="NavigationPage" Visibility="{Binding IsNavigationPage, Converter={StaticResource BoolVisibility}}">
+       <StackPanel x:Name="RoutesPage" Visibility="{Binding IsRoutesPage, Converter={StaticResource BoolVisibility}}">
+        <TextBlock x:Name="RouteMountHint" Text="暂不支持坐骑状态下使用路线功能" Foreground="{DynamicResource WarningInk}" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+         <Button x:Name="RouteRecordButton" Content="路线录制" Click="OnBeginRouteRecording" IsEnabled="{Binding CanBeginRoute}" Style="{StaticResource PrimaryAction}" />
+         <Button x:Name="RouteImportButton" Content="路线导入" Click="OnImportRoute" IsEnabled="{Binding CanBeginRoute}" Margin="10,0,0,0" />
+        </StackPanel>
         <Border Background="{DynamicResource TileBackground}" CornerRadius="8" Padding="16,12" Margin="0,0,0,18">
          <StackPanel>
           <TextBlock Text="角色坐标" FontSize="12" Foreground="{DynamicResource Muted}" />
-          <TextBlock x:Name="NavigationMapLabel" Text="{Binding NavigationMapText}" FontSize="15" FontWeight="SemiBold" Margin="0,7,0,0" />
-          <TextBlock x:Name="NavigationCoordinateLabel" Text="{Binding NavigationCoordinateText}" FontSize="23" FontWeight="SemiBold" Margin="0,7,0,5" ToolTip="角色箭头朝向：北0°，东90°，南180°，西270°" />
+          <TextBlock x:Name="NavigationMapLabel" Text="{Binding NavigationMapText}" FontSize="13" FontWeight="SemiBold" Margin="0,7,0,0" />
+          <TextBlock x:Name="NavigationCoordinateLabel" Text="{Binding NavigationCoordinateText}" FontSize="14" FontWeight="SemiBold" Margin="0,7,0,5" ToolTip="角色箭头朝向：北0°，东90°，南180°，西270°" />
           <TextBlock Text="{Binding NavigationObservationText}" FontSize="11" Foreground="{DynamicResource Muted}" />
+         </StackPanel>
+        </Border>
+        <TextBlock Text="{Binding RouteMessage}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,14" />
+        <StackPanel x:Name="RouteRecordingPanel" Visibility="{Binding IsRecordingRoute, Converter={StaticResource BoolVisibility}}">
+         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+          <Button x:Name="RouteCaptureButton" Content="记录当前点" Click="OnCaptureRoutePoint" IsEnabled="{Binding CanCaptureRoutePoint}" />
+          <Button Content="前往目标传送点" Click="OnRecordTeleport" IsEnabled="{Binding CanCaptureRoutePoint}" Margin="8,0,0,0" />
+          <Button Content="取消录制" Click="OnCancelRouteRecording" IsEnabled="{Binding CanCaptureRoutePoint}" Margin="10,0,0,0" />
+         </StackPanel>
+         <ItemsControl ItemsSource="{Binding RecordedPoints}" IsEnabled="{Binding CanCaptureRoutePoint}">
+          <ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,0,0,6">
+           <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+           <StackPanel Margin="0,0,10,0"><TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" AutomationProperties.Name="点位名称" />
+            <TextBlock Text="{Binding Location}" FontSize="11" Foreground="{DynamicResource Muted}" Margin="2,3,0,0" /></StackPanel>
+           <Button Grid.Column="1" Content="删除" Click="OnRemoveRoutePoint" Padding="10,5" VerticalAlignment="Center" />
+          </Grid></DataTemplate></ItemsControl.ItemTemplate>
+         </ItemsControl>
+         <TextBlock Text="路线名称" FontWeight="SemiBold" Margin="0,12,0,7" />
+         <TextBox x:Name="RouteNameBox" Text="{Binding RouteName, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" IsEnabled="{Binding CanCaptureRoutePoint}" />
+         <Button x:Name="RouteSaveButton" Content="完成并保存路线" Click="OnSaveRecordedRoute" IsEnabled="{Binding CanSaveRoute}" HorizontalAlignment="Left" Style="{StaticResource PrimaryAction}" Margin="0,12,0,20" />
+        </StackPanel>
+        <StackPanel><StackPanel.Style><Style TargetType="StackPanel"><Style.Triggers><DataTrigger Binding="{Binding IsRecordingRoute}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+        <TextBlock Text="已保存路线" FontSize="15" FontWeight="SemiBold" Margin="0,4,0,10" />
+        <ComboBox x:Name="RouteSelector" ItemsSource="{Binding SavedRoutes}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedRoute}" IsEnabled="{Binding CanBeginRoute}" />
+        <TextBlock Text="{Binding SelectedRouteDescription}" Foreground="{DynamicResource Muted}" Margin="0,9,0,10" />
+        <CheckBox x:Name="RouteAutoPickupBox" Content="拾取辅助（采集物、挖矿、砍树）" ToolTip="到点停稳后开启。普通采集连续两次确认提示消失后继续，砍树和挖矿按 F 后原地等待 10 秒。" IsChecked="{Binding RouteAutoPickup}" IsEnabled="{Binding CanRunRoute}" Margin="0,0,0,12" />
+        <WrapPanel Margin="0,0,0,12">
+         <Button x:Name="RouteRunButton" Content="运行路线" Click="OnRunRoute" IsEnabled="{Binding CanRunRoute}" Style="{StaticResource PrimaryAction}" />
+         <Button Content="导出路线" Click="OnExportRoute" IsEnabled="{Binding CanRunRoute}" Margin="10,0,0,0" />
+         <Button x:Name="RouteDeleteButton" Content="删除路线" Click="OnDeleteRoute" IsEnabled="{Binding CanRunRoute}" Margin="10,0,0,0" />
+        </WrapPanel>
+        <ItemsControl ItemsSource="{Binding SelectedRoutePoints}"><ItemsControl.ItemTemplate><DataTemplate>
+         <StackPanel Margin="0,3"><TextBlock Text="{Binding Name}" /><TextBlock Text="{Binding Location}" FontSize="11" Foreground="{DynamicResource Muted}"/></StackPanel>
+        </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        <Expander x:Name="SingleNavigationTools" Header="单点导航" Margin="0,14,0,4"><StackPanel Margin="4,8">
           <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
            <Button x:Name="NavigationObserveButton" Content="开始定位" Click="OnNavigationObserve" IsEnabled="{Binding CanStartNavigation}" Padding="14,8" />
            <Button Content="填入观测坐标" Click="OnUseObservedCoordinate" Padding="14,8" Margin="8,0,0,0" />
           </StackPanel>
-         </StackPanel>
-        </Border>
+
         <TextBlock Text="前往传送点" FontWeight="SemiBold" Margin="0,0,0,8" />
         <Grid Margin="0,0,0,18"><Grid.ColumnDefinitions><ColumnDefinition Width="160" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
          <ComboBox x:Name="NavigationMapSelector" ItemsSource="{Binding NavigationMaps}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedTeleportMap}" IsEnabled="{Binding CanConfigure}" Margin="0,0,10,0" AutomationProperties.Name="目标地图" />
@@ -375,57 +431,22 @@
          <Button x:Name="NavigationMoveButton" Content="前往坐标" Click="OnNavigationMove" IsEnabled="{Binding CanMoveToCoordinate}" Padding="14,8" Margin="14,0,0,0" />
         </WrapPanel>
         <TextBlock Text="坐标属于角色当前地图。左上角为 (0, 0)，X 向右、Y 向下；夏露露村 0–2047，两张大地图 0–8191。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,10,0,0" />
-        <TextBlock Text="持续定位时先停止任务，再传送或移动。单点测试限起点 250 像素内，暂不绕障；多点行走请使用路线管理。角度：北0°、东90°。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,7,0,0" />
-       </StackPanel>
-       <StackPanel x:Name="RoutesPage" Visibility="{Binding IsRoutesPage, Converter={StaticResource BoolVisibility}}">
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-         <Button x:Name="RouteRecordButton" Content="路线录制" Click="OnBeginRouteRecording" IsEnabled="{Binding CanBeginRoute}" Style="{StaticResource PrimaryAction}" />
-         <Button x:Name="RouteImportButton" Content="路线导入" Click="OnImportRoute" IsEnabled="{Binding CanBeginRoute}" Margin="10,0,0,0" />
+        <TextBlock Text="单点移动限当前地图起点 250 像素内。角度为北 0°、东 90°。" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,7,0,0" />
+        </StackPanel></Expander>
         </StackPanel>
-        <TextBlock Text="{Binding RouteMessage}" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,14" />
-        <StackPanel x:Name="RouteRecordingPanel" Visibility="{Binding IsRecordingRoute, Converter={StaticResource BoolVisibility}}">
-         <TextBlock Text="{Binding RecordingMapText}" FontWeight="SemiBold" Margin="0,0,0,10" />
-         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-          <Button x:Name="RouteCaptureButton" Content="记录当前点" Click="OnCaptureRoutePoint" IsEnabled="{Binding CanCaptureRoutePoint}" />
-          <Button Content="取消录制" Click="OnCancelRouteRecording" IsEnabled="{Binding CanCaptureRoutePoint}" Margin="10,0,0,0" />
-         </StackPanel>
-         <ItemsControl ItemsSource="{Binding RecordedPoints}" IsEnabled="{Binding CanCaptureRoutePoint}">
-          <ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,0,0,6">
-           <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="115" /><ColumnDefinition Width="115" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-           <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" Margin="0,0,10,0" AutomationProperties.Name="点位名称" />
-           <TextBlock Grid.Column="1" Text="{Binding X, StringFormat=X {0:F2}}" VerticalAlignment="Center" />
-           <TextBlock Grid.Column="2" Text="{Binding Y, StringFormat=Y {0:F2}}" VerticalAlignment="Center" />
-           <Button Grid.Column="3" Content="移除" Click="OnRemoveRoutePoint" Padding="10,5" />
-          </Grid></DataTemplate></ItemsControl.ItemTemplate>
-         </ItemsControl>
-         <TextBlock Text="路线名称" FontWeight="SemiBold" Margin="0,12,0,7" />
-         <TextBox x:Name="RouteNameBox" Text="{Binding RouteName, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" IsEnabled="{Binding CanCaptureRoutePoint}" />
-         <CheckBox x:Name="RouteAutoPickupBox" Content="运行时开启自动拾取辅助" IsChecked="{Binding RouteAutoPickup}" IsEnabled="{Binding CanCaptureRoutePoint}" Margin="0,12,0,12" />
-         <Button x:Name="RouteSaveButton" Content="完成并保存路线" Click="OnSaveRecordedRoute" IsEnabled="{Binding CanSaveRoute}" HorizontalAlignment="Left" Style="{StaticResource PrimaryAction}" Margin="0,0,0,20" />
-        </StackPanel>
-        <TextBlock Text="已保存路线" FontSize="15" FontWeight="SemiBold" Margin="0,4,0,10" />
-        <ComboBox x:Name="RouteSelector" ItemsSource="{Binding SavedRoutes}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedRoute}" IsEnabled="{Binding CanBeginRoute}" />
-        <TextBlock Text="{Binding SelectedRouteDescription}" Foreground="{DynamicResource Muted}" Margin="0,9,0,10" />
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-         <Button x:Name="RouteRunButton" Content="运行路线" Click="OnRunRoute" IsEnabled="{Binding CanRunRoute}" Style="{StaticResource PrimaryAction}" />
-         <Button Content="导出 JSON" Click="OnExportRoute" IsEnabled="{Binding CanRunRoute}" Margin="10,0,0,0" />
-        </StackPanel>
-        <ItemsControl ItemsSource="{Binding SelectedRoutePoints}"><ItemsControl.ItemTemplate><DataTemplate>
-         <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="115" /><ColumnDefinition Width="115" /></Grid.ColumnDefinitions>
-          <TextBlock Text="{Binding Name}" /><TextBlock Grid.Column="1" Text="{Binding X, StringFormat=X {0:F2}}" /><TextBlock Grid.Column="2" Text="{Binding Y, StringFormat=Y {0:F2}}" />
-         </Grid>
-        </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
-        <TextBlock Text="同地图路线依次前往各点。开头跳跃一次，途中自动转向前进；请在转弯和障碍附近补点，当前不自动绕障。" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,16,0,0" />
        </StackPanel>
        <StackPanel x:Name="SettingsPage" Visibility="{Binding IsSettingsPage, Converter={StaticResource BoolVisibility}}">
-        <TextBlock Text="游戏启动文件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />
+        <TextBlock Text="游戏启动器" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" />
         <Grid Margin="0,0,0,20"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-         <Border Background="{DynamicResource TileBackground}" BorderBrush="{DynamicResource InputBorderBrush}" BorderThickness="1" CornerRadius="7" Padding="10,9" Margin="0,0,8,0"><TextBox x:Name="GameExecutablePathBox" Text="{Binding GameExecutablePath, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent" Padding="0" FontSize="12" VerticalContentAlignment="Center" ToolTip="{Binding GameExecutablePath}" AutomationProperties.Name="游戏启动文件路径" /></Border>
+         <Border Background="{DynamicResource TileBackground}" BorderBrush="{DynamicResource InputBorderBrush}" BorderThickness="1" CornerRadius="7" Padding="10,9" Margin="0,0,8,0"><TextBox x:Name="GameExecutablePathBox" Text="{Binding GameExecutablePath, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent" Padding="0" FontSize="12" VerticalContentAlignment="Center" ToolTip="{Binding GameExecutablePath}" AutomationProperties.Name="游戏启动器路径" /></Border>
          <Button x:Name="ChooseGameExecutableButton" Grid.Column="1" Content="选择文件" Click="OnChooseGameExecutable" Padding="14,9" />
         </Grid>
         <CheckBox x:Name="AutoConnectOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoConnect}" Content="启动助手后自动连接游戏画面" Margin="0,0,0,18" />
         <CheckBox x:Name="AutoRunDailyOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding AutoRunDaily}" Content="启动助手后自动运行一条龙" Margin="0,0,0,18" />
         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,4,0,20" />
+        <CheckBox x:Name="RandomInteractionDelayOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding RandomInteractionDelay}" Margin="0,0,0,18">
+         <StackPanel><TextBlock Text="随机延迟" FontWeight="SemiBold"/><TextBlock Text="一条龙每次交互前额外等待 0–100 毫秒" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0"/></StackPanel>
+        </CheckBox>
         <CheckBox x:Name="LowPerformanceModeOption" Style="{StaticResource FeatureOption}" IsChecked="{Binding LowPerformanceMode}" Margin="0,0,0,18">
          <StackPanel><TextBlock Text="低配模式" FontWeight="SemiBold" /><TextBlock Text="低配设备可开启，降低任务执行速度" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,5,0,0" /></StackPanel>
         </CheckBox>
@@ -456,6 +477,7 @@
          <TextBlock Text="更新源" VerticalAlignment="Center" Margin="0,0,12,0" />
          <ComboBox x:Name="UpdateSourceBox" Width="120" SelectedIndex="0" IsEnabled="{Binding CanCheckUpdates}" AutomationProperties.Name="更新源"><ComboBoxItem Content="GitHub" /></ComboBox>
          <Button x:Name="CheckUpdatesButton" Content="检查更新" Click="OnCheckUpdates" IsEnabled="{Binding CanCheckUpdates}" Padding="14,7" Margin="12,0,0,0" />
+         <Button x:Name="VersionNotesButton" Content="版本说明" Click="OnVersionNotes" Padding="14,7" Margin="8,0,0,0" />
          <Button Content="取消" Click="OnCancelUpdate" Visibility="{Binding IsUpdateBusy, Converter={StaticResource BoolVisibility}}" Padding="14,7" Margin="8,0,0,0" />
         </StackPanel>
         <TextBlock Text="{Binding UpdateStatus}" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" />

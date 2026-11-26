@@ -14,7 +14,7 @@ public sealed class GitHubReleaseClient(HttpClient http, UpdateSource source)
     private HttpRequestMessage Request(Uri uri)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, uri);
-        request.Headers.UserAgent.ParseAdd("AzurAssistant/0.1.0");
+        request.Headers.UserAgent.ParseAdd("AzurAssistant/1.0.0_rc1_20261126");
         if (uri.Host == "api.github.com")
         {
             request.Headers.Accept.ParseAdd("application/vnd.github+json");
@@ -34,10 +34,13 @@ public sealed class GitHubReleaseClient(HttpClient http, UpdateSource source)
         using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
         response.EnsureSuccessStatusCode();
         using var document = JsonDocument.Parse(await ReadLimitedAsync(response, 4_000_000, token));
-        foreach (var release in document.RootElement.EnumerateArray()
-            .Where(r => !r.GetProperty("draft").GetBoolean())
-            .OrderByDescending(r => r.GetProperty("published_at").GetString(), StringComparer.Ordinal))
+        AvailableUpdate? latest = null;
+        var published = document.RootElement.EnumerateArray().Where(r => !r.GetProperty("draft").GetBoolean())
+            .Select(r => (Release: r, Ranked: AssistantRelease.FromReleaseTag(r.GetProperty("tag_name").GetString()!)))
+            .OrderByDescending(r => r.Ranked);
+        foreach (var (release, ranked) in published)
         {
+            if (ranked is not null && latest is not null && ranked.CompareTo(latest.Release) <= 0) continue;
             var assets = release.GetProperty("assets").EnumerateArray().ToArray();
             var manifestAsset = assets.FirstOrDefault(a => a.GetProperty("name").GetString() == "release-manifest.json");
             if (manifestAsset.ValueKind == JsonValueKind.Undefined) continue;
@@ -49,13 +52,14 @@ public sealed class GitHubReleaseClient(HttpClient http, UpdateSource source)
             var manifest = JsonSerializer.Deserialize<AssistantRelease>(await ReadLimitedAsync(manifestResponse, 64_000, token), JsonOptions)
                 ?? throw new InvalidDataException("发布清单为空。");
             manifest.Validate(installer: true);
-            if (manifest.ReleaseId != tag) throw new InvalidDataException("发布标签与清单不匹配。");
+            if (manifest.ReleaseId != tag || ranked is not null && manifest.CompareTo(ranked) != 0) throw new InvalidDataException("发布标签与清单不匹配。");
             var installer = assets.FirstOrDefault(a => a.GetProperty("name").GetString() == manifest.InstallerFile);
             if (installer.ValueKind == JsonValueKind.Undefined || installer.GetProperty("size").GetInt64() != manifest.InstallerSize)
                 throw new InvalidDataException("发布安装包缺失或大小不匹配。");
-            return new(manifest, AssetUri(installer, tag), release.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "");
+            if (latest is null || manifest.CompareTo(latest.Release) > 0)
+                latest = new(manifest, AssetUri(installer, tag));
         }
-        return null;
+        return latest;
     }
 
     private Uri AssetUri(JsonElement asset, string tag)

@@ -17,10 +17,10 @@
 [Setup]
 AppId={{41485CB6-B2A3-4A39-A2EB-D3B8A15C70B4}
 AppName=蔚蓝助手
-AppVersion=0.1.0 beta
-AppVerName=蔚蓝助手 v0.1.0 beta
+AppVersion=1.0.0_rc1_20261126
+AppVerName=蔚蓝助手 v1.0.0_rc1_20261126
 AppPublisher=AzurAssistant
-VersionInfoVersion=0.1.0.0
+VersionInfoVersion=1.0.0.0
 VersionInfoDescription=蔚蓝助手完整安装包
 DefaultDirName={autopf}\AzurAssistant
 DefaultGroupName=蔚蓝助手
@@ -62,6 +62,9 @@ Name: "{autodesktop}\蔚蓝助手"; Filename: "{app}\AzurAssistant.exe"; Working
 
 [Run]
 Filename: "{app}\AzurAssistant.exe"; Parameters: "--skip-startup-actions"; Description: "启动蔚蓝助手"; Flags: shellexec nowait postinstall skipifsilent
+
+[UninstallDelete]
+Type: files; Name: "{app}\first-launch-notice.pending"
 
 [Code]
 const
@@ -163,6 +166,9 @@ begin
     LoadStringsFromFile(ExpandConstant('{app}\payload-files.txt'), OldFiles);
   end;
   if CurStep = ssPostInstall then begin
+    if not WasInstalled then
+      if not SaveStringToFile(ExpandConstant('{app}\first-launch-notice.pending'), '1', False) then
+        Log('无法保存首次启动使用说明标记');
     LoadStringsFromFile(ExpandConstant('{app}\payload-files.txt'), NewFiles);
     for I := 0 to GetArrayLength(OldFiles) - 1 do
       if ManagedPath(OldFiles[I]) and not InNewFiles(OldFiles[I]) then

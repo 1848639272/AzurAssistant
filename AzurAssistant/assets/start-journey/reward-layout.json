@@ -1,7 +1,7 @@
 {
   "SchemaVersion": 1,
-  "Version": "1.0.0",
-  "Source": "录屏素材/进入游戏/step2进入游戏可能有奖励可领取.jpg",
+  "Version": "2026.11.26",
+  "Source": "游戏界面 · 公测 3217420",
   "CardCenters": [
     600,
     717,
@@ -15,10 +15,10 @@
   "MaxArrowOffset": 12,
   "DismissOffsetY": 80,
   "TopArrow": {
-    "X": -52,
-    "Y": 832,
-    "Width": 104,
-    "Height": 31
+    "X": -24,
+    "Y": 829,
+    "Width": 48,
+    "Height": 43
   },
   "BottomArrow": {
     "X": -52,
@@ -38,5 +38,12 @@
     "Width": 25,
     "Height": 98
   },
-  "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0"
+  "FutureEdges": [
+    "future-card-edge",
+    "future-card-edge-2",
+    "future-card-edge-3",
+    "future-card-edge-4",
+    "future-card-edge-5",
+    "future-card-edge-6"
+  ]
 }

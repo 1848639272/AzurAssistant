@@ -6,6 +6,6 @@
   "SatietyRegion": { "X": 900, "Y": 253, "Width": 125, "Height": 33 },
   "Scale": 3,
   "MinimumConfidence": 0.85,
-  "Source": ["录屏素材/家园/餐桌添加前.jpg", "录屏素材/家园/餐桌添加后.jpg"],
+  "Source": ["奇波餐桌 · 补充前", "奇波餐桌 · 补充后"],
   "Purpose": "只读取饱腹值当前值/上限，不从背包数量或按钮状态推断添加结果"
 }

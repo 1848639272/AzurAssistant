@@ -16,22 +16,49 @@ public sealed record UpdateSource(int SchemaVersion = 1, string GitHubRepository
     }
 }
 
-public sealed record AssistantRelease
+public sealed record AssistantRelease : IComparable<AssistantRelease>
 {
     public int SchemaVersion { get; init; } = 1;
     public string Product { get; init; } = "AzurAssistant";
-    public string ProductVersion { get; init; } = "0.1.0-beta";
+    public string ProductVersion { get; init; } = "1.0.0_rc1_20261126";
     public long BuildNumber { get; init; }
     public string ReleaseId { get; init; } = "development";
     public string Architecture { get; init; } = "win-x64";
     public string InstallerFile { get; init; } = "";
     public string InstallerSha256 { get; init; } = "";
     public long InstallerSize { get; init; }
+    private static (Version Core, int Stage, long Iteration, long Date) VersionKey(string value)
+    {
+        var match = Regex.Match(value ?? "", @"\Av?(\d+\.\d+\.\d+)(?:[-_](alpha|beta|rc)(?:[.-]?(\d+))?(?:[_-](\d{8}))?)?\z",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        if (!match.Success || !Version.TryParse(match.Groups[1].Value, out var core)
+            || !long.TryParse(match.Groups[3].Success ? match.Groups[3].Value : "0", out var iteration))
+            throw new InvalidDataException("无法解析发布版本号：" + value);
+        var stage = match.Groups[2].Value.ToLowerInvariant() switch { "alpha" => 0, "beta" => 1, "rc" => 2, _ => 3 };
+        return (core, stage, iteration, match.Groups[4].Success ? long.Parse(match.Groups[4].Value, System.Globalization.CultureInfo.InvariantCulture) : 0);
+    }
+    // Packaged releases are tagged v{ProductVersion}.{BuildNumber}; other tag formats use their manifest.
+    public static AssistantRelease? FromReleaseTag(string tag)
+    {
+        var end = tag.LastIndexOf('.');
+        if (!tag.StartsWith('v') || end < 2 || !long.TryParse(tag.AsSpan(end + 1), out var build) || build <= 0) return null;
+        var version = tag[1..end];
+        try { _ = VersionKey(version); }
+        catch (InvalidDataException) { return null; }
+        return new() { ReleaseId = tag, ProductVersion = version, BuildNumber = build };
+    }
+    public int CompareTo(AssistantRelease? other)
+    {
+        if (other is null) return 1;
+        var comparison = VersionKey(ProductVersion).CompareTo(VersionKey(other.ProductVersion));
+        return comparison != 0 ? comparison : BuildNumber.CompareTo(other.BuildNumber);
+    }
     public void Validate(bool installer = false)
     {
         if (SchemaVersion != 1 || Product != "AzurAssistant" || Architecture != "win-x64" || BuildNumber < 0
             || string.IsNullOrWhiteSpace(ProductVersion) || string.IsNullOrWhiteSpace(ReleaseId))
             throw new InvalidDataException("发布信息不兼容。");
+        _ = VersionKey(ProductVersion);
         if (installer && (BuildNumber == 0 || string.IsNullOrEmpty(InstallerFile)
             || !Regex.IsMatch(InstallerFile, @"\AAzurAssistant-[A-Za-z0-9_.-]+-setup\.exe\z")
             || !Regex.IsMatch(InstallerSha256 ?? "", @"\A[0-9a-fA-F]{64}\z")
@@ -40,7 +67,7 @@ public sealed record AssistantRelease
     }
 }
 
-public sealed record AvailableUpdate(AssistantRelease Release, Uri DownloadUri, string Notes);
+public sealed record AvailableUpdate(AssistantRelease Release, Uri DownloadUri);
 public enum UpdateCheckStatus { NotConfigured, Skipped, Current, Available, Failed }
 public sealed record UpdateCheckResult(UpdateCheckStatus Status, string Message, AvailableUpdate? Update = null);
 
@@ -50,6 +77,7 @@ public sealed class AssistantUpdate(UpdateSource source, AssistantRelease instal
     Func<DateOnly>? today = null)
 {
     private bool _checking;
+    public bool IsNewer(AssistantRelease candidate) => candidate.CompareTo(installed) > 0;
     public async Task<UpdateCheckResult> CheckAsync(bool automatic, bool enabled, CancellationToken token = default)
     {
         if (_checking) return new(UpdateCheckStatus.Skipped, "正在检查更新。");
@@ -75,8 +103,8 @@ public sealed class AssistantUpdate(UpdateSource source, AssistantRelease instal
                 File.Move(statePath + ".tmp", statePath, true);
             }
             var update = await check(token);
-            if (update is null || update.Release.BuildNumber <= installed.BuildNumber)
-                return new(UpdateCheckStatus.Current, "当前已是最新发布版本。");
+            if (update is null) return new(UpdateCheckStatus.Current, "暂无已发布的版本。");
+            if (!IsNewer(update.Release)) return new(UpdateCheckStatus.Current, $"最新发布版本：v{update.Release.ProductVersion}。当前无需更新。");
             return new(UpdateCheckStatus.Available, "发现新版本。", update);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }

@@ -6,12 +6,14 @@ public sealed class TaskSequence(IReadOnlyList<IGameTask> tasks,
     Func<IGameTask, TaskContext, CancellationToken, Task<TaskResult>>? beforeTask = null,
     Func<TaskContext, CancellationToken, Task<TaskResult>>? recoverFailure = null,
     Func<TaskContext, CancellationToken, Task<TaskResult>>? afterTasks = null,
-    string? afterTaskName = null) : IGameTask
+    string? afterTaskName = null, bool requireInitialGameFrame = false) : IGameTask
 {
     public string Id => "daily-sequence";
     public string Name => "日常一条龙";
     public async Task<TaskResult> ExecuteAsync(TaskContext context, CancellationToken token)
     {
+        if (requireInitialGameFrame)
+            await context.Frames.ReadAfterAsync(TimeSpan.Zero, token);
         var incomplete = new List<string>();
         var requestApplicationExit = false;
         foreach (var task in tasks)
@@ -25,7 +27,7 @@ public sealed class TaskSequence(IReadOnlyList<IGameTask> tasks,
             {
                 try
                 {
-                    await context.Input.ActivateAsync(token);
+                    await context.Input.PrepareForObservationAsync(token);
                     child.Log("开始执行");
                     if (beforeTask is not null)
                     {
@@ -52,7 +54,8 @@ public sealed class TaskSequence(IReadOnlyList<IGameTask> tasks,
             if (result.Success) continue;
             await ReportAsync(result);
             incomplete.Add(task.Name);
-            if (recoverFailure is null) return new(false, $"一条龙停止于{task.Name}：{result.Message}{PriorFailures()}", context.Failures is not null);
+            if (recoverFailure is null || !result.AllowPageRecovery)
+                return new(false, $"一条龙停止于{task.Name}：{result.Message}{PriorFailures()}", context.Failures is not null);
             child.Log("先恢复页面；不会重新执行该任务或重复领取");
             TaskResult recovery;
             try

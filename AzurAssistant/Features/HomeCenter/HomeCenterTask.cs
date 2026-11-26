@@ -3,7 +3,7 @@ using AzurAssistant.Game.Ui;
 
 namespace AzurAssistant.Features.HomeCenter;
 
-public sealed class HomeCenterTask(IDailyUiRecognizer recognizer, IDiningSatietyReader dining, DailyUiTiming? timing = null) : IGameTask
+public sealed class HomeCenterTask(IDailyUiRecognizer recognizer, IDiningSatietyReader dining, DailyUiTiming? timing = null, bool keepMenuOpen = false) : IGameTask
 {
     public string Id => "home-center";
     public string Name => "家园中枢";
@@ -105,19 +105,27 @@ public sealed class HomeCenterTask(IDailyUiRecognizer recognizer, IDiningSatiety
             var buildings = await navigator.TransitionAsync(center, "home-buildings", "打开建筑管理", token, "buildings-claim-label", pages: [DailyPage.Buildings]);
             // The fixed claim label sits 98 px above the chest's click area in the supported 1080p layout.
             buildings = await CollectAsync(buildings, "buildings-claim-label", "建筑", offsetY: 98);
-            center = await navigator.TransitionAsync(buildings, "buildings-title", "返回家园中枢", token, "home-ranch", pages: [DailyPage.HomeCenter]);
-            var ranch = await navigator.TransitionAsync(center, "home-ranch", "打开奇波牧场", token,
-                accept: (observed, _) => Task.FromResult(observed.Ui.Has("ranch-claim") != observed.Ui.Has("ranch-basket-empty")),
-                pages: [DailyPage.Ranch]);
-            if (ranch.Ui.Has("ranch-basket-empty"))
+            center = await navigator.TransitionAsync(buildings, "buildings-back", "返回家园中枢", token, "home-ranch", pages: [DailyPage.HomeCenter]);
+            if (center.Ui.Has("home-ranch-locked"))
             {
-                const string outcome = "牧场篮子为空，无可收获产出";
-                context.Log(outcome + "；跳过收取，继续返回");
-                collectionOutcomes.Add(outcome);
+                collectionOutcomes.Add("奇波牧场尚未解锁");
+                context.Log("奇波牧场入口显示锁标，跳过牧场");
             }
-            else await CollectAsync(ranch, "ranch-claim", "牧场");
-            await navigator.ReturnToWorldAsync(token);
-            return new(true, $"{diningOutcome}；{string.Join("；", collectionOutcomes)}；已返回大世界");
+            else
+            {
+                var ranch = await navigator.TransitionAsync(center, "home-ranch", "打开奇波牧场", token,
+                    accept: (observed, _) => Task.FromResult(observed.Ui.Has("ranch-claim") != observed.Ui.Has("ranch-basket-empty")),
+                    pages: [DailyPage.Ranch]);
+                if (ranch.Ui.Has("ranch-basket-empty"))
+                {
+                    const string outcome = "牧场篮子为空，无可收获产出";
+                    context.Log(outcome + "；跳过收取，继续返回");
+                    collectionOutcomes.Add(outcome);
+                }
+                else await CollectAsync(ranch, "ranch-claim", "牧场");
+            }
+            var endpoint = await navigator.FinishAtBoundaryAsync(keepMenuOpen, token);
+            return new(true, $"{diningOutcome}；{string.Join("；", collectionOutcomes)}；{endpoint}");
         }
         catch (UiStepException error)
         {

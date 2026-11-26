@@ -3,7 +3,7 @@ using AzurAssistant.Game.Ui;
 
 namespace AzurAssistant.Features.ActivityClaims;
 
-public sealed class ActivityClaimsTask(IDailyUiRecognizer recognizer, DailyUiTiming? timing = null) : IGameTask
+public sealed class ActivityClaimsTask(IDailyUiRecognizer recognizer, DailyUiTiming? timing = null, bool keepMenuOpen = false) : IGameTask
 {
     public string Id => "claim-activity";
     public string Name => "日常周常领取";
@@ -22,8 +22,8 @@ public sealed class ActivityClaimsTask(IDailyUiRecognizer recognizer, DailyUiTim
             page = await nav.TransitionAsync(page, "week-label", "切换周常活跃", token, pages: [DailyPage.ActivityWeek]);
             page = await ClaimPageAsync(page);
             await nav.TransitionAsync(page, "close", "关闭日常周常", token, pages: [DailyPage.Menu]);
-            await nav.ReturnToWorldAsync(token);
-            return new(true, "日常与周常当前可领取奖励处理完成，已返回大世界");
+            var endpoint = await nav.FinishAtBoundaryAsync(keepMenuOpen, token);
+            return new(true, $"日常与周常当前可领取奖励处理完成，{endpoint}");
         }
         catch (UiStepException ex) { return new(false, $"日常周常领取未完成；{ex.Message}"); }
 

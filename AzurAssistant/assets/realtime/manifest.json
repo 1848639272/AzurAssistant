@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 2,
-  "Version": "1.1",
+  "Version": "1.4",
   "Width": 1920,
   "Height": 1080,
   "Algorithm": "OpenCV CCoeffNormed grayscale",
@@ -18,7 +18,7 @@
   "NameWidth": 285,
   "FirstRowY": 570,
   "RowSpacing": 54,
-  "MaxVisibleRows": 4,
+  "MaxVisibleRows": 6,
   "Templates": [
     {
       "Id": "dialogue-auto",
@@ -31,7 +31,7 @@
         "Width": 130,
         "Height": 55
       },
-      "Source": "录屏素材/剧情/AzurPromilia 2026-09-20 00-52-41-857.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "3D5A6060C1C9D87425241A5B9F6FDC7B991B8AD10BCA24126D628DAAB866B6DE",
       "Crop": {
         "X": 1675,
@@ -46,12 +46,12 @@
       "Sha256": "9461089C1A898EABD2D9E09D8B0DF25052E511D831C31D240500B87D1F7D2124",
       "Threshold": 0.9,
       "Search": {
-        "X": 1825,
+        "X": 1765,
         "Y": 15,
-        "Width": 70,
+        "Width": 100,
         "Height": 65
       },
-      "Source": "录屏素材/剧情/AzurPromilia 2026-09-20 00-52-41-857.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "3D5A6060C1C9D87425241A5B9F6FDC7B991B8AD10BCA24126D628DAAB866B6DE",
       "Crop": {
         "X": 1845,
@@ -69,9 +69,9 @@
         "X": 1150,
         "Y": 540,
         "Width": 45,
-        "Height": 215
+        "Height": 335
       },
-      "Source": "录屏素材/采集物/AzurPromilia 2026-09-20 00-52-03-162.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
       "Crop": {
         "X": 1156,
@@ -89,9 +89,9 @@
         "X": 1075,
         "Y": 545,
         "Width": 35,
-        "Height": 220
+        "Height": 335
       },
-      "Source": "录屏素材/采集物/AzurPromilia 2026-09-20 00-52-03-162.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
       "Crop": {
         "X": 1087,
@@ -109,9 +109,9 @@
         "X": 1150,
         "Y": 540,
         "Width": 45,
-        "Height": 215
+        "Height": 335
       },
-      "Source": "录屏素材/采集物/此时选中的是对话，不能采集，需要滚轮往下一下.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "292B595040C3A813FC8ACEAA26A48C4E3A7F93FBA984EBAAD5DD9E04161B2E29",
       "Crop": {
         "X": 1156,
@@ -123,7 +123,7 @@
     {
       "Id": "world-menu",
       "File": "world-menu.png",
-      "Sha256": "ECE0FF20F135A04E65F18452339D026341A417CA3ABBD3D9861D47712DD89BA1",
+      "Sha256": "9EC8584F4834D7B347B66D5496F3222DE8BCAA60F7C2652612D0597EF12D305C",
       "Threshold": 0.8,
       "Search": {
         "X": 20,
@@ -131,34 +131,34 @@
         "Width": 70,
         "Height": 65
       },
-      "Source": "录屏素材/采集物/AzurPromilia 2026-09-20 00-52-03-162.jpg",
-      "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
+      "Source": "游戏界面 · 公测 3217420",
       "Crop": {
-        "Width": 25,
         "X": 39,
-        "Height": 24,
-        "Y": 35
-      }
+        "Y": 35,
+        "Width": 22,
+        "Height": 22
+      },
+      "Version": "2026.11.26"
     },
     {
       "Id": "world-hud",
       "File": "world-hud.png",
-      "Sha256": "1360C2DB86703CCE984CDACA1AE52B5A7D83C868DB6F1194D85D1E28A85AD80D",
+      "Sha256": "DF6DF0BF84DD3076BDF1464F9C66CAD00773C2791BFC930B0AEAE5CBC8C62D02",
       "Threshold": 0.8,
       "Search": {
-        "X": 1510,
-        "Y": 1025,
-        "Width": 75,
-        "Height": 40
+        "X": 1490,
+        "Y": 1016,
+        "Width": 292,
+        "Height": 53
       },
-      "Source": "录屏素材/采集物/AzurPromilia 2026-09-20 00-52-03-162.jpg",
-      "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
+      "Source": "游戏界面 · 公测 3217420",
       "Crop": {
-        "X": 1523,
-        "Y": 1034,
-        "Width": 44,
-        "Height": 19
-      }
+        "X": 1536,
+        "Y": 1039,
+        "Width": 30,
+        "Height": 14
+      },
+      "Version": "2026.11.27"
     },
     {
       "Id": "dialogue-summary-title",
@@ -171,7 +171,7 @@
         "Width": 180,
         "Height": 70
       },
-      "Source": "录屏素材/剧情/剧情跳过确认.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "6D51DD21DF74E5ACBD5B4C3C8EA7A0CD217E4C3D4160B2DE109D9639C8347285",
       "Crop": {
         "X": 891,
@@ -191,7 +191,7 @@
         "Width": 160,
         "Height": 65
       },
-      "Source": "录屏素材/剧情/剧情跳过确认.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "6D51DD21DF74E5ACBD5B4C3C8EA7A0CD217E4C3D4160B2DE109D9639C8347285",
       "Crop": {
         "X": 1246,
@@ -203,42 +203,435 @@
     {
       "Id": "dialogue-prompt-question",
       "File": "dialogue-prompt-question.png",
-      "Sha256": "7937D0EAF950EDF3897EC09165CB11477082816364EC77FD9FDBC56828C454F5",
+      "Sha256": "F927978ABE262F297BA6B64573D793B4B8F6627FB1F3815C972250EC30783D8A",
       "Threshold": 0.9,
       "Search": {
         "X": 975,
-        "Y": 510,
+        "Y": 488,
         "Width": 255,
-        "Height": 65
+        "Height": 69
       },
-      "Source": "录屏素材/剧情/剧情跳过确认2.jpg",
-      "SourceSha256": "023A6BD59B914BEF4DD23136F21E8C10D995C563EE0300473D87436137E88E37",
+      "Source": "游戏界面 · 公测 3217420",
       "Crop": {
-        "X": 995,
-        "Y": 529,
-        "Width": 210,
-        "Height": 29
-      }
+        "X": 1000,
+        "Y": 510,
+        "Width": 185,
+        "Height": 20
+      },
+      "Version": "2026.11.26"
     },
     {
       "Id": "dialogue-prompt-confirm",
       "File": "dialogue-prompt-confirm.png",
-      "Sha256": "50E693377988808077AB1DFB88DEB883E1E9D2D518E150517AB2AC92CDFA3477",
+      "Sha256": "C954A82B589475292705CB7A0724616E5F1360576B25DE9DEE2474F7EF6152CA",
       "Threshold": 0.9,
       "Search": {
         "X": 1200,
-        "Y": 640,
+        "Y": 630,
         "Width": 125,
         "Height": 65
       },
-      "Source": "录屏素材/剧情/剧情跳过确认2.jpg",
-      "SourceSha256": "023A6BD59B914BEF4DD23136F21E8C10D995C563EE0300473D87436137E88E37",
+      "Source": "游戏界面 · 公测 3217420",
       "Crop": {
-        "X": 1230,
-        "Y": 660,
-        "Width": 60,
-        "Height": 29
+        "X": 1236,
+        "Y": 650,
+        "Width": 47,
+        "Height": 23
+      },
+      "Version": "2026.11.26"
+    },
+    {
+      "File": "mining-icon.png",
+      "Threshold": 0.88,
+      "Id": "mining-icon",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "C54422C16EB102DB65D9FB48FCA3AC89743F5B7AF3A7E7819A29525E79096437",
+      "Crop": {
+        "X": 1156,
+        "Y": 554,
+        "Width": 31,
+        "Height": 31
+      },
+      "Search": {
+        "X": 1150,
+        "Y": 542,
+        "Width": 45,
+        "Height": 329
+      }
+    },
+    {
+      "File": "logging-icon.png",
+      "Threshold": 0.88,
+      "Id": "logging-icon",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "4E5393F3D06E6BF077243A5895B43C47CD1CF957520F6D9B16EB89CFD3B2A5F8",
+      "Crop": {
+        "X": 1156,
+        "Y": 554,
+        "Width": 31,
+        "Height": 31
+      },
+      "Search": {
+        "X": 1150,
+        "Y": 542,
+        "Width": 45,
+        "Height": 329
+      }
+    },
+    {
+      "File": "dialogue-prompt-confirm-hover.png",
+      "Threshold": 0.88,
+      "Id": "dialogue-prompt-confirm-hover",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "0C808FD070F024A1AD6D2C11CBFAF165435144294BDDE9A5C6DA7D6949834BBD",
+      "Crop": {
+        "X": 1236,
+        "Y": 650,
+        "Width": 47,
+        "Height": 23
+      },
+      "Search": {
+        "X": 1200,
+        "Y": 630,
+        "Width": 125,
+        "Height": 65
+      }
+    },
+    {
+      "File": "blocked-logging-camp.png",
+      "Threshold": 0.88,
+      "Id": "blocked-logging-camp",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "06D826C7C04D1C5EA033F134DF2F51C12A7D9C6A70E1F44535A5074798BF03C7",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 55,
+        "Height": 17
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-element-altar.png",
+      "Threshold": 0.88,
+      "Id": "blocked-element-altar",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "7B7E7282DA3E5C82E6DD0A7B64602AC9852AF0254A317D354EE1DF89CEABF0D4",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 71,
+        "Height": 17
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-hidden-shadow.png",
+      "Threshold": 0.88,
+      "Id": "blocked-hidden-shadow",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "40395E5450A5F0621EAD7C1CCC2F876E50A8D020F7D653DB8370DB162B30EFED",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 71,
+        "Height": 17
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "dialogue-summary-continue.png",
+      "Threshold": 0.88,
+      "Id": "dialogue-summary-continue",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "FAB94CA5D2AB89DCB537734A2B165ADB748A4921CD880FFF7C2292ED08C816BD",
+      "Crop": {
+        "X": 560,
+        "Y": 779,
+        "Width": 126,
+        "Height": 33
+      },
+      "Search": {
+        "X": 548,
+        "Y": 767,
+        "Width": 150,
+        "Height": 57
+      }
+    },
+    {
+      "File": "dialogue-summary-skip-edge.png",
+      "Threshold": 0.88,
+      "Id": "dialogue-summary-skip-edge",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "356A75204614649BC7F65778D7C9CEA36827C99B9B8923D79D2A22E4B9706C50",
+      "Crop": {
+        "X": 1483,
+        "Y": 766,
+        "Width": 37,
+        "Height": 41
+      },
+      "Search": {
+        "X": 1471,
+        "Y": 754,
+        "Width": 61,
+        "Height": 65
+      }
+    },
+    {
+      "File": "dialogue-prompt-cancel.png",
+      "Threshold": 0.88,
+      "Id": "dialogue-prompt-cancel",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "BD2F61417981338300030A49611C9825BCF8A0E4C3C3593FECD896036D4908FA",
+      "Crop": {
+        "X": 940,
+        "Y": 649,
+        "Width": 49,
+        "Height": 25
+      },
+      "Search": {
+        "X": 928,
+        "Y": 637,
+        "Width": 73,
+        "Height": 49
+      }
+    },
+    {
+      "File": "dialogue-prompt-confirm-edge.png",
+      "Threshold": 0.88,
+      "Id": "dialogue-prompt-confirm-edge",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "0DB584FEA6AF8E598A4527F8E8B43D4AF5D9BD9AD56C7BF7EC2F9F887B8B2963",
+      "Crop": {
+        "X": 1368,
+        "Y": 634,
+        "Width": 37,
+        "Height": 30
+      },
+      "Search": {
+        "X": 1356,
+        "Y": 622,
+        "Width": 61,
+        "Height": 54
+      }
+    },
+    {
+      "File": "home-leave-label.png",
+      "Threshold": 0.88,
+      "Id": "home-leave-label",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "0A1E79E337BCC7E463F5CBCC277701A6CCDD8139740D931059D73A6F780FA677",
+      "Crop": {
+        "X": 1748,
+        "Y": 790,
+        "Width": 72,
+        "Height": 23
+      },
+      "Search": {
+        "X": 1735,
+        "Y": 777,
+        "Width": 98,
+        "Height": 49
+      }
+    },
+    {
+      "File": "blocked-repair.png",
+      "Threshold": 0.88,
+      "Id": "blocked-repair",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "75AA7419AB0C5E7F0A0432AE9AF9CBE3B2F87CF13F5B43305303F38E8B40344E",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 40,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-mount-challenge.png",
+      "Threshold": 0.88,
+      "Id": "blocked-mount-challenge",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "F0AE81D5B06CF709FE90ED0037E7545AC347DDDCB276DB1398ED9BA0A4B0659B",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 72,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-transformation.png",
+      "Threshold": 0.88,
+      "Id": "blocked-transformation",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "4278BC7CC81A43C665C1763529DD7EB733365F56D1F6EEC5FCD3E600F11D08A7",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 72,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-construction.png",
+      "Threshold": 0.88,
+      "Id": "blocked-construction",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "922EE9515E073A0FF85E53664DD5AD48A54945E033968265687403CA9E2600C1",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 38,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-starlight-mine.png",
+      "Threshold": 0.88,
+      "Id": "blocked-starlight-mine",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "1CB6DCBB606F7D38DB6271F21693E4610A57F668EF0A7FF09E8E2892E1B1B7F6",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 72,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-quarry.png",
+      "Threshold": 0.88,
+      "Id": "blocked-quarry",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "EF1FFBCB2264E55237B978B96DEF264FCEE8F9A88826C602C5D255ABDA283F3F",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 55,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-gathering-hut.png",
+      "Threshold": 0.88,
+      "Id": "blocked-gathering-hut",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "27B456289F3FFDCA12BC307D5C1504A85956E1DD763142CA625B6787CCDDE4A2",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 72,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-investigate.png",
+      "Threshold": 0.88,
+      "Id": "blocked-investigate",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "D275F5B3B34BB7FCFD449C46E6414A71202D87F092FBDEF8A4F62B737872A423",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 38,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
       }
     }
-  ]
+  ],
+  "BlockedNameTemplates": {
+    "伐木场": "blocked-logging-camp",
+    "元素祭坛": "blocked-element-altar",
+    "寻觅潜影": "blocked-hidden-shadow",
+    "修复": "blocked-repair",
+    "坐骑挑战": "blocked-mount-challenge",
+    "奇波变身": "blocked-transformation",
+    "建造": "blocked-construction",
+    "星辉矿场": "blocked-starlight-mine",
+    "采石场": "blocked-quarry",
+    "采集小屋": "blocked-gathering-hut",
+    "调查": "blocked-investigate"
+  }
 }

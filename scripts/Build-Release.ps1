@@ -12,7 +12,7 @@ $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 if (!$PSBoundParameters.ContainsKey('GitHubRepository')) {
     $GitHubRepository = (Get-Content -LiteralPath (Join-Path $projectRoot 'AzurAssistant/update-source.json') -Raw | ConvertFrom-Json).GitHubRepository
 }
-if (!$OutputDirectory) { $OutputDirectory = Join-Path $projectRoot 'out/v0.1.0' }
+if (!$OutputDirectory) { $OutputDirectory = Join-Path $projectRoot 'out/v1.0.0_rc1_20261126' }
 if (!$CompilerPath) { $CompilerPath = Join-Path $projectRoot '.tools/installer/inno/ISCC.exe' }
 if (!$VCRedistPath) { $VCRedistPath = Join-Path $projectRoot '.tools/installer/vc_redist.x64.exe' }
 if (!$PackageCacheDirectory) { $PackageCacheDirectory = Join-Path $projectRoot '.packages' }
@@ -47,8 +47,8 @@ try {
     Copy-Item -LiteralPath (Join-Path $projectRoot 'global.json') -Destination $source
     $buildSource = Join-Path $source 'AzurAssistant'
     @{ SchemaVersion = 1; GitHubRepository = $GitHubRepository } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $buildSource 'update-source.json') -Encoding utf8
-$releaseId = "v0.1.0-beta.$BuildNumber"
-$metadata = [ordered]@{ SchemaVersion=1; Product='AzurAssistant'; ProductVersion='0.1.0-beta'; BuildNumber=$BuildNumber; ReleaseId=$releaseId; Architecture='win-x64' }
+$releaseId = "v1.0.0_rc1_20261126.$BuildNumber"
+$metadata = [ordered]@{ SchemaVersion=1; Product='AzurAssistant'; ProductVersion='1.0.0_rc1_20261126'; BuildNumber=$BuildNumber; ReleaseId=$releaseId; Architecture='win-x64' }
 $metadata | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $buildSource 'release.json') -Encoding utf8
 $cache = [IO.Path]::GetFullPath($PackageCacheDirectory)
 & dotnet publish (Join-Path $buildSource 'AzurAssistant.csproj') -c Release -r win-x64 --self-contained true -o $program '-p:DebugType=None' "-p:RestorePackagesPath=$cache" "-p:RestoreConfigFile=$(Join-Path $projectRoot 'NuGet.config')"
@@ -59,23 +59,24 @@ foreach ($file in Get-ChildItem -LiteralPath $program -Recurse -File) {
 }
 $updateSourceDescription = if ($GitHubRepository) { "更新仓库：$GitHubRepository（GitHub Releases）。" } else { '当前仓库尚未配置。' }
 $programReadme = @'
-蔚蓝助手 v0.1.0 beta
+蔚蓝助手 v1.0.0_rc1_20261126
 蓝色星原：旅谣自动化辅助
 
 Windows 10 2004+ x64。启动 AzurAssistant.exe 时允许管理员权限；首次使用建议运行完整 EXE 安装包，以安装必要的 Visual C++ 依赖。.NET 运行环境已经内置。
-在设置中选择游戏启动文件，选择需要的功能。暂停/继续默认 F9；停止默认 F10。
-设置页支持自动更新：开启并重启后每天首次启动检查 GitHub，有更新时提醒。关闭提醒后可点击检查更新。__UPDATE_SOURCE__
+在设置中选择官方启动器 launcher.exe，并勾选需要的功能。暂停或继续默认使用 F9，停止默认使用 F10。设置自动保存，修改快捷键后即可使用。
+开启自动更新后，助手每天首次启动时检查更新。也可在设置中点击「检查更新」，或点击旁边的「版本说明」查看使用说明。__UPDATE_SOURCE__
 手动更新：关闭助手，运行最新完整 EXE，沿用原安装目录。用户配置、委托记录、周本记录、routes 和 logs 保留。
 安装后首次启动跳过自动连接/一条龙；以后正常启动按保存的设置执行。
 故障日志位于 logs。配置、路线保存在本程序目录；卸载不会主动删除用户生成的数据。
-当前游戏识别支持中文 1920×1080 客户区；其他分辨率、HDR、独占全屏与长期无人值守待验证，部分真实游戏流程尚待验收。
+请使用中文游戏界面。支持 1920×1080、2560×1440 和 3840×2160 客户区，后两种尺寸按 1920×1080 缩放识别。高分辨率实机精度、HDR 和独占全屏仍待验证。
+使用路线前请先下坐骑。可为每条路线单独开启到点拾取，砍树和挖矿按 F 后在原地等待 10 秒。
 第三方许可与通知见 licenses。assets、models、各DLL为运行所需，请勿删除。
 '@
 $programReadme = $programReadme.Replace('__UPDATE_SOURCE__', $updateSourceDescription)
 [IO.File]::WriteAllText((Join-Path $program 'README.txt'), $programReadme)
 $managedFiles = Get-ChildItem -LiteralPath $program -Recurse -File | ForEach-Object { [IO.Path]::GetRelativePath($program, $_.FullName) } | Sort-Object
 $managedFiles | Set-Content -LiteralPath (Join-Path $program 'payload-files.txt') -Encoding utf8
-$installerName = "AzurAssistant-0.1.0-beta.$BuildNumber-win-x64-setup"
+$installerName = "AzurAssistant-1.0.0_rc1_20261126.$BuildNumber-win-x64-setup"
 & $CompilerPath "/DPayloadDir=$program" "/DReleaseOutput=$releaseDirectory" "/DBuildNumber=$BuildNumber" "/DInstallerName=$installerName" "/DVCRedist=$([IO.Path]::GetFullPath($VCRedistPath))" (Join-Path $projectRoot 'installer/AzurAssistant.iss')
 if ($LASTEXITCODE -ne 0) { throw 'EXE installer compilation failed.' }
 $exe = Get-Item -LiteralPath (Join-Path $releaseDirectory "$installerName.exe")
@@ -85,7 +86,7 @@ $metadata.InstallerSize = $exe.Length
 $metadata | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $releaseDirectory 'release-manifest.json') -Encoding utf8
 "$($metadata.InstallerSha256)  $($exe.Name)" | Set-Content -LiteralPath (Join-Path $releaseDirectory 'SHA256SUMS.txt') -Encoding utf8
 @"
-蔚蓝助手 v0.1.0 beta · 构建 $BuildNumber
+蔚蓝助手 v1.0.0_rc1_20261126 · 构建 $BuildNumber
 program/：自包含完整程序；识别资源、地图与模型为运行必需。
 release/：完整 EXE 安装包、GitHub 发布清单和 SHA256。
 GitHub Release 标签：$releaseId。上传 release 中 EXE 和 release-manifest.json。

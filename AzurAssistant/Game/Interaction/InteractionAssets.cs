@@ -12,6 +12,8 @@ internal sealed class InteractionAssets
 {
     public int SchemaVersion { get; set; }
     public string Version { get; set; } = "";
+    public bool HasDialogueEdges => Version is "1.3" or "1.4";
+    public bool HasHomeHud => Version == "1.4";
     public int Width { get; set; }
     public int Height { get; set; }
     public PixelRegion DialogueTextRegion { get; set; }
@@ -24,6 +26,7 @@ internal sealed class InteractionAssets
     public int FirstRowY { get; set; }
     public int RowSpacing { get; set; }
     public int MaxVisibleRows { get; set; }
+    public Dictionary<string, string> BlockedNameTemplates { get; set; } = [];
     public Asset[] Templates { get; set; } = [];
     private readonly Dictionary<string, (Asset Asset, ImageTemplate Template)> _templates = [];
 
@@ -31,9 +34,11 @@ internal sealed class InteractionAssets
     {
         var assets = JsonSerializer.Deserialize<InteractionAssets>(File.ReadAllText(Path.Combine(directory, "manifest.json")))
             ?? throw new InvalidOperationException("实时辅助素材清单为空。");
-        if (assets.SchemaVersion != 2 || assets.Version != "1.1" || assets.Width != 1920 || assets.Height != 1080
-            || assets.Templates.Length != 11 || assets.RowHeight < 32 || assets.RowHeight > 50
-            || assets.MaxRowDistance is < 1 or > 10 || assets.MaxVisibleRows is < 1 or > 5
+        var templateCount = assets.Version switch { "1.1" => 11, "1.2" => 14 + assets.BlockedNameTemplates.Count,
+            "1.3" => 18 + assets.BlockedNameTemplates.Count, "1.4" => 19 + assets.BlockedNameTemplates.Count, _ => -1 };
+        if (assets.SchemaVersion != 2 || assets.Width != 1920 || assets.Height != 1080
+            || assets.Templates.Length != templateCount || assets.RowHeight < 32 || assets.RowHeight > 50
+            || assets.MaxRowDistance is < 1 or > 10 || assets.MaxVisibleRows is < 1 or > 6
             || assets.RowSpacing < assets.RowHeight || assets.NameOffsetX < 20 || assets.NameWidth < 20)
             throw new InvalidOperationException("实时辅助素材清单版本或参数无效。");
         assets.DialogueTextRegion.Validate(assets.Width, assets.Height);
@@ -55,17 +60,26 @@ internal sealed class InteractionAssets
             image.CopyPixels(pixels, image.PixelWidth * 4, 0);
             assets._templates.Add(item.Id, (item, OpenCvTemplateMatcher.Create(image.PixelWidth, image.PixelHeight, pixels)));
         }
+        if (assets.Version != "1.1" && (assets.BlockedNameTemplates.Count == 0 || assets.BlockedNameTemplates.Any(item => string.IsNullOrWhiteSpace(item.Key) || !assets._templates.ContainsKey(item.Value))
+            || !assets._templates.ContainsKey("dialogue-prompt-confirm-hover") || !assets._templates.ContainsKey("mining-icon") || !assets._templates.ContainsKey("logging-icon")))
+            throw new InvalidDataException("采集图标或屏蔽名称配置不完整。");
         foreach (var id in new[] { "dialogue-auto", "dialogue-skip", "world-menu", "world-hud", "interact-key", "pickup-icon", "talk-icon",
                      "dialogue-summary-title", "dialogue-summary-confirm", "dialogue-prompt-question", "dialogue-prompt-confirm" })
             if (!assets._templates.ContainsKey(id)) throw new InvalidOperationException($"缺少实时辅助模板：{id}");
+        if (assets.HasHomeHud && !assets._templates.ContainsKey("home-leave-label"))
+            throw new InvalidDataException("缺少家园场景的离开家园标志。");
+        if (assets.HasDialogueEdges)
+            foreach (var id in new[] { "dialogue-summary-continue", "dialogue-summary-skip-edge", "dialogue-prompt-cancel", "dialogue-prompt-confirm-edge" })
+                if (!assets._templates.ContainsKey(id)) throw new InvalidDataException($"缺少剧情按钮模板：{id}");
         return assets;
     }
 
-    public TemplateMatch? Find(FrameSnapshot frame, string id, PixelRegion? region = null)
+    public TemplateMatch? Find(FrameSnapshot frame, string id, PixelRegion? region = null, bool allowInvertedContrast = false)
     {
         var (asset, template) = _templates[id];
-        var match = OpenCvTemplateMatcher.Match(frame, template, region ?? asset.Search);
+        var match = OpenCvTemplateMatcher.Match(frame, template, region ?? asset.Search, allowInvertedContrast);
         return match.Score >= asset.Threshold ? match : null;
     }
-    public sealed record Asset(string Id, string File, string Sha256, double Threshold, PixelRegion Search);
+    public sealed record Asset(string Id, string File, string Sha256, PixelRegion Search,
+        double Threshold = OpenCvTemplateMatcher.DefaultUiThreshold);
 }

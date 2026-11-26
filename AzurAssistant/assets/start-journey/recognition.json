@@ -1,26 +1,21 @@
 {
   "SchemaVersion": 4,
-  "Version": "2.0.0",
+  "Version": "3.0.1",
+  "Source": "蓝色星原：旅谣 公测版中文客户端界面",
+  "Rights": "游戏图像版权归游戏权利人所有",
   "ReferenceWidth": 1920,
   "ReferenceHeight": 1080,
   "AgeSearch": [
-    24,
-    930,
-    108,
-    128
+    42,
+    905,
+    112,
+    132
   ],
-  "AgeThreshold": 0.9,
+  "AgeThreshold": 0.8,
   "StartClick": [
-    966,
-    903
+    960,
+    885
   ],
-  "AgeSha256": "39DC8A5AD477FBC58112D5A733C90A4CCF69B8DDBD6EF1BC3D4B276220B106A4",
-  "Source": "AzurAssistant.Tests/fixtures/start-page.png",
-  "SourceSha256": "8CA454E6CB54B9A089CF0E54F09245DFB7D7336B871E147CCD26A374062643D4",
-  "SourceCrop": [
-    37,
-    946,
-    77,
-    99
-  ]
+  "AgeSha256": "C9AAC3CDE64E4686FB14BC3955BD331DB8EA7FC392E408E06F715EEFA2608F58",
+  "StartButtonSha256": "DFFA9D930D43F3F2309AC7B8DF10082F2EA35FDA0A6698EFD7B28ACABDCCB8BB"
 }

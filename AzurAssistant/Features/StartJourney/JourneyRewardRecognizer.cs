@@ -15,7 +15,8 @@ public sealed class JourneyRewardRecognizer
         _templates = new TemplateCatalog(directory, "rewards.json");
         _layout = JsonSerializer.Deserialize<RewardLayout>(File.ReadAllText(Path.Combine(directory, "reward-layout.json")))
             ?? throw new InvalidDataException("登录奖励布局为空。");
-        if (_layout.SchemaVersion != 1 || _layout.CardCenters is not { Length: 7 }
+        if (_layout.SchemaVersion != 1 || _layout.FutureEdges is not { Length: > 0 } || _layout.FutureEdges.Any(string.IsNullOrWhiteSpace)
+            || _layout.CardCenters is not { Length: 7 }
             || _layout.CardCenters.Distinct().Count() != 7 || _layout.CardClickY is < 0 or >= 1080
             || _layout.MaxArrowOffset is < 1 or > 20 || _layout.DismissOffsetY is < 0 or > 150)
             throw new InvalidDataException("登录奖励布局版本或参数无效。");
@@ -26,6 +27,12 @@ public sealed class JourneyRewardRecognizer
 
     public JourneyObservation? Observe(FrameSnapshot frame)
     {
+        var reward = _templates.Match(frame, "reward-title");
+        var dismiss = _templates.Match(frame, "reward-dismiss") ?? (reward is null ? null : _templates.Match(frame, "reward-dismiss-faint"));
+        if (reward is not null && dismiss is not null)
+            return new(JourneyPage.Reward, ClosePoint: dismiss.Center with { Y = dismiss.Center.Y + _layout.DismissOffsetY });
+        if (reward is not null) return new(JourneyPage.Unknown);
+
         var title = _templates.Match(frame, "login-title");
         var close = _templates.Match(frame, "login-close");
         if (title is not null && close is not null) return ObserveLoginReward(frame, close.Center);
@@ -36,13 +43,43 @@ public sealed class JourneyRewardRecognizer
         if (monthly is not null && monthlyPrompt is not null) return new(JourneyPage.MonthlyPending);
         if (monthly is not null || monthlyPrompt is not null) return new(JourneyPage.Unknown);
 
-        var reward = _templates.Match(frame, "reward-title");
-        var dismiss = _templates.Match(frame, "reward-dismiss");
-        if (reward is not null && dismiss is not null)
-            return new(JourneyPage.Reward, ClosePoint: dismiss.Center with { Y = dismiss.Center.Y + _layout.DismissOffsetY });
-        if (reward is not null || dismiss is not null) return new(JourneyPage.Unknown);
+        if (dismiss is not null) return new(JourneyPage.Unknown);
         return null;
     }
+
+    internal ClientPoint? FindSpecialGiftBlank(FrameSnapshot frame, FrameSnapshot giftPanel)
+    {
+        if (!frame.SameClientSurface(giftPanel) || _templates.Match(frame, "login-close") is not null) return null;
+        var pixels = frame.Pixels.Span;
+        var panel = giftPanel.Pixels.Span;
+        // Require visible content on a changed screen. A blank load screen or a missing corner icon alone is insufficient.
+        int changed = 0, detail = 0;
+        for (var y = 200; y < 860; y += 48)
+        for (var x = 360; x < 1560; x += 48)
+        {
+            var i = y * frame.Stride + x * 4;
+            if (ColorDistance(pixels[i..], panel[i..]) > 30) changed++;
+            if (ColorDistance(pixels[i..], pixels[(i + 48 * 4)..]) > 20) detail++;
+        }
+        if (changed < 30 || detail < 12) return null;
+
+        // Prefer undecorated side margins away from the cards, the close button and any central reward controls.
+        foreach (var y in new[] { 780, 540, 660, 420 })
+        foreach (var x in new[] { 240, 1680, 360, 1560 })
+        {
+            var center = pixels[(y * frame.Stride + x * 4)..];
+            var clear = true;
+            for (var dy = -16; dy <= 16 && clear; dy++)
+            for (var dx = -16; dx <= 16; dx++)
+                if (ColorDistance(center, pixels[((y + dy) * frame.Stride + (x + dx) * 4)..]) > 24)
+                { clear = false; break; }
+            if (clear) return new(x, y);
+        }
+        return null;
+    }
+
+    private static int ColorDistance(ReadOnlySpan<byte> a, ReadOnlySpan<byte> b) =>
+        Math.Max(Math.Abs(a[0] - b[0]), Math.Max(Math.Abs(a[1] - b[1]), Math.Abs(a[2] - b[2])));
 
     private JourneyObservation ObserveLoginReward(FrameSnapshot frame, ClientPoint close)
     {
@@ -57,17 +94,16 @@ public sealed class JourneyRewardRecognizer
             var top = _templates.Match(frame, "login-arrow-top", At(center, _layout.TopArrow));
             var bottom = _templates.Match(frame, "login-arrow-bottom", At(center, _layout.BottomArrow));
             var highlight = _templates.Match(frame, "login-highlight", At(center, _layout.Edge));
-            var paired = top is not null && bottom is not null
-                && Math.Abs(top.Center.X - bottom.Center.X) <= _layout.MaxArrowOffset
-                && Math.Abs(top.Center.X - center) <= _layout.MaxArrowOffset;
-            if (paired && highlight is not null && check is null) available.Add(index);
+            var active = top is not null && Math.Abs(top.Center.X - center) <= _layout.MaxArrowOffset &&
+                (bottom is null ? highlight is not null : Math.Abs(top.Center.X - bottom.Center.X) <= _layout.MaxArrowOffset);
+            if (active && check is null) available.Add(index);
             if (check is not null && top is null && bottom is null && highlight is null)
             { claimed.Add(index); idleCards++; }
             else if (check is null && top is null && bottom is null && highlight is null
-                && new[] { "future-card-edge", "future-card-edge-2", "future-card-edge-3" }
+                && _layout.FutureEdges
                     .Any(id => _templates.Match(frame, id, At(center, _layout.Edge)) is not null)) idleCards++;
             else if ((top is not null || bottom is not null || highlight is not null || check is not null)
-                && (!paired || highlight is null || check is not null)) ambiguous = true;
+                && (!active || check is not null)) ambiguous = true;
         }
         if (available.Count == 1 && !ambiguous)
         {
@@ -87,6 +123,7 @@ public sealed class JourneyRewardRecognizer
     {
         public int SchemaVersion { get; init; }
         public int[] CardCenters { get; init; } = [];
+        public string[] FutureEdges { get; init; } = ["future-card-edge", "future-card-edge-2", "future-card-edge-3"];
         public int CardClickY { get; init; }
         public int MaxArrowOffset { get; init; }
         public int DismissOffsetY { get; init; }

@@ -13,7 +13,7 @@
       },
       "Threshold": 0.72,
       "Sha256": "DE2C5C76BAABB0019C47455FE32D88AE09DBBD6655F833353639B5BDCD18E2BB",
-      "Source": "录屏素材\\邮件\\step1：判断是否进入游戏，左上角能识别到esc，左下角有enter.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "288E9E4775741154F302BB298378B966714BA4526085FAC5482A15929FE56217",
       "SourceCrop": {
         "X": 34,
@@ -23,7 +23,7 @@
       },
       "Version": "1.5.0",
       "Calibration": {
-        "Source": "录屏素材/esc.jpg",
+        "Source": "蓝色星原：旅谣 · 游戏界面",
         "SourceSha256": "4C95F6420CD75B26FBA006E378B5386D2B965A40E920CA2580D00388D419475D",
         "Score": 0.7417,
         "PreviousThreshold": 0.83,
@@ -40,7 +40,7 @@
       },
       "Threshold": 0.83,
       "Sha256": "4E350283EB0DF9F777A98D47B08FFA468A6619CFDAA35E032F4CBB46CF99B67B",
-      "Source": "录屏素材\\邮件\\step1：判断是否进入游戏，左上角能识别到esc，左下角有enter.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "288E9E4775741154F302BB298378B966714BA4526085FAC5482A15929FE56217",
       "SourceCrop": {
         "X": 44,
@@ -59,36 +59,34 @@
         "Height": 56
       },
       "Threshold": 0.86,
-      "Sha256": "5949C6B80AACDF689B70243CFFCC3452B50709355E00327CA9CC3DE3A64C8C22",
-      "Source": "录屏素材\\邮件\\step2：点击esc后进入游戏主菜单，左上角等级下面有邮件图标.jpg",
-      "SourceSha256": "CCF732896CF093CBD4E55CBC8AF02EF13B53A3401B0197587FE1D43C7F791AF5",
+      "Sha256": "A60427E3A9BA55FB3D6F5BEE1954428B374302B56B501B1E95DF90A8366260B8",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 269,
-        "Y": 100,
-        "Width": 34,
-        "Height": 32
+        "X": 268,
+        "Y": 101,
+        "Width": 30,
+        "Height": 30
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "menu-home": {
       "File": "menu-home.png",
       "Search": {
-        "X": 378,
-        "Y": 955,
-        "Width": 145,
-        "Height": 92
+        "X": 380,
+        "Y": 975,
+        "Width": 300,
+        "Height": 67
       },
       "Threshold": 0.86,
-      "Sha256": "B7356F3B8C9E27FF42AB5E3429A946A47556D508C73B68F4E3DD93FF49D92DD0",
-      "Source": "录屏素材\\邮件\\step2：点击esc后进入游戏主菜单，左上角等级下面有邮件图标.jpg",
-      "SourceSha256": "CCF732896CF093CBD4E55CBC8AF02EF13B53A3401B0197587FE1D43C7F791AF5",
+      "Sha256": "B6DC429C95A1567F3A332CC8844519DD411E705F7349315FAF9E7A6F8CF441F2",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 408,
-        "Y": 980,
-        "Width": 85,
-        "Height": 57
+        "X": 530,
+        "Y": 994,
+        "Width": 97,
+        "Height": 27
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "mail-title": {
       "File": "mail-title.png",
@@ -100,7 +98,7 @@
       },
       "Threshold": 0.89,
       "Sha256": "7EE90F9E5B4EAC1113F6C47A7E9EAD86A01F2CFB8337A5A992E39E0FE2A093E3",
-      "Source": "录屏素材\\邮件\\step3：点击邮件进入邮箱后，点击全部领取.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "1EE0DD8516F22A56D7E53A22FC84C2C48F844CC8C27055876A723B12052ADC0B",
       "SourceCrop": {
         "X": 1224,
@@ -120,7 +118,7 @@
       },
       "Threshold": 0.88,
       "Sha256": "4028F324957D6C73620BF168913CE3E855E5D36F4AF887CBD242EED8ABA4155C",
-      "Source": "录屏素材\\邮件\\step3：点击邮件进入邮箱后，点击全部领取.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "1EE0DD8516F22A56D7E53A22FC84C2C48F844CC8C27055876A723B12052ADC0B",
       "SourceCrop": {
         "X": 693,
@@ -133,22 +131,21 @@
     "mail-close": {
       "File": "mail-close.png",
       "Search": {
-        "X": 1595,
-        "Y": 190,
-        "Width": 65,
-        "Height": 60
+        "X": 1837,
+        "Y": 11,
+        "Width": 69,
+        "Height": 68
       },
       "Threshold": 0.9,
-      "Sha256": "1878D3267D86C5BAD969F7A1110834B4F28D7B44B53EE702567394549277176A",
-      "Source": "录屏素材\\邮件\\step3：点击邮件进入邮箱后，点击全部领取.jpg",
-      "SourceSha256": "1EE0DD8516F22A56D7E53A22FC84C2C48F844CC8C27055876A723B12052ADC0B",
+      "Sha256": "D799A6B9280D5169D50FDB81424E98C313CE6087FC24A4E17F022F6F598C94BB",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1615,
-        "Y": 205,
-        "Width": 31,
-        "Height": 30
+        "X": 1856,
+        "Y": 31,
+        "Width": 28,
+        "Height": 28
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "mail-reward": {
       "File": "mail-reward.png",
@@ -160,7 +157,7 @@
       },
       "Threshold": 0.86,
       "Sha256": "06DD3F160BBAB3CE2D3CF96DEC2647C93A928E02F99FC0AC5CD3CD077D746467",
-      "Source": "录屏素材\\邮件\\领取后，无论邮箱有没有东西，能不能领取到东西，都点击一下空白处退出。如果有那就是回到邮箱页，如果没有点的空白处也不影响，然后点击邮箱的X，回到主菜单，再esc关闭住菜单，完成该任务.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "DD89B3E1CD0A2C6FD83D15CC4348DD1C05B43D030174A820FB70E1D2AA437BEE",
       "SourceCrop": {
         "X": 927,
@@ -180,7 +177,7 @@
       },
       "Threshold": 0.86,
       "Sha256": "1B5A81CC63810E2ACD5B96B2B78735DBF82FF7CF09D668901F77EBC276FD9726",
-      "Source": "录屏素材\\邮件\\领取后，无论邮箱有没有东西，能不能领取到东西，都点击一下空白处退出。如果有那就是回到邮箱页，如果没有点的空白处也不影响，然后点击邮箱的X，回到主菜单，再esc关闭住菜单，完成该任务.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "DD89B3E1CD0A2C6FD83D15CC4348DD1C05B43D030174A820FB70E1D2AA437BEE",
       "SourceCrop": {
         "X": 872,
@@ -193,103 +190,78 @@
     "home-title": {
       "File": "home-title.png",
       "Search": {
-        "X": 135,
-        "Y": 30,
-        "Width": 120,
-        "Height": 45
+        "X": 72,
+        "Y": 16,
+        "Width": 154,
+        "Height": 64
       },
       "Threshold": 0.9,
-      "Sha256": "7DA777156784CDAAC2B9224CE441C8FBDB6E27DDAABF99C2BD326B07DC85086A",
-      "Source": "录屏素材\\家园\\step2：进入家园中枢，点击建筑管理.jpg",
-      "SourceSha256": "54CD4561D567D3C79C97A6CD125C1922B6D6408B0D77859A4E1416C05D49BB39",
+      "Sha256": "233CE1013A420128C17D623C1421B5E73D9C0DE126D3A348D485D0C59864ADE6",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 155,
-        "Y": 42,
-        "Width": 80,
-        "Height": 24
+        "X": 92,
+        "Y": 33,
+        "Width": 105,
+        "Height": 29
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "home-buildings": {
       "File": "home-buildings.png",
       "Search": {
-        "X": 240,
-        "Y": 807,
-        "Width": 145,
-        "Height": 70
+        "X": 153,
+        "Y": 685,
+        "Width": 140,
+        "Height": 64
       },
       "Threshold": 0.86,
-      "Sha256": "2E5BB1DA503A56FC888826AB6CECA0B2DD563CB8E5CD780BDD614FDD6782BE13",
-      "Source": "录屏素材\\家园\\step2：进入家园中枢，点击建筑管理.jpg",
-      "SourceSha256": "54CD4561D567D3C79C97A6CD125C1922B6D6408B0D77859A4E1416C05D49BB39",
+      "Sha256": "442C00C34293D87D150C89F9AFA5BD96188D771A94220338A941B594A6DAD59D",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 267,
-        "Y": 832,
+        "X": 177,
+        "Y": 703,
         "Width": 91,
-        "Height": 29
+        "Height": 27
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "home-ranch": {
       "File": "home-ranch.png",
       "Search": {
-        "X": 350,
-        "Y": 940,
-        "Width": 160,
-        "Height": 70
+        "X": 1600,
+        "Y": 979,
+        "Width": 136,
+        "Height": 64
       },
       "Threshold": 0.86,
-      "Sha256": "112073B1D9D64A4533166C9FE69A9E1803E2DDE9C97693542EDDA65A17B207C6",
-      "Source": "录屏素材\\家园\\step2：进入家园中枢，点击建筑管理.jpg",
-      "SourceSha256": "54CD4561D567D3C79C97A6CD125C1922B6D6408B0D77859A4E1416C05D49BB39",
+      "Sha256": "E082B2B10777007D190717BA2C1C551CC72181AD3C72C2B3C596525C45E687F8",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 382,
-        "Y": 962,
-        "Width": 97,
-        "Height": 27
+        "X": 1624,
+        "Y": 998,
+        "Width": 87,
+        "Height": 28
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.26"
     },
     "buildings-title": {
       "File": "buildings-title.png",
       "Search": {
-        "X": 135,
-        "Y": 30,
-        "Width": 120,
-        "Height": 45
+        "X": 72,
+        "Y": 16,
+        "Width": 154,
+        "Height": 64
       },
       "Threshold": 0.9,
-      "Sha256": "6F5A9BE35F6C85E4A7F596B4CC63DB7A01D8AD4C1D1023C7B21FC06E8901349A",
-      "Source": "录屏素材\\家园\\step3：进入建筑管理后点击左下角的一键收取.jpg",
-      "SourceSha256": "4E7C75DD67D2E9DBE81CC7023D3D195B9830372EE6F0F497108C9B9E3C952AF7",
+      "Sha256": "4B72D82D3C63C0D15D6F3676EDF13257903E9C5BADC9D09493710BED47EA3580",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 155,
-        "Y": 42,
-        "Width": 80,
-        "Height": 24
+        "X": 92,
+        "Y": 33,
+        "Width": 105,
+        "Height": 29
       },
-      "Version": "1.0.0"
-    },
-    "buildings-claim": {
-      "File": "buildings-claim.png",
-      "Search": {
-        "X": 25,
-        "Y": 825,
-        "Width": 135,
-        "Height": 150
-      },
-      "Threshold": 0.84,
-      "Sha256": "5F9B2E94B8C05F2DE40423847B60918DBE0AF2FF2A53F922AC727324C53321AA",
-      "Source": "录屏素材\\家园\\step3：进入建筑管理后点击左下角的一键收取.jpg",
-      "SourceSha256": "4E7C75DD67D2E9DBE81CC7023D3D195B9830372EE6F0F497108C9B9E3C952AF7",
-      "SourceCrop": {
-        "X": 43,
-        "Y": 844,
-        "Width": 102,
-        "Height": 121
-      },
-      "Version": "1.0.0",
-      "Purpose": "旧动态宝箱，仅保留只读分数诊断；正式日常识别不调用"
+      "Version": "2026.11.26"
     },
     "ranch-title": {
       "File": "ranch-title.png",
@@ -301,7 +273,7 @@
       },
       "Threshold": 0.9,
       "Sha256": "453DE45F67F234B285139DEB808AE00CF5F0A2A82C9E73E2B6EB0D5937F92E47",
-      "Source": "录屏素材\\家园\\step5：点击奇波牧场，进入牧场，同样点击一键收取的图标.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "DAEE80C9350AC14C5EFC1858CD0BEA3BAF58E3157EA6736D399434F4CD8B4103",
       "SourceCrop": {
         "X": 155,
@@ -321,7 +293,7 @@
       },
       "Threshold": 0.84,
       "Sha256": "2EDCB4C44C710C6AC4EB797F1623F1593B8210E1A5D2F66D3BC65DBB8EBE24C1",
-      "Source": "录屏素材\\家园\\step5：点击奇波牧场，进入牧场，同样点击一键收取的图标.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "DAEE80C9350AC14C5EFC1858CD0BEA3BAF58E3157EA6736D399434F4CD8B4103",
       "SourceCrop": {
         "X": 1348,
@@ -341,7 +313,7 @@
       },
       "Threshold": 0.86,
       "Sha256": "B3D025C89412D4ACBB9975C55C9AE07936014A5122F91D9C2E7F05546FADCF13",
-      "Source": "录屏素材\\家园\\step4：收取成功后点击右上角的X回到建筑管理，然后再点击左上角的建筑管理回到家园中枢.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "1FE37A79E3171B55130A2BE8BF8F39BF8EE76F9A86F8DB1635C0ED949E9060F9",
       "SourceCrop": {
         "X": 913,
@@ -361,7 +333,7 @@
       },
       "Threshold": 0.88,
       "Sha256": "57299FA6337CB330187589490116EBE52FF9A3626D3C4E90DB10465E4D9EED57",
-      "Source": "录屏素材\\家园\\step4：收取成功后点击右上角的X回到建筑管理，然后再点击左上角的建筑管理回到家园中枢.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "1FE37A79E3171B55130A2BE8BF8F39BF8EE76F9A86F8DB1635C0ED949E9060F9",
       "SourceCrop": {
         "X": 1836,
@@ -381,7 +353,7 @@
       },
       "Threshold": 0.9,
       "Sha256": "8084F40F38D38D2BC8F0F135A4C51107F409F638F6BA5B0AB939120647CE177A",
-      "Source": "录屏素材\\邮件\\无可领取邮件提示.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "7737876FD1484CA9956376E0F4AE9EDBCFC2E7BDC96F69B3E680E9F9FDAB6450",
       "SourceCrop": {
         "X": 850,
@@ -401,7 +373,7 @@
       },
       "Threshold": 0.9,
       "Sha256": "B71CB276014D2736D6261D2DE99D1CA2F83E6917B9BCE4F2DBF8A5FE29F0C656",
-      "Source": "录屏素材\\邮件\\无可领取邮件提示.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "7737876FD1484CA9956376E0F4AE9EDBCFC2E7BDC96F69B3E680E9F9FDAB6450",
       "SourceCrop": {
         "X": 1233,
@@ -414,22 +386,21 @@
     "home-dining": {
       "File": "home-dining.png",
       "Search": {
-        "X": 150,
-        "Y": 680,
-        "Width": 150,
-        "Height": 70
+        "X": 1350,
+        "Y": 979,
+        "Width": 135,
+        "Height": 64
       },
       "Threshold": 0.86,
-      "Sha256": "5F612E1006160FE1845F8FE3BC4BC2C06A527502B51851FA930A22DDE4BF2243",
-      "Source": "录屏素材/家园/step2：进入家园中枢，点击建筑管理.jpg",
-      "SourceSha256": "54CD4561D567D3C79C97A6CD125C1922B6D6408B0D77859A4E1416C05D49BB39",
+      "Sha256": "8771CE959E79482DC1A4FD0DE370D77F70FA81197DC752D815148FD35E6C3F10",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 178,
-        "Y": 702,
-        "Width": 92,
-        "Height": 29
+        "X": 1373,
+        "Y": 998,
+        "Width": 88,
+        "Height": 28
       },
-      "Version": "1.2.0"
+      "Version": "2026.11.26"
     },
     "dining-title": {
       "File": "dining-title.png",
@@ -441,7 +412,7 @@
       },
       "Threshold": 0.9,
       "Sha256": "AB4D712A6FA694CF32526F101A60C3726FE04D79752D0041AF9BDC4D1DEB006E",
-      "Source": "录屏素材/家园/餐桌添加前.jpg",
+      "Source": "奇波餐桌 · 补充前",
       "SourceSha256": "95B8758CD183F5F7C572457E335FB7A6BBD864A21A7A3FABD98FBA6556EAA182",
       "SourceCrop": {
         "X": 80,
@@ -461,7 +432,7 @@
       },
       "Threshold": 0.87,
       "Sha256": "88C46EFDD67D1C46906A1C97B29F8D2ED43A76F60E67B407F278E3C825FCE631",
-      "Source": "录屏素材/家园/餐桌添加前.jpg",
+      "Source": "奇波餐桌 · 补充前",
       "SourceSha256": "95B8758CD183F5F7C572457E335FB7A6BBD864A21A7A3FABD98FBA6556EAA182",
       "SourceCrop": {
         "X": 934,
@@ -474,22 +445,21 @@
     "dining-close": {
       "File": "dining-close.png",
       "Search": {
-        "X": 1780,
-        "Y": 20,
-        "Width": 75,
-        "Height": 70
+        "X": 1837,
+        "Y": 11,
+        "Width": 69,
+        "Height": 68
       },
       "Threshold": 0.88,
-      "Sha256": "35FB014B4B1558708BF836AF2070EE583C19BF4B0AB41189CD103D99874A64CC",
-      "Source": "录屏素材/家园/餐桌添加前.jpg",
-      "SourceSha256": "95B8758CD183F5F7C572457E335FB7A6BBD864A21A7A3FABD98FBA6556EAA182",
+      "Sha256": "2A3CE524B10F1279DCE86FAD809F9B199DEFC9550CD959C5C20D5AE3EBC7D0C8",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1797,
-        "Y": 36,
-        "Width": 42,
-        "Height": 40
+        "X": 1856,
+        "Y": 31,
+        "Width": 28,
+        "Height": 28
       },
-      "Version": "1.2.0"
+      "Version": "2026.11.26"
     },
     "dining-add": {
       "File": "dining-add.png",
@@ -501,7 +471,7 @@
       },
       "Threshold": 0.86,
       "Sha256": "15521DB87563EEDBA7ED2C96FC0EB2395162A2DCCA294780474DDAA0C0E1FF72",
-      "Source": "录屏素材/家园/餐桌添加前.jpg",
+      "Source": "奇波餐桌 · 补充前",
       "SourceSha256": "95B8758CD183F5F7C572457E335FB7A6BBD864A21A7A3FABD98FBA6556EAA182",
       "SourceCrop": {
         "X": 1608,
@@ -521,7 +491,7 @@
       },
       "Threshold": 0.9,
       "Sha256": "CA6CADEB7EBFF1759CFC82EBAF8C3C8DCC8DD2E202860A920EFDEED9AFE8989E",
-      "Source": "录屏素材/家园/step3：进入建筑管理后点击左下角的一键收取.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "4E7C75DD67D2E9DBE81CC7023D3D195B9830372EE6F0F497108C9B9E3C952AF7",
       "SourceCrop": {
         "X": 1579,
@@ -534,22 +504,21 @@
     "buildings-claim-label": {
       "File": "buildings-claim-label.png",
       "Search": {
-        "X": 28,
-        "Y": 773,
-        "Width": 140,
-        "Height": 65
+        "X": 29,
+        "Y": 772,
+        "Width": 143,
+        "Height": 70
       },
       "Threshold": 0.88,
-      "Sha256": "F58D29A46943C0B0A6F2AC8C356595B923CB2B340D8473A6E65818A3FCC3B25B",
-      "Source": "录屏素材/家园/step3：进入建筑管理后点击左下角的一键收取.jpg",
-      "SourceSha256": "4E7C75DD67D2E9DBE81CC7023D3D195B9830372EE6F0F497108C9B9E3C952AF7",
+      "Sha256": "CF4AE27A86297DB750B513766B9BB799DC5F134155EC4BA433963F7D7B6C5D68",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 48,
-        "Y": 793,
-        "Width": 99,
-        "Height": 27
+        "X": 58,
+        "Y": 792,
+        "Width": 89,
+        "Height": 26
       },
-      "Version": "1.3.0",
+      "Version": "2026.11.26",
       "Purpose": "固定一键收取文字；由HomeCenterTask在当前匹配中心下方98px点击宝箱区域，原图为(97,904)"
     },
     "home-level-title": {
@@ -562,7 +531,7 @@
       },
       "Threshold": 0.9,
       "Sha256": "6E889DF1C319C473E29D76BF319EEE07AD58BF6D272E11B7D6A897080529910A",
-      "Source": "录屏素材/家园/家园等级提升.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "B80D049BD6418D3C963C8A88413B0B8E3EDCFDE6A7312F9B9DD1D10867ED3603",
       "SourceCrop": {
         "X": 880,
@@ -583,7 +552,7 @@
       },
       "Threshold": 0.88,
       "Sha256": "1EAF0C28B4E3D89589423974EF537E5EF1FEAB5392F0D84A8B5B349FB1B98D77",
-      "Source": "录屏素材/家园/家园等级提升.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "B80D049BD6418D3C963C8A88413B0B8E3EDCFDE6A7312F9B9DD1D10867ED3603",
       "SourceCrop": {
         "X": 920,
@@ -604,7 +573,7 @@
       },
       "Threshold": 0.9,
       "Sha256": "5BA58E2156A6EFCB9CEBB127A5148ECC1EFCF89FF5A756B49CF3B409BA5C6100",
-      "Source": "AzurAssistant.Tests/fixtures/ranch-empty-live.png",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceSha256": "C719D229571B586E57BB0CDABB611CAB8CB4231B7488B31A27EA117D42A4196F",
       "SourceCrop": {
         "X": 1350,
@@ -614,7 +583,178 @@
       },
       "Version": "1.6.0",
       "Purpose": "牧场空篮子正面证据，与牧场标题共同使用；不从有产出篮子未命中推断为空"
+    },
+    "menu-party": {
+      "File": "menu-party.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "79CF5D5479E05B4897BDD3A22BDB63AB2D4323D4707AA9BE8A4F105E2296EB6A",
+      "Crop": {
+        "X": 1328,
+        "Y": 66,
+        "Width": 44,
+        "Height": 25
+      },
+      "Search": {
+        "X": 1308,
+        "Y": 51,
+        "Width": 83,
+        "Height": 59
+      }
+    },
+    "extra-return": {
+      "File": "extra-return.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "825A1C0384F86FCC9A6B33C38E5629E44B086295171EFF13761131608DDF4499",
+      "Crop": {
+        "X": 1407,
+        "Y": 984,
+        "Width": 48,
+        "Height": 20
+      },
+      "Search": {
+        "X": 1380,
+        "Y": 957,
+        "Width": 114,
+        "Height": 75
+      }
+    },
+    "extra-change": {
+      "File": "extra-change.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "F870A95B173F6536384B5C3F30DBE1F317EA86E6793F17C19C2A226B081D0D7B",
+      "Crop": {
+        "X": 1670,
+        "Y": 984,
+        "Width": 83,
+        "Height": 20
+      },
+      "Search": {
+        "X": 1610,
+        "Y": 955,
+        "Width": 191,
+        "Height": 85
+      }
+    },
+    "extra-equip": {
+      "File": "extra-equip.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "CCD9B9A4889AC3A27037200DF50990F365AE9EF18055FE8BBA1D998D337E4855",
+      "Crop": {
+        "X": 1670,
+        "Y": 984,
+        "Width": 83,
+        "Height": 20
+      },
+      "Search": {
+        "X": 1610,
+        "Y": 955,
+        "Width": 191,
+        "Height": 85
+      }
+    },
+    "mail-empty-banner": {
+      "File": "mail-empty-banner.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "D08EC9EE469F774BFBB2E5C1E46BE27E66A8D891960C9ABC413C52BA8A8B534D",
+      "Crop": {
+        "X": 855,
+        "Y": 125,
+        "Width": 208,
+        "Height": 20
+      },
+      "Search": {
+        "X": 795,
+        "Y": 95,
+        "Width": 330,
+        "Height": 73
+      }
+    },
+    "reward-dismiss-faint": {
+      "File": "reward-dismiss-faint.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "CE6112DBD8356575D8FF81F07C3232B2A6B372B5A186B02860E694CEF095AAF9",
+      "Crop": {
+        "X": 889,
+        "Y": 801,
+        "Width": 142,
+        "Height": 18
+      },
+      "Search": {
+        "X": 845,
+        "Y": 773,
+        "Width": 235,
+        "Height": 72
+      }
+    },
+    "home-ranch-locked": {
+      "File": "home-ranch-locked.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "7C185223A6C74905D608562DD4D8137A30A4F118D2EC78837AE96EE846CDAD09",
+      "Crop": {
+        "X": 1653,
+        "Y": 945,
+        "Width": 30,
+        "Height": 28
+      },
+      "Search": {
+        "X": 1634,
+        "Y": 927,
+        "Width": 65,
+        "Height": 65
+      }
+    },
+    "buildings-back": {
+      "File": "buildings-back.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "611082DE535C08DFB4CE576B41FC5C8199C8BBDCCD8A9EE14E5ACD863D800D5E",
+      "Crop": {
+        "X": 1849,
+        "Y": 26,
+        "Width": 44,
+        "Height": 37
+      },
+      "Search": {
+        "X": 1829,
+        "Y": 9,
+        "Width": 84,
+        "Height": 75
+      }
+    },
+    "ranch-management": {
+      "File": "ranch-management.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "22FC67799DF936E8B256D8D740E35E42DF6D5D53F5DE83C826461A36B29B1B16",
+      "Crop": {
+        "X": 1536,
+        "Y": 1007,
+        "Width": 86,
+        "Height": 26
+      },
+      "Search": {
+        "X": 1518,
+        "Y": 988,
+        "Width": 124,
+        "Height": 66
+      }
     }
   },
-  "AssetVersion": "1.6.0"
+  "AssetVersion": "2026.11.26"
 }

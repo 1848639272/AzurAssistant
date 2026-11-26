@@ -30,7 +30,10 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
         Layout = NavigationLayout.Load(directory);
         _daily = daily; _ocr = ocr;
         _templates = new(directory);
-        Maps = NavigationMapCatalog.Load(directory).Maps;
+        Maps = NavigationMapCatalog.Load(directory, availableOnly: true).Maps;
+        var initial = Maps.FirstOrDefault(m => m.Id == _targetMap && m.Teleports.Any(t => t.Id == _targetTeleport)) ?? Maps[0];
+        _targetMap = initial.Id;
+        _targetTeleport = initial.Teleports.FirstOrDefault()?.Id ?? "";
         foreach (var map in Maps) _maps.Add(map.Id, new(Path.Combine(directory, map.MapFile), Path.Combine(directory, map.FeatureFile)));
         _movementMode = new(ocr, directory);
         var manifest = JsonSerializer.Deserialize<TemplateManifest>(File.ReadAllText(Path.Combine(directory, "recognition.json")))!;
@@ -58,9 +61,9 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
     {
         token.ThrowIfCancellationRequested();
         _templates.ValidateFrame(frame);
-        if (_templates.Match(frame, "world-map-title") is not null)
+        if (_templates.Match(frame, "world-map-title") is not null || _templates.Match(frame, "world-map-title-compact") is not null)
             return new(frame, NavigationPage.WorldMap, WorldRegion: _templates.Match(frame, Maps.Single(m => m.Id == _targetMap).WorldTemplate)?.Center);
-        if (_templates.Match(frame, "adventure-title") is not null)
+        if (_templates.Match(frame, "adventure-title") is not null || _templates.Match(frame, "adventure-title-wide") is not null)
         {
             // Keep the right-hand details panel and all fixed edge UI out of reference matching.
             // Teleport selection needs the map transform and named target, not a scan for the player's outline.
@@ -111,7 +114,9 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
             return new(frame, NavigationPage.LocalMap, position, match, TeleportIcon: icon, Diagnostic: Describe(match) + iconDiagnostic,
                 DisplayedMapId: map.Id, WorldMapButton: world);
         }
-        if ((await _daily.ObserveAsync(frame, token)).Page != DailyPage.World)
+        var page = (await _daily.ObserveAsync(frame, token)).Page;
+        if (page == DailyPage.Menu) return new(frame, NavigationPage.MainMenu);
+        if (page != DailyPage.World)
             return new(frame, NavigationPage.Unknown, Diagnostic: "未确认地图或世界画面");
         return (await ObserveMinimapAsync(frame, token)) with { Page = NavigationPage.World };
     }
@@ -141,28 +146,65 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
     private (NavigationMap Map, MapImageMatch Match)? Register(FrameSnapshot frame, bool mini, ClientPoint? marker, CancellationToken token)
     {
         var cached = mini ? _lastMiniMap : _lastDisplayMap;
-        var candidates = new List<(NavigationMap Map, MapImageMatch Match)>();
-        using var query = MapImageMatcher.Extract(frame, mini ? Layout.Minimap : new(80, 100, 1300, 825),
-            mini ? 1 : .35, mini, token, marker, mini ? 0 : 75);
-        foreach (var map in Maps.OrderByDescending(m => m.Id == cached))
+        var region = mini ? Layout.Minimap : new PixelRegion(80, 100, 1300, 825);
+        using var query = MapImageMatcher.Extract(frame, region, mini ? 1 : .35, mini, token, marker, mini ? 0 : 75);
+        var result = FindBest(query);
+        if (mini && result is null)
         {
-            MapImageMatch? Match(Point2d? near) => _maps[map.Id].Match(query, mini ? 14 : 40,
-                token, nearReference: near, referenceRadius: 450 * map.MovementScale);
-            var near = mini && _lastPosition is { } p && p.MapId == map.Id ? new Point2d(p.X, p.Y) : (Point2d?)null;
-            var match = near is null ? Match(null) : Match(near) ?? Match(null);
-            if (match is null || Math.Abs(Math.Atan2(match.B, match.A)) > .035) continue;
-            var ratio = match.Scale / map.LocalMapScale;
-            // The local map's default zoom varies by region independently of the HUD minimap.
-            // Minimap scale comes from distributed SIFT/RANSAC evidence, not a local-map zoom multiplier.
-            if (!mini && ratio is < .9 or > 1.1) continue;
-            if (map.Id == cached) return (map, match);
-            candidates.Add((map, match));
+            // Sample more of the visible terrain when icons and sparse detail dominate the central disk.
+            using var detail = MapImageMatcher.Extract(frame, region, 1.35, true, token, detailedMinimap: true);
+            using var seedFeatures = MapImageMatcher.Extract(frame, region, 1.125, true, token, detailedMinimap: true);
+            result = FindBest(detail, seedFeatures);
         }
-        var ordered = candidates.OrderByDescending(c => c.Match.Inliers).ToArray();
-        if (ordered.Length == 0 || ordered.Length > 1 && ordered[0].Match.Inliers < ordered[1].Match.Inliers * 1.5) return null;
-        var best = ordered[0];
-        if (mini) _lastMiniMap = best.Map.Id; else _lastDisplayMap = best.Map.Id;
-        return best;
+        if (result is { } best)
+        {
+            if (mini) _lastMiniMap = best.Map.Id; else _lastDisplayMap = best.Map.Id;
+        }
+        return result;
+
+        (NavigationMap Map, MapImageMatch Match)? FindBest(MapQueryFeatures features, MapQueryFeatures? seedFeatures = null)
+        {
+            var candidates = new List<(NavigationMap Map, MapImageMatch Match)>();
+            foreach (var map in Maps.OrderByDescending(m => m.Id == cached))
+            {
+                var near = mini && _lastPosition is { } p && p.MapId == map.Id ? new Point2d(p.X, p.Y) : (Point2d?)null;
+                var matcher = _maps[map.Id];
+                MapImageMatch? match;
+                if (seedFeatures is not null) match = MatchMinimapTerrain(matcher, features, seedFeatures, near, token);
+                else
+                {
+                    var local = near is null ? null : matcher.Match(features, 14, token, near, 450 * map.MovementScale);
+                    match = local ?? matcher.Match(features, mini ? 14 : 40, token);
+                }
+                if (match is null || Math.Abs(Math.Atan2(match.B, match.A)) > .035) continue;
+                if (!mini && match.Scale / map.LocalMapScale is < .9 or > 1.1) continue;
+                if (seedFeatures is null && map.Id == cached) return (map, match);
+                candidates.Add((map, match));
+            }
+            var ordered = candidates.OrderByDescending(c => c.Match.Inliers).ToArray();
+            return ordered.Length == 0 || ordered.Length > 1 && ordered[0].Match.Inliers < ordered[1].Match.Inliers * 1.5
+                ? null : ordered[0];
+        }
+    }
+
+    private MapImageMatch? MatchMinimapTerrain(MapImageMatcher matcher, MapQueryFeatures features, MapQueryFeatures seedFeatures, Point2d? near,
+        CancellationToken token)
+    {
+        if (near is not null)
+        {
+            var local = matcher.Match(features, 14, token, near, 250, .76)
+                ?? matcher.Match(seedFeatures, 14, token, near, 250, .76);
+            if (local is not null && Math.Abs(Math.Atan2(local.B, local.A)) <= .035) return local;
+        }
+        // A coarse global hypothesis may propose a patch. Only a geometrically consistent, fully verified
+        // second match can supply the actual position, including after a teleport to a different patch.
+        var seed = matcher.Match(seedFeatures, 8, token, descriptorRatio: .74);
+        if (seed is null || Math.Abs(Math.Atan2(seed.B, seed.A)) > .035) return null;
+        var center = Layout.MinimapCenter;
+        var estimate = seed.Project(center.X, center.Y);
+        var refined = matcher.Match(features, 14, token, estimate, Math.Max(200, seed.Scale * 110), .76);
+        return refined is not null && Math.Abs(refined.Scale / seed.Scale - 1) <= .04
+            && refined.Project(center.X, center.Y).DistanceTo(estimate) <= 6 ? refined : null;
     }
 
     private async Task<(ClientPoint? Point, string? Name)> ReadOverlapAsync(FrameSnapshot frame, CancellationToken token)

@@ -8,7 +8,7 @@ public static class AssistantRestarter
 {
     /// <summary>Starts the local executable; the caller closes the old window only after success.</summary>
     public static bool TryRestart(Action<string> log, string? baseDirectory = null, int? previousProcessId = null,
-        Func<ProcessStartInfo, bool>? startProcess = null)
+        Func<ProcessStartInfo, bool>? startProcess = null, bool elevated = false)
     {
         try
         {
@@ -18,7 +18,8 @@ public static class AssistantRestarter
             var previous = previousProcessId ?? Environment.ProcessId;
             if (previous <= 0) throw new ArgumentOutOfRangeException(nameof(previousProcessId));
             var request = new ProcessStartInfo(executable) { UseShellExecute = true, WorkingDirectory = directory };
-            // One-shot automatic-run arguments must not be replayed during a settings restart.
+            if (elevated) request.Verb = "runas";
+            // One-shot automatic-run arguments must not be replayed when reopening the assistant.
             request.ArgumentList.Add("--wait-for-process");
             request.ArgumentList.Add(previous.ToString(CultureInfo.InvariantCulture));
             if (!(startProcess ?? Start)(request))
@@ -26,7 +27,7 @@ public static class AssistantRestarter
                 log("助手重启未完成：系统未创建新进程，当前窗口保持打开。");
                 return false;
             }
-            log("已启动新助手，等待当前助手退出后加载设置");
+            log("已启动新助手，正在等待当前窗口退出");
             return true;
         }
         catch (Exception ex)

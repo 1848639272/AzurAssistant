@@ -16,7 +16,7 @@ namespace AzurAssistant.UI;
 
 public sealed partial class MainViewModel(CapturePreviewService preview, DailyLogStore? log = null, TaskRunner? runner = null, IGameTask? task = null,
     Action? restartElevated = null, AutomationController? automation = null, bool runDailyFromCommandLine = false,
-    Func<bool>? restartAssistant = null, string? routesDirectory = null) : INotifyPropertyChanged
+    Func<string, string, string?>? applyHotkeys = null, string? routesDirectory = null) : INotifyPropertyChanged
 {
     private FrameSnapshot? _displayedFrame;
     private PreviewSnapshot? _lastSnapshot;
@@ -24,8 +24,6 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     private bool _initialized;
     private string _selectedPage = "home";
     private AssistantSettings _localSettings = new();
-    private readonly ApplicationPreferences _startupPreferences = ApplicationPreferences.From(automation?.Settings ?? new());
-    private bool _navigating;
     private TimeSpan _lastPreviewUpdate;
     private string? _displayedDailyOrder;
     private bool _exitGameSettingsExpanded;
@@ -36,9 +34,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     private TaskRunner? Runner => automation?.Runner ?? runner;
     private bool IsBusy => automation?.IsBusy ?? (Runner?.IsRunning == true);
     private AssistantSettings Settings => automation?.Settings ?? _localSettings;
-    private AssistantSettings EffectiveSettings => automation?.EffectiveSettings ?? _startupPreferences.ApplyTo(_localSettings);
-    public bool HasPendingSettings => automation?.HasPendingSettings
-        ?? ApplicationPreferences.From(Settings) != _startupPreferences;
+    public event Action<bool>? ThemeChanged;
     public bool IsRestarting { get; private set; }
     public bool RestartRequested { get; private set; }
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -61,7 +57,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         get => _selectedPage;
         set
         {
-            if (value is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "settings") || value == _selectedPage) return;
+            if (!IsAvailablePage(value) || value == _selectedPage) return;
             _selectedPage = value;
             Notify(string.Empty);
         }
@@ -69,10 +65,10 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     public bool IsHomePage => SelectedPage == "home";
     public bool IsDailyPage => SelectedPage == "daily";
     public bool IsRealtimePage => SelectedPage == "realtime";
-    public bool IsNavigationPage => SelectedPage == "navigation";
     public bool IsRoutesPage => SelectedPage == "routes";
     public bool IsSettingsPage => SelectedPage == "settings";
-    public string PageTitle => SelectedPage switch { "daily" => "一条龙", "realtime" => "实时辅助", "navigation" => "导航测试", "routes" => "路线管理", "settings" => "设置", _ => "控制台" };
+    private static bool IsAvailablePage(string page) => page is "home" or "daily" or "realtime" or "routes" or "settings";
+    public string PageTitle => SelectedPage switch { "daily" => "一条龙", "realtime" => "实时辅助", "routes" => "路线管理", "settings" => "设置", _ => "控制台" };
     public bool CanConfigure => !IsBusy && !IsRestarting && !IsUpdateBusy;
     public bool IsUpdateBusy { get; private set; }
     public string UpdateStatus { get; private set; } = "GitHub 更新仓库尚未配置";
@@ -81,8 +77,9 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     { IsUpdateBusy = busy; UpdateStatus = status; Notify(string.Empty); }
     public bool CanStartDaily => automation is not null && CanConfigure && !HasSettingsError
         && !(ExitGame && HasExitGameDelayError)
-        && (LaunchGame || EnterGame || ExitGame || DailyFeatureOrder.Choices.Any(c => c.Selected(Settings)));
-    public bool CanStartRealtime => automation is not null && CanConfigure && (AutoSkipDialogue || AutoPickup);
+        && (!CustomRoutes || Settings.DailyRoutes.Count > 0)
+        && (CustomRoutes || LaunchGame || EnterGame || ExitGame || DailyFeatureOrder.Choices.Any(c => c.Selected(Settings)));
+    public bool CanStartRealtime => automation is not null && CanConfigure && Settings.HasRealtimeSelection;
     public bool CanStartNavigation => automation is not null && CanConfigure && !HasSettingsError;
     private string _navigationX = "";
     private string _navigationY = "";
@@ -107,7 +104,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     public IReadOnlyList<NavigationTeleport> TeleportChoices => SelectedTeleportMap?.Teleports ?? [];
     public NavigationTeleport? SelectedTeleport { get => _teleport; set { if (value is null || !TeleportChoices.Contains(value)) return; _teleport = value; Notify(); } }
     private string MapName(string id) => NavigationMaps.FirstOrDefault(m => m.Id == id)?.Name ?? (id == "200000" ? "夏露露村" : id);
-    public string NavigationMapText => automation?.NavigationStatus?.Position is { } p ? $"{MapName(p.MapId)} · {p.Floor} 层" : "当前地图未确认";
+    public string NavigationMapText => automation?.NavigationStatus?.Position is { } p ? MapName(p.MapId) : "当前地图未确认";
     public string NavigationCoordinateText => automation?.NavigationStatus is { Position: { } p } state
         ? $"X {p.X:F1}    Y {p.Y:F1}    角度 {(state.FacingDegrees is { } angle ? angle.ToString("F1", CultureInfo.CurrentCulture) + "°" : "—")}" : "—";
     public string NavigationObservationText => IsPaused ? "已暂停，继续后重新定位"
@@ -347,17 +344,23 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     }
     public void ResetWeeklyProgress() { automation?.ResetWeeklyProgress(); Notify(string.Empty); }
     public string DailySelectionText => SelectionText(new[] { (LaunchGame, "启动游戏"), (EnterGame, "进入游戏") }
-        .Concat(OrderedDailyTasks.Select(c => (c.IsSelected, c.Name))).Append((ExitGame, "关闭游戏")).ToArray());
-    public string RealtimeSelectionText => SelectionText([(AutoSkipDialogue, "自动跳过对话"), (AutoPickup, "自动拾取采集物")]);
+        .Concat(OrderedDailyTasks.Select(c => (c.IsSelected, c.Name))).Append((CustomRoutes, "自定义路线")).Append((ExitGame, "关闭游戏")).ToArray());
+    public string RealtimeSelectionText => SelectionText([(AutoSkipDialogue, "自动跳过对话"), (AutoPickup, "自动拾取采集物"),
+        (AutoMining, "自动挖矿"), (AutoLogging, "自动砍树"), (HideUid, "隐藏 UID")]);
     public string GameExecutablePath { get => Settings.GameExecutablePath; set => SaveSettings(Settings with { GameExecutablePath = value }); }
-    public string LaunchPathHint => string.IsNullOrWhiteSpace(EffectiveSettings.GameExecutablePath)
-        ? "请先在设置中选择游戏启动文件" : EffectiveSettings.GameExecutablePath;
+    public string LaunchPathHint => string.IsNullOrWhiteSpace(Settings.GameExecutablePath)
+        ? "请先在设置中选择游戏启动器" : Settings.GameExecutablePath;
     public bool AutoConnect { get => Settings.AutoConnect; set => SaveSettings(Settings with { AutoConnect = value }); }
     public bool AutoRunDaily { get => Settings.AutoRunDaily; set => SaveSettings(Settings with { AutoRunDaily = value }); }
+    public bool RandomInteractionDelay { get => Settings.RandomInteractionDelay; set => SaveSettings(Settings with { RandomInteractionDelay = value }); }
     public bool LowPerformanceMode { get => Settings.LowPerformanceMode; set => SaveSettings(Settings with { LowPerformanceMode = value }); }
-    public bool DarkMode { get => Settings.DarkMode; set => SaveSettings(Settings with { DarkMode = value }); }
+    public bool DarkMode
+    {
+        get => Settings.DarkMode;
+        set { if (value != Settings.DarkMode && SaveSettings(Settings with { DarkMode = value })) ThemeChanged?.Invoke(value); }
+    }
     public bool AutoUpdate { get => Settings.AutoUpdate; set => SaveSettings(Settings with { AutoUpdate = value }); }
-    public bool EffectiveAutoUpdate => EffectiveSettings.AutoUpdate;
+    public bool EffectiveAutoUpdate => Settings.AutoUpdate;
     public async Task<bool> InstallUpdateAsync(Func<bool> launchInstaller)
     {
         if (IsRestarting) return false;
@@ -371,11 +374,11 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         }
         finally { IsRestarting = false; Notify(string.Empty); }
     }
-    public bool EffectiveDarkMode => EffectiveSettings.DarkMode;
+    public bool EffectiveDarkMode => Settings.DarkMode;
     public string PauseHotkeyText => _pauseHotkeyText ?? Settings.PauseHotkey;
     public string StopHotkeyText => _stopHotkeyText ?? Settings.StopHotkey;
-    public string EffectivePauseHotkey => EffectiveSettings.PauseHotkey;
-    public string EffectiveStopHotkey => EffectiveSettings.StopHotkey;
+    public string EffectivePauseHotkey => Settings.PauseHotkey;
+    public string EffectiveStopHotkey => Settings.StopHotkey;
     public string StopTaskTooltip => $"停止所有任务（{EffectiveStopHotkey}）";
     public string? HotkeyError { get; private set; }
     public bool HasHotkeyError => !string.IsNullOrEmpty(HotkeyError);
@@ -393,15 +396,25 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         if (_pauseHotkeyText is null && _stopHotkeyText is null) return true;
         if (!HotkeyBinding.TryParsePair(PauseHotkeyText, StopHotkeyText, out var pauseBinding, out var stopBinding, out var error))
         { ShowHotkeyValidationError(error!); return false; }
-        if (!SaveSettings(Settings with { PauseHotkey = pauseBinding.Text, StopHotkey = stopBinding.Text }))
-        { ShowHotkeyValidationError(SettingsError ?? "快捷键保存失败，修改尚未生效。"); return false; }
+        var previous = Settings;
+        if (previous.PauseHotkey != pauseBinding.Text || previous.StopHotkey != stopBinding.Text)
+        {
+            if (applyHotkeys?.Invoke(pauseBinding.Text, stopBinding.Text) is { } registrationError)
+            { ShowHotkeyValidationError(registrationError); return false; }
+            if (!SaveSettings(previous with { PauseHotkey = pauseBinding.Text, StopHotkey = stopBinding.Text }))
+            {
+                var restoreError = applyHotkeys?.Invoke(previous.PauseHotkey, previous.StopHotkey);
+                ShowHotkeyValidationError(restoreError ?? SettingsError ?? "快捷键保存失败。");
+                return false;
+            }
+        }
         _pauseHotkeyText = null; _stopHotkeyText = null; HotkeyError = null;
         Notify(string.Empty);
         return true;
     }
     public void ShowHotkeyValidationError(string error) { HotkeyError = error; Notify(string.Empty); }
     public bool DisablePreview { get => !Settings.ShowPreview; set => SaveSettings(Settings with { ShowPreview = !value }); }
-    public bool ShowPreview => EffectiveSettings.ShowPreview;
+    public bool ShowPreview => Settings.ShowPreview;
     public bool ShowPreviewFootnote => IsHomePage && ShowPreview;
     public bool ExitGame { get => Settings.ExitGame; set => SaveSettings(Settings with { ExitGame = value }); }
     public bool ExitGameSettingsExpanded
@@ -453,6 +466,9 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     }
     public bool AutoSkipDialogue { get => Settings.AutoSkipDialogue; set => SaveSettings(Settings with { AutoSkipDialogue = value }); }
     public bool AutoPickup { get => Settings.AutoPickup; set => SaveSettings(Settings with { AutoPickup = value }); }
+    public bool AutoMining { get => Settings.AutoMining; set => SaveSettings(Settings with { AutoMining = value }); }
+    public bool HideUid { get => Settings.HideUid; set => SaveSettings(Settings with { HideUid = value }); }
+    public bool AutoLogging { get => Settings.AutoLogging; set => SaveSettings(Settings with { AutoLogging = value }); }
     public string? SettingsError => automation?.SettingsError;
     public bool HasSettingsError => !string.IsNullOrWhiteSpace(SettingsError);
     public void Initialize()
@@ -477,45 +493,12 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     }
     public void StartRealtime() { if (IsRestarting || IsBusy || IsUpdateBusy) return; automation?.StartRealtime(); Refresh(); }
 
-    /// <returns>True only after a replacement assistant was started and this window may close.</returns>
-    public async Task<bool> NavigateAsync(string page, Func<Task<bool>> confirmRestart)
+    public void Navigate(string page)
     {
-        if (_navigating || page is not ("home" or "daily" or "realtime" or "navigation" or "routes" or "settings") || page == SelectedPage) return false;
-        _navigating = true;
-        try
-        {
-            if (IsSettingsPage && HasPendingSettings && await confirmRestart() && HasPendingSettings)
-            {
-                RestartRequested = true;
-                IsRestarting = true;
-                Refresh();
-                await StopAsync();
-                if (restartAssistant?.Invoke() == true) return true;
-                Report("助手未重启，已保存的设置将在下次启动时生效。");
-                return false;
-            }
-            SelectedPage = page;
-            if (page == "routes") LoadRoutes();
-            return false;
-        }
-        catch (Exception ex)
-        {
-            Report($"助手重启未完成：{ex.Message}；当前窗口保留。");
-            return false;
-        }
-        finally
-        {
-            IsRestarting = false;
-            Refresh();
-            // A rejected restart leaves the current page selected even though another navigation button was clicked.
-            Notify(nameof(IsHomePage));
-            Notify(nameof(IsDailyPage));
-            Notify(nameof(IsRealtimePage));
-            Notify(nameof(IsNavigationPage));
-            Notify(nameof(IsRoutesPage));
-            Notify(nameof(IsSettingsPage));
-            _navigating = false;
-        }
+        if (!IsAvailablePage(page) || page == SelectedPage) return;
+        SelectedPage = page;
+        if (page is "routes" or "daily") LoadRoutes();
+        Refresh();
     }
     private bool SaveSettings(AssistantSettings settings)
     {
@@ -589,7 +572,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         Message = current.Message;
         // Preview rendering is independent of the frame feed used by running tasks.
         var displayFrame = ShowPreview ? frame : null;
-        var previewInterval = TimeSpan.FromMilliseconds(EffectiveSettings.LowPerformanceMode ? 400 : 200);
+        var previewInterval = TimeSpan.FromMilliseconds(Settings.LowPerformanceMode ? 400 : 200);
         if (displayFrame is null || !ReferenceEquals(_displayedFrame, displayFrame)
             && (PreviewImage is null || now - _lastPreviewUpdate >= previewInterval))
         {
@@ -603,7 +586,10 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
                 _lastPreviewUpdate = now;
             }
         }
-        FrameInfo = frame is null ? "等待画面" : $"{frame.Width} × {frame.Height}  ·  帧 #{frame.Id}";
+        FrameInfo = frame is null ? "等待画面"
+            : frame.IsNormalized
+                ? $"{frame.ContentWidth} × {frame.ContentHeight} → {frame.Width} × {frame.Height}  ·  帧 #{frame.Id}"
+                : $"{frame.Width} × {frame.Height}  ·  帧 #{frame.Id}";
         FrameTime = frame is null ? "—" : $"更新于 {frame.CapturedAt:HH:mm:ss}";
         if (log is not null)
         {

@@ -56,7 +56,7 @@ public sealed class WindowsGraphicsFrameSource : IFrameSource
             {
                 timeout.Token.ThrowIfCancellationRequested();
                 stage = "检查游戏窗口";
-                var before = _window.Observe();
+                if (!_window.TryObserveRestored(out var before)) { await Task.Delay(50, timeout.Token); continue; }
                 if (_recreate)
                 {
                     _pool.Recreate(_device!, DirectXPixelFormat.B8G8R8A8UIntNormalized, 2, _size);
@@ -81,8 +81,11 @@ public sealed class WindowsGraphicsFrameSource : IFrameSource
                 if (SystemNow - timestamp > TimeSpan.FromSeconds(1)) { stale++; continue; }
                 stage = "复制捕获表面";
                 using var software = await SoftwareBitmap.CreateCopyFromSurfaceAsync(frame.Surface, BitmapAlphaMode.Ignore).AsTask(timeout.Token);
-                var after = _window.Observe();
-                if (before != after) { geometryChanges++; continue; }
+                if (!_window.TryObserveRestored(out var after)) continue;
+                if (before.CropX != after.CropX || before.CropY != after.CropY || before.Width != after.Width || before.Height != after.Height ||
+                    before.WindowWidth != after.WindowWidth || before.WindowHeight != after.WindowHeight) { geometryChanges++; continue; }
+                // A translation changes the desktop origin but not pixels in a window capture.
+                before = after;
                 var x = before.CropX;
                 var y = before.CropY;
                 if (x < 0 || y < 0 || x + before.Width > content.Width || y + before.Height > content.Height)

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using AzurAssistant.Contracts;
 
 namespace AzurAssistant.Platform;
 
@@ -7,7 +8,16 @@ public sealed class GameWindow(nint handle, int processId)
     public nint Handle { get; } = handle;
     public int ProcessId { get; } = processId;
 
-    public static GameWindow Find(string processName)
+    internal static bool Exists(nint handle, int processId)
+    {
+        NativeMethods.GetWindowThreadProcessId(handle, out var currentPid);
+        return currentPid == processId && NativeMethods.IsWindow(handle);
+    }
+
+    public static GameWindow Find(string processName) => FindIfPresent(processName)
+        ?? throw new InvalidOperationException($"未找到 {processName}.exe 的游戏窗口，请打开游戏后重新连接。");
+
+    public static GameWindow? FindIfPresent(string processName)
     {
         var ids = new HashSet<int>();
         foreach (var process in Process.GetProcessesByName(processName))
@@ -23,18 +33,22 @@ public sealed class GameWindow(nint handle, int processId)
                 candidates.Add(new GameWindow(hwnd, (int)pid));
             return true;
         }, 0);
-        if (candidates.Count == 0) throw new InvalidOperationException($"未找到 {processName}.exe 的游戏窗口，请打开游戏后重新连接。");
         if (candidates.Count > 1) throw new InvalidOperationException("检测到多个游戏窗口，请保留一个游戏窗口后重新连接。");
-        return candidates[0];
+        return candidates.SingleOrDefault();
+    }
+
+    internal bool TryObserveRestored(out WindowGeometry geometry)
+    {
+        try { geometry = Observe(); return true; }
+        catch (InvalidOperationException) when (NativeMethods.IsIconic(Handle)) { geometry = default; return false; }
     }
 
     internal WindowGeometry Observe()
     {
-        NativeMethods.GetWindowThreadProcessId(Handle, out var currentPid);
-        if (!NativeMethods.IsWindow(Handle) || currentPid != ProcessId)
+        if (!Exists(Handle, ProcessId))
             throw new InvalidOperationException("游戏窗口已关闭，请打开游戏后重新连接。");
         if (NativeMethods.IsIconic(Handle))
-            throw new InvalidOperationException("游戏窗口已最小化，请还原游戏后重新连接。");
+            throw new InputUnavailableException("游戏窗口已最小化，等待还原。");
         if (!NativeMethods.IsWindowVisible(Handle)
             || (NativeMethods.GetCloaked(Handle, 14, out var cloaked, 4) == 0 && cloaked != 0))
             throw new InvalidOperationException("游戏窗口不可见，请还原窗口后重新连接。");

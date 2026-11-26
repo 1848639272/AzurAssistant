@@ -21,6 +21,22 @@ public partial class MainWindow
         Closed += (_, _) => { _updateCancellation?.Cancel(); http.Dispose(); };
     }
 
+    internal string InstallNoticePath { get; set; } = Path.Combine(AppContext.BaseDirectory, "first-launch-notice.pending");
+
+    private void OnVersionNotes(object sender, RoutedEventArgs e) => ShowVersionNotes();
+    private void ShowVersionNotes() => new VersionNotesWindow(this, ViewModel.EffectiveDarkMode).ShowDialog();
+
+    private void ShowFirstInstallNotice()
+    {
+        if (!File.Exists(InstallNoticePath)) return;
+        ShowVersionNotes();
+        try { File.Delete(InstallNoticePath); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ViewModel.SetUpdateStatus(false, $"首次启动状态未保存：{ex.Message}");
+        }
+    }
+
     private async void OnCheckUpdates(object sender, RoutedEventArgs e) => await CheckUpdatesAsync(automatic: false);
     private void OnCancelUpdate(object sender, RoutedEventArgs e) => _updateCancellation?.Cancel();
 
@@ -41,7 +57,7 @@ public partial class MainWindow
         {
             var result = await _updates.CheckAsync(automatic, ViewModel.EffectiveAutoUpdate, cancellation.Token);
             ViewModel.SetUpdateStatus(true, result.Message);
-            if (_closing || cancellation.IsCancellationRequested) return;
+            if (_closing || cancellation.IsCancellationRequested || (automatic && !ViewModel.EffectiveAutoUpdate)) return;
             if (result.Update is not { } update)
             {
                 if ((!automatic && result.Status != UpdateCheckStatus.Skipped) || result.Status == UpdateCheckStatus.Failed)
@@ -49,14 +65,13 @@ public partial class MainWindow
                         result.Status == UpdateCheckStatus.Failed ? MessageBoxImage.Warning : MessageBoxImage.Information);
                 return;
             }
-            var notes = update.Notes.Length > 2000 ? update.Notes[..2000] + "…" : update.Notes;
-            if (MessageBox.Show(this, $"发现新版本：v{update.Release.ProductVersion}\n构建编号：{update.Release.BuildNumber}\n\n{notes}\n\n是否下载完整安装包并更新？安装前会停止当前任务，保留设置与路线。",
+            if (MessageBox.Show(this, $"最新版本：v{update.Release.ProductVersion}\n\n是否下载并更新？",
                 "蔚蓝助手 · 发现更新", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.No) != MessageBoxResult.Yes)
                 return;
             var directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AzurAssistant", "updates", Guid.NewGuid().ToString("N"));
             var progress = new Progress<double>(percent => { if (!_closing) ViewModel.SetUpdateStatus(true, $"正在下载完整安装包：{percent:0}%"); });
             downloaded = await _releaseClient!.DownloadAsync(update, directory, progress, cancellation.Token);
-            if (_closing || cancellation.IsCancellationRequested) return;
+            if (_closing || cancellation.IsCancellationRequested || !_updates!.IsNewer(update.Release)) return;
             ViewModel.SetUpdateStatus(true, "安装包校验通过，正在停止任务…");
             _updateLaunched = await ViewModel.InstallUpdateAsync(() => !cancellation.IsCancellationRequested &&
                 AssistantInstaller.TryStart(downloaded, AppContext.BaseDirectory, message => ViewModel.SetUpdateStatus(true, message)));

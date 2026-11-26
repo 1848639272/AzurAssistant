@@ -26,13 +26,14 @@ public sealed record NavigationMap(string Id, string Name, int Floor, string Coo
 
 public sealed record NavigationMapCatalog(int SchemaVersion, string Version, IReadOnlyList<NavigationMap> Maps)
 {
-    public static NavigationMapCatalog Load(string? directory = null, bool verifyFiles = true)
+    public static NavigationMapCatalog Load(string? directory = null, bool verifyFiles = true, bool availableOnly = false)
     {
         directory ??= NavigationLayout.DirectoryPath;
         var catalog = JsonSerializer.Deserialize<NavigationMapCatalog>(File.ReadAllText(Path.Combine(directory, "maps.json")))
             ?? throw new InvalidDataException("地图目录为空。");
         if (catalog.SchemaVersion != 1 || string.IsNullOrWhiteSpace(catalog.Version) || catalog.Maps is not { Count: > 0 and <= 20 }
             || catalog.Maps.Select(m => m.Id).Distinct().Count() != catalog.Maps.Count) throw new InvalidDataException("地图目录版本或地图ID无效。");
+        var missing = new HashSet<string>();
         foreach (var map in catalog.Maps)
         {
             if (string.IsNullOrWhiteSpace(map.Id) || string.IsNullOrWhiteSpace(map.Name) || string.IsNullOrWhiteSpace(map.CoordinateVersion)
@@ -45,6 +46,7 @@ public sealed record NavigationMapCatalog(int SchemaVersion, string Version, IRe
             {
                 if (string.IsNullOrWhiteSpace(file) || Path.GetFileName(file) != file || hash?.Length != 64)
                     throw new InvalidDataException("地图文件定义无效。");
+                if (availableOnly && !File.Exists(Path.Combine(directory, file))) { missing.Add(map.Id); continue; }
                 if (verifyFiles)
                 {
                     using var stream = File.OpenRead(Path.Combine(directory, file));
@@ -55,15 +57,19 @@ public sealed record NavigationMapCatalog(int SchemaVersion, string Version, IRe
             foreach (var teleport in map.Teleports)
             {
                 map.Position(teleport.X, teleport.Y);
-                var arrival = catalog.Maps.SingleOrDefault(m => m.Id == teleport.ArrivalMapId)
-                    ?? throw new InvalidDataException("传送落点地图不存在。");
+                var arrival = catalog.Maps.SingleOrDefault(m => m.Id == teleport.ArrivalMapId);
+                if (arrival is null && !availableOnly) throw new InvalidDataException("传送落点地图不存在。");
                 if (string.IsNullOrWhiteSpace(teleport.Id) || string.IsNullOrWhiteSpace(teleport.Name)
                     || string.IsNullOrWhiteSpace(teleport.TitleTemplate) || string.IsNullOrWhiteSpace(teleport.IconTemplate)
                     || !double.IsFinite(teleport.ArrivalRadius) || teleport.ArrivalRadius is <= 0 or > 1000
                     || (teleport.LandingX is null) != (teleport.LandingY is null)) throw new InvalidDataException("传送点参数无效。");
-                if (teleport.LandingX is { } x && teleport.LandingY is { } y) arrival.Position(x, y);
+                if (teleport.LandingX is { } x && teleport.LandingY is { } y) arrival?.Position(x, y);
             }
         }
-        return catalog;
+        if (!availableOnly) return catalog;
+        var available = catalog.Maps.Where(m => !missing.Contains(m.Id)).ToArray();
+        if (available.Length == 0) throw new InvalidDataException("本机没有完整的导航底图与特征索引。");
+        var ids = available.Select(m => m.Id).ToHashSet();
+        return catalog with { Maps = available.Select(m => m with { Teleports = m.Teleports.Where(t => ids.Contains(t.ArrivalMapId)).ToArray() }).ToArray() };
     }
 }

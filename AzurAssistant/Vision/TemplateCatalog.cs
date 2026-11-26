@@ -7,7 +7,8 @@ using AzurAssistant.Contracts;
 
 namespace AzurAssistant.Vision;
 
-public sealed record TemplateDefinition(string File, PixelRegion Search, double Threshold, string Sha256,
+public sealed record TemplateDefinition(string File, PixelRegion Search, string Sha256,
+    double Threshold = OpenCvTemplateMatcher.DefaultUiThreshold,
     string? Source = null, string? Version = null, string? Channel = null);
 public sealed record TemplateManifest(int SchemaVersion, int ReferenceWidth, int ReferenceHeight,
     Dictionary<string, TemplateDefinition> Templates);

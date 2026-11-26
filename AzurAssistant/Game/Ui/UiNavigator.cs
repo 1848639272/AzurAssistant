@@ -5,10 +5,11 @@ namespace AzurAssistant.Game.Ui;
 
 public sealed record DailyUiTiming(TimeSpan StepTimeout, TimeSpan PollInterval, TimeSpan ActionSettle)
 {
-    public TimeSpan StableDuration { get; init; } = TimeSpan.FromMilliseconds(600);
+    public static TimeSpan MinimumClickInterval { get; } = TimeSpan.FromMilliseconds(1800);
+    public TimeSpan StableDuration { get; init; } = TimeSpan.FromMilliseconds(500);
     public TimeSpan RetryDelay { get; init; } = TimeSpan.FromSeconds(3);
     public TimeSpan InvalidFrameDelay { get; init; } = TimeSpan.FromMilliseconds(10);
-    public static DailyUiTiming Default { get; } = new(TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(1500));
+    public static DailyUiTiming Default { get; } = new(TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(1200));
 }
 
 internal sealed record ObservedUi(FrameSnapshot Frame, DailyUiObservation Ui);
@@ -136,7 +137,7 @@ internal sealed class UiNavigator(TaskContext context, IDailyUiRecognizer recogn
                 if (!permitRefresh) throw new ObservationInvalidatedException();
                 var expected = source;
                 source = await WaitCoreAsync(action + "：继续前重新确认", token, target, [source.Ui.Page],
-                    accept: (current, _) => Task.FromResult(Same(expected, current)));
+                    accept: (current, _) => Task.FromResult(expected.Frame.SameClientSurface(current.Frame) && SameEvidence(expected, current)));
             }
             token.ThrowIfCancellationRequested();
             if (!Fresh(source.Frame)) throw new UiStepException("识别帧已过期，请重新观察页面");
@@ -173,7 +174,7 @@ internal sealed class UiNavigator(TaskContext context, IDailyUiRecognizer recogn
     public Task<ObservedUi> DismissHomeLevelUpAsync(ObservedUi source, CancellationToken token, params DailyPage[] pages)
         => TransitionAsync(source, "home-level-title", "点击空白处关闭家园等级提升", token, offsetY: 480, pages: pages);
 
-    public async Task ReturnToWorldAsync(CancellationToken token)
+    public async Task<string> FinishAtBoundaryAsync(bool keepMenuOpen, CancellationToken token)
     {
         // MailEmpty belongs to the mail feature's acknowledgement flow.
         var pages = new[] { DailyPage.World, DailyPage.Menu, DailyPage.Mail, DailyPage.MailReward,
@@ -183,10 +184,11 @@ internal sealed class UiNavigator(TaskContext context, IDailyUiRecognizer recogn
             var current = await WaitAsync("确认返回页面", token, null, pages);
             switch (current.Ui.Page)
             {
-                case DailyPage.World: return;
+                case DailyPage.World: return "已返回大世界";
                 case DailyPage.Menu:
+                    if (keepMenuOpen) return "已保留主菜单";
                     await TransitionAsync(current, null, "关闭主菜单", token, pages: [DailyPage.World]);
-                    return;
+                    return "已返回大世界";
                 case DailyPage.Mail:
                     await TransitionAsync(current, "mail-close", "关闭邮箱", token, pages: [DailyPage.Menu]);
                     break;
@@ -194,16 +196,16 @@ internal sealed class UiNavigator(TaskContext context, IDailyUiRecognizer recogn
                     await TransitionAsync(current, "mail-dismiss", "关闭邮件奖励", token, offsetY: 80, pages: [DailyPage.Mail]);
                     break;
                 case DailyPage.Buildings:
-                    await TransitionAsync(current, "buildings-title", "返回家园中枢", token, pages: [DailyPage.HomeCenter]);
+                    await TransitionAsync(current, "buildings-back", "返回家园中枢", token, pages: [DailyPage.HomeCenter]);
                     break;
                 case DailyPage.DiningTable:
                     await TransitionAsync(current, "dining-close", "关闭奇波餐桌", token, pages: [DailyPage.HomeCenter]);
                     break;
                 case DailyPage.Ranch:
-                    await TransitionAsync(current, "ranch-title", "返回家园中枢", token, pages: [DailyPage.HomeCenter]);
+                    await TransitionAsync(current, current.Ui.Has("ranch-close") ? "ranch-close" : "ranch-title", "返回家园中枢", token, pages: [DailyPage.HomeCenter]);
                     break;
                 case DailyPage.HomeCenter:
-                    await TransitionAsync(current, "home-title", "返回主菜单", token, pages: [DailyPage.Menu]);
+                    await TransitionAsync(current, "home-close", "返回主菜单", token, pages: [DailyPage.Menu]);
                     break;
                 case DailyPage.HomeReward:
                     await TransitionAsync(current, "home-reward-close", "关闭家园收获结果", token, pages: [DailyPage.Buildings, DailyPage.Ranch, DailyPage.HomeLevelUp]);
@@ -213,14 +215,12 @@ internal sealed class UiNavigator(TaskContext context, IDailyUiRecognizer recogn
                     break;
             }
         }
-        throw new UiStepException("返回大世界超过已知页面路径上限，停止操作");
+        throw new UiStepException("任务收尾超过已知页面路径上限，停止操作");
     }
 
     private static bool Near(ClientPoint left, ClientPoint right) => Math.Abs(left.X - right.X) <= 6 && Math.Abs(left.Y - right.Y) <= 6;
     private static bool SameWindow(ObservedUi left, ObservedUi right) => left.Ui.Page == right.Ui.Page
-        && left.Frame.ViewportVersion == right.Frame.ViewportVersion && left.Frame.WindowHandle == right.Frame.WindowHandle
-        && left.Frame.ProcessId == right.Frame.ProcessId && left.Frame.Width == right.Frame.Width && left.Frame.Height == right.Frame.Height
-        && left.Frame.ClientLeft == right.Frame.ClientLeft && left.Frame.ClientTop == right.Frame.ClientTop;
+        && left.Frame.SameViewport(right.Frame);
 
     // Center entrances are independent; only the title and next target must remain stable for arrival.
     // Retry evidence stays stricter and compares every observed target.
@@ -229,7 +229,8 @@ internal sealed class UiNavigator(TaskContext context, IDailyUiRecognizer recogn
         && TargetNear(left, right, "home-title") && (target is null || TargetNear(left, right, target));
     private static bool TargetNear(ObservedUi left, ObservedUi right, string target) =>
         left.Ui.Targets.TryGetValue(target, out var point) && right.Ui.Targets.TryGetValue(target, out var other) && Near(point, other);
-    private static bool Same(ObservedUi left, ObservedUi right) => SameWindow(left, right)
+    private static bool Same(ObservedUi left, ObservedUi right) => SameWindow(left, right) && SameEvidence(left, right);
+    private static bool SameEvidence(ObservedUi left, ObservedUi right) => left.Ui.Page == right.Ui.Page
         && left.Ui.EvidenceKey == right.Ui.EvidenceKey
         && left.Ui.Targets.Count == right.Ui.Targets.Count
         && left.Ui.Targets.All(pair => right.Ui.Targets.TryGetValue(pair.Key, out var point) && Near(pair.Value, point));

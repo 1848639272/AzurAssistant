@@ -3,14 +3,14 @@ using AzurAssistant.Vision;
 
 namespace AzurAssistant.Features.StartJourney;
 
-public enum JourneyPage { Unknown, Start, InGame, LoginReward, MonthlyPending, Reward, Menu, UpdatePrompt }
+public enum JourneyPage { Unknown, Start, InGame, LoginReward, MonthlyPending, Reward, Menu, UpdatePrompt, Updating, RestartPrompt, PossibleGiftReward }
 public sealed record JourneyObservation(JourneyPage Page, ClientPoint? StartPoint = null,
     ClientPoint? ClaimPoint = null, int? ClaimCardIndex = null, IReadOnlyList<int>? ClaimedCards = null,
     bool LoginRewardComplete = false, ClientPoint? ClosePoint = null, ClientPoint? ConfirmPoint = null,
     double? InitialPageScore = null);
 public interface IJourneyRecognizer
 {
-    Task<JourneyObservation> ObserveAsync(FrameSnapshot frame, CancellationToken token);
+    Task<JourneyObservation> ObserveAsync(FrameSnapshot frame, CancellationToken token, FrameSnapshot? giftPanel = null);
 }
 
 public sealed class StartJourneyRecognizer(ImageTemplate ageRating, JourneySettings settings,
@@ -18,19 +18,22 @@ public sealed class StartJourneyRecognizer(ImageTemplate ageRating, JourneySetti
     JourneyUpdateRecognizer? updates = null) : IJourneyRecognizer, IDisposable
 {
     public void Dispose() { }
-    public async Task<JourneyObservation> ObserveAsync(FrameSnapshot frame, CancellationToken token)
+    public async Task<JourneyObservation> ObserveAsync(FrameSnapshot frame, CancellationToken token, FrameSnapshot? giftPanel = null)
     {
         if (frame.Width != settings.ReferenceWidth || frame.Height != settings.ReferenceHeight)
             throw new InvalidOperationException("进入游戏功能当前仅支持 1920×1080 客户区。");
         token.ThrowIfCancellationRequested();
         if (updates?.Observe(frame) is { } update) return update;
-        if (rewards?.Observe(frame) is { } reward) return reward;
+        var reward = rewards?.Observe(frame);
+        if (reward is not null && (giftPanel is null || reward.Page != JourneyPage.Unknown)) return reward;
         var roi = settings.AgeSearch;
         var match = OpenCvTemplateMatcher.Match(frame, ageRating, new PixelRegion(roi[0], roi[1], roi[2], roi[3]));
         if (match.Score >= settings.AgeThreshold)
-            return new JourneyObservation(JourneyPage.Start,
+            return reward ?? new JourneyObservation(JourneyPage.Start,
                 new ClientPoint(settings.StartClick[0], settings.StartClick[1]), InitialPageScore: match.Score);
-        return new JourneyObservation(await isWorld(frame, token) ? JourneyPage.InGame : JourneyPage.Unknown,
-            InitialPageScore: match.Score);
+        if (await isWorld(frame, token)) return reward ?? new(JourneyPage.InGame, InitialPageScore: match.Score);
+        if (giftPanel is not null && rewards?.FindSpecialGiftBlank(frame, giftPanel) is { } blank)
+            return new(JourneyPage.PossibleGiftReward, ClosePoint: blank);
+        return reward ?? new(JourneyPage.Unknown, InitialPageScore: match.Score);
     }
 }

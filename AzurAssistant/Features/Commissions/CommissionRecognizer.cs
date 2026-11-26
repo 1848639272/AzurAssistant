@@ -9,11 +9,15 @@ namespace AzurAssistant.Features.Commissions;
 
 public sealed record CommissionLayout(int SchemaVersion, string Version, Dictionary<string, PixelRegion> Regions, Dictionary<string, ClientPoint> Points)
 {
+    public int[][] AlternateChapterCenters { get; init; } = [];
+
     public static CommissionLayout Load(string? directory = null)
     {
         var value = JsonSerializer.Deserialize<CommissionLayout>(File.ReadAllText(Path.Combine(directory ??
             Path.Combine(AppContext.BaseDirectory, "assets", "commissions"), "layout.json"))) ?? throw new InvalidDataException("委托布局为空。");
         if (value.SchemaVersion != 1 || string.IsNullOrWhiteSpace(value.Version)) throw new InvalidDataException("委托布局版本不受支持。");
+        if (value.AlternateChapterCenters.Any(row => row.Length is < 1 or > 4 || row.Any(x => x is < 25 or > 1895)
+            || row.Distinct().Count() != row.Length)) throw new InvalidDataException("委托章节位置无效。");
         foreach (var region in value.Regions.Values) region.Validate(1920, 1080);
         foreach (var point in value.Points.Values)
             if (point.X is < 0 or >= 1920 || point.Y is < 0 or >= 1080) throw new InvalidDataException("委托坐标超出客户区。");
@@ -99,6 +103,12 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
             diagnostic.Add($"{id}={score:F2}");
             if (found is null) return false;
             targets[target ?? id] = found.Center; return true;
+        }
+        void ObserveReturnButton(bool hub = false)
+        {
+            if (layout.Points.TryGetValue("back", out var legacyBack)) targets["back"] = legacyBack;
+            else if (hub) Match("hub-close", "back");
+            else if (!Match("catalog-back", "back")) Match("catalog-back-light", "back");
         }
         CommissionObservation Result(CommissionPage page) => new(page, page == CommissionPage.Unknown ? new Dictionary<string, ClientPoint>() : targets)
             { Diagnostic = string.Join(",", diagnostic) };
@@ -243,11 +253,12 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
             return Result(CommissionPage.BondLevelUp);
         }
         var reward = Match("reward-title");
-        var claim = Match("reward-claim", "claim");
+        var claim = Match("reward-claim", "claim") || reward && Match("reward-claim-and-settle", "claim");
         if (reward || claim)
         {
             if (!reward || !claim) return Result(CommissionPage.Unknown);
-            Match("reward-skip", "skip"); Match("reward-cancel", "cancel");
+            if (!Match("reward-skip", "skip")) Match("reward-skip-and-settle", "skip");
+            Match("reward-cancel", "cancel");
             var open = Match("multiplier-open");
             var value = await Resources(Result(open ? CommissionPage.Multiplier : CommissionPage.Reward));
             var cost = await RewardCostReader.ReadAsync(ocr, frame, layout.Regions["reward-cost"],
@@ -276,7 +287,7 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
         if (Match("crisis-result-return", "return") && Match("crisis-result-reward")) return Result(CommissionPage.CrisisResult);
         targets.Clear();
         if (Match("crisis-lobby") && Match("crisis-launch", "launch")) return Result(CommissionPage.Lobby);
-        if (Match("prepare-start", "start") && Match("team-list", "teams"))
+        if (Match("prepare-start", "start") && (Match("team-list", "teams") || Match("team-list-hover", "teams")))
         {
             if (Match("team-title"))
             {
@@ -302,14 +313,19 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
         targets.Clear();
         if (Match("story-title"))
         {
-            var selected = Enumerable.Range(1, 4).Where(n =>
-                templates.Match(frame, "story-chapter-selected", new(layout.Points[$"chapter-{n}"].X - 25, 925, 50, 62)) is not null).ToArray();
+            var fourChapters = Enumerable.Range(1, 4).Select(n => layout.Points[$"chapter-{n}"].X).ToArray();
+            var selected = (from centers in layout.AlternateChapterCenters.Prepend(fourChapters)
+                from index in Enumerable.Range(0, centers.Length)
+                where templates.Match(frame, "story-chapter-selected", new(centers[index] - 25, 925, 50, 62)) is not null
+                select (centers, chapter: index + 1)).ToArray();
             if (selected.Length != 1) return Result(CommissionPage.Unknown);
-            targets["back"] = layout.Points["back"];
-            for (var n = 1; n <= 4; n++) targets[$"chapter-{n}"] = layout.Points[$"chapter-{n}"];
-            var value = Result(CommissionPage.Story) with { Chapter = selected[0] };
+            var (chapterCenters, chapter) = selected[0];
+            ObserveReturnButton();
+            for (var n = 1; n <= chapterCenters.Length; n++)
+                targets[$"chapter-{n}"] = new(chapterCenters[n - 1], layout.Points[$"chapter-{n}"].Y);
+            var value = Result(CommissionPage.Story) with { Chapter = chapter };
             if (read == CommissionRead.Navigation) return value;
-            if (read == CommissionRead.Choices) await AddStoryNames(selected[0]);
+            if (read == CommissionRead.Choices) await AddStoryNames(chapter);
             return await Resources(value with { Diagnostic = string.Join(",", diagnostic) });
         }
         targets.Clear();
@@ -317,7 +333,7 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
         var weekly = !daily && Match("weekly-title");
         if (daily || weekly)
         {
-            targets["back"] = layout.Points["back"];
+            ObserveReturnButton();
             if (!Match(daily ? "solo-daily" : "solo-weekly", "solo")) return Result(CommissionPage.Unknown);
             var page = daily ? CommissionPage.Daily : CommissionPage.Weekly;
             if (read == CommissionRead.Navigation) return Result(page);
@@ -347,7 +363,7 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
         }
         if (Match("crisis-title"))
         {
-            targets["back"] = layout.Points["back"];
+            ObserveReturnButton();
             if (!Match("crisis-create", "create")) Match("crisis-create-dark", "create");
             Match("crisis-enter", "enter"); Match("crisis-change", "change");
             if (read == CommissionRead.Navigation)
@@ -375,7 +391,7 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
             // Fixed cards are authorized only by the title and both mutually exclusive bottom-tab states.
             // Reading decorative card art with OCR is too slow for the one-second input observation budget.
             targets.Clear();
-            targets["back"] = layout.Points["back"];
+            ObserveReturnButton(hub: true);
             targets["name:地区委托"] = layout.Points["hub-regional-tab"];
             targets["name:星协集会"] = layout.Points["hub-assembly-tab"];
             if (regional)

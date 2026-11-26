@@ -58,6 +58,9 @@ public sealed class SettingsStore
         if (value.GameExecutablePath is null) throw new InvalidDataException("游戏路径不能为空值。");
         if (value.DailyTaskOrder is null || value.DailyTaskOrder.Length > 2048)
             throw new InvalidDataException("一条龙任务顺序格式无效。");
+        if (value.DailyRoutes is null || value.DailyRoutes.Any(r => r is null || string.IsNullOrWhiteSpace(r.Name) || string.IsNullOrWhiteSpace(r.File)
+            || Path.GetFileName(r.File) != r.File || r.File.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || !r.File.EndsWith(".json", StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidDataException("自定义路线列表格式无效。");
         if (value.GameExecutablePath.Length > 32767) throw new ArgumentException("游戏路径过长。");
         if (value.ExitGameDelaySeconds is < 0 or > 3600) throw new InvalidDataException("关闭游戏前的等待时间应为 0 至 3600 秒。");
         if (!HotkeyBinding.TryParsePair(value.PauseHotkey, value.StopHotkey, out _, out _, out var error))

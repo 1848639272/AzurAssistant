@@ -1,3 +1,5 @@
+using AzurAssistant.Vision;
+
 namespace AzurAssistant.Features.StartJourney;
 
 public sealed record JourneySettings
@@ -5,9 +7,9 @@ public sealed record JourneySettings
     public int SchemaVersion { get; init; } = 4;
     public int ReferenceWidth { get; init; } = 1920;
     public int ReferenceHeight { get; init; } = 1080;
-    public int[] AgeSearch { get; init; } = [24, 930, 108, 128];
-    public double AgeThreshold { get; init; } = 0.90;
-    public int[] StartClick { get; init; } = [966, 903];
+    public int[] AgeSearch { get; init; } = [42, 905, 112, 132];
+    public double AgeThreshold { get; init; } = OpenCvTemplateMatcher.DefaultUiThreshold;
+    public int[] StartClick { get; init; } = [960, 885];
     public string AgeSha256 { get; init; } = "";
     public void Validate()
     {

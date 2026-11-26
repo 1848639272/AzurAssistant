@@ -1,7 +1,7 @@
 {
   "SchemaVersion": 1,
   "Product": "AzurAssistant",
-  "ProductVersion": "0.1.0-beta",
+  "ProductVersion": "1.0.0_rc1_20261126",
   "BuildNumber": 0,
   "ReleaseId": "development",
   "Architecture": "win-x64"

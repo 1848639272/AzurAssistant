@@ -8,7 +8,7 @@ internal sealed record CommissionPreparation(CommissionFrame? Ready, int UnitCos
 
 public sealed class CommissionTask(CommissionKind kind, CommissionOptions options, ICommissionRecognizer recognizer,
     CommissionLayout layout, WeeklyProgressStore weekly, DailyUiTiming? timing = null, TimeSpan? battleTimeout = null,
-    TimeSpan? loadingTimeout = null, CommissionActionTiming? actionTiming = null) : IGameTask
+    TimeSpan? loadingTimeout = null, CommissionActionTiming? actionTiming = null, bool keepMenuOpen = false) : IGameTask
 {
     public string Id => kind switch { CommissionKind.Daily => "daily-commissions", CommissionKind.Weekly => "weekly-echoes",
         CommissionKind.Story => "story-commissions", _ => "crisis-raids" };
@@ -26,13 +26,18 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
         _ => null
     };
 
+    internal string? EntrySkipReason => kind switch
+    {
+        CommissionKind.Crisis when !options.CrisisSpecialEnabled && !options.CrisisNormalEnabled =>
+            "危机讨伐：未勾选惊喜或普通副本，已跳过",
+        CommissionKind.Weekly when weekly.Claimed == 3 => "往厄残影：本周已确认领取 3 次，跳过；切换账号后请重置周本记录",
+        _ => null
+    };
+
     public async Task<TaskResult> ExecuteAsync(TaskContext context, CancellationToken token)
     {
         options.Validate();
-        if (kind == CommissionKind.Crisis && !options.CrisisSpecialEnabled && !options.CrisisNormalEnabled)
-            return new(true, "危机讨伐：未勾选惊喜或普通副本，已跳过");
-        if (kind == CommissionKind.Weekly && weekly.Claimed == 3)
-            return new(true, "往厄残影：本周已确认领取 3 次，跳过；切换账号后请重置周本记录");
+        if (EntrySkipReason is { } reason) return new(true, reason);
         var session = new CommissionSession(context, recognizer, layout, timing ?? DailyUiTiming.Default);
         try
         {
@@ -72,7 +77,7 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
                 await s.ClickAsync(reward, "skip", "资源不足或达到领取上限，不领取并结算", token);
                 var noClaim = await ResultReadyAsync(s, "等待不领取结算", token, CommissionPage.Result);
                 await s.ClickAsync(noClaim, "return", "返回委托菜单", token);
-                await ReturnWorldAsync(s, token);
+                await FinishAtBoundaryAsync(s, token);
                 return new(true, $"{Name}完成，已领取 {claims} 次；剩余资源不足");
             }
             reward = await SelectMultiplierAsync(s, reward, multiplier, cost, RewardResource.Stamina, isWeekly, token);
@@ -89,8 +94,8 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
             if (remaining < cost || isWeekly && weeklyLeft == 0 || SoloClaimLimit is { } maximum && claims >= maximum)
             {
                 await s.ClickAsync(result, "return", "返回委托菜单", token);
-                await ReturnWorldAsync(s, token);
-                return new(true, $"{Name}完成，已确认领取 {claims} 次并返回大世界");
+                var endpoint = await FinishAtBoundaryAsync(s, token);
+                return new(true, $"{Name}完成，已确认领取 {claims} 次，{endpoint}");
             }
             await s.ClickAsync(result, "again", "剩余资源可领取，继续挑战", token);
         }
@@ -136,9 +141,9 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
         var cost = selected.Ui.Cost!.Value;
         if (selected.Ui.Stamina < cost || isWeekly && selected.Ui.WeeklyRemaining == 0)
         {
-            await ReturnWorldAsync(s, token);
+            var endpoint = await FinishAtBoundaryAsync(s, token);
             return new(null, cost, selected.Ui.WeeklyRemaining, false, "", false,
-                Name + "：体力或本周剩余次数不足，已跳过并返回大世界");
+                $"{Name}：体力或本周剩余次数不足，已跳过，{endpoint}");
         }
         await s.ClickAsync(selected, "solo", "单人挑战", token);
         var ready = await s.PageAsync("确认准备页面或退队提示", token, CommissionPage.Prepare, CommissionPage.LeaveParty);
@@ -181,8 +186,8 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
         if (ready.Ui.Stamina < cost)
         {
             await s.KeyAsync(ready, GameKey.Escape, "体力不足，返回主线目录", token);
-            await ReturnWorldAsync(s, token);
-            return new(null, cost, null, false, "", false, "主线委托：体力不足，已跳过并返回大世界");
+            var endpoint = await FinishAtBoundaryAsync(s, token);
+            return new(null, cost, null, false, "", false, $"主线委托：体力不足，已跳过，{endpoint}");
         }
         var originalTeam = ready.Ui.Team;
         var teamSelected = false;
@@ -199,6 +204,7 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
     {
         var claims = 0;
         var unavailable = new List<string>();
+        var endpoint = "";
         var resources = new List<RewardResource>();
         if (options.CrisisSpecialEnabled) resources.Add(RewardResource.BlueKey);
         if (options.CrisisNormalEnabled) resources.Add(RewardResource.YellowKey);
@@ -245,13 +251,13 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
                 context.Log($"{typeName}本次消耗 {multiplier} 个{resourceName}，结算后预计剩余 {expectedRemaining} 个；已领取 {typeClaims} 份"
                     + (limit is { } maximumClaims ? $" / 上限 {maximumClaims} 份" : ""));
                 await s.ClickAsync(result, "return", "返回并重新核对资源", token);
-                await ReturnWorldAsync(s, token);
+                await FinishAtBoundaryAsync(s, token);
                 if (limit is { } completedLimit && typeClaims >= completedLimit) break;
                 if (run == 39) throw new CommissionStepException("达到单类 40 场上限");
             }
-            await ReturnWorldAsync(s, token);
+            endpoint = await FinishAtBoundaryAsync(s, token);
         }
-        return new(unavailable.Count == 0, $"危机讨伐已确认领取 {claims} 次，已返回大世界" +
+        return new(unavailable.Count == 0, $"危机讨伐已确认领取 {claims} 次，{endpoint}" +
             (unavailable.Count == 0 ? "" : "；未找到并跳过：" + string.Join("、", unavailable)));
     }
 
@@ -548,17 +554,19 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
     private static string ListKey(IReadOnlyDictionary<string, ClientPoint> names) => string.Join("|", names
         .OrderBy(t => t.Key).Select(t => $"{t.Key}:{t.Value.X / 10}:{t.Value.Y / 10}"));
 
-    private static async Task ReturnWorldAsync(CommissionSession s, CancellationToken token)
+    private async Task<string> FinishAtBoundaryAsync(CommissionSession s, CancellationToken token)
     {
         for (var step = 0; step < 5; step++)
         {
-            var current = await s.PageAsync("确认返回路径", token, CommissionPage.World, CommissionPage.Menu, CommissionPage.Hub,
-                CommissionPage.Daily, CommissionPage.Weekly, CommissionPage.Crisis, CommissionPage.Story);
-            if (current.Ui.Page == CommissionPage.World) return;
+            var current = await s.WaitAsync("确认收尾页面及返回按钮", u => u.Page is CommissionPage.World or CommissionPage.Menu
+                || (u.Page is CommissionPage.Hub or CommissionPage.Daily or CommissionPage.Weekly or CommissionPage.Crisis or CommissionPage.Story)
+                    && u.Has("back"), token);
+            if (current.Ui.Page == CommissionPage.World) return "已返回大世界";
+            if (current.Ui.Page == CommissionPage.Menu && keepMenuOpen) return "已保留主菜单";
             if (current.Ui.Page == CommissionPage.Menu) await s.KeyAsync(current, GameKey.Escape, "关闭主菜单", token);
             else await s.ClickAsync(current, "back", "返回上一页", token);
         }
-        throw new CommissionStepException("未能在已知路径中返回大世界");
+        throw new CommissionStepException("未能在已知路径中确认任务收尾页面");
     }
     private static bool Equal(string a, string b) => CommissionRecognizer.Normalize(a) == CommissionRecognizer.Normalize(b);
     private static string NameKey(string name) => "name:" + CommissionRecognizer.Normalize(name);

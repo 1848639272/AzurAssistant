@@ -1,25 +1,27 @@
 using System.Diagnostics;
 using AzurAssistant.Contracts;
+using AzurAssistant.Game.Interaction;
 
 namespace AzurAssistant.Features.Realtime;
 
 public sealed record RealtimeTiming(TimeSpan PollInterval, TimeSpan DialogueCooldown,
     TimeSpan PickupCooldown, TimeSpan ResultTimeout)
 {
+    public static TimeSpan DoubleClickGap { get; } = TimeSpan.FromMilliseconds(30);
     public TimeSpan ConfirmationSettle { get; init; } = TimeSpan.FromMilliseconds(500);
-    public static RealtimeTiming Default { get; } = new(TimeSpan.FromMilliseconds(200),
-        TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(8));
+    public static RealtimeTiming Default { get; } = new(TimeSpan.FromMilliseconds(100),
+        TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(200), TimeSpan.FromSeconds(8));
 }
 
 public sealed class RealtimeTask(IRealtimeRecognizer recognizer, bool skipDialogue, bool autoPickup,
-    RealtimeTiming? timing = null) : IGameTask
+    RealtimeTiming? timing = null, bool autoMining = false, bool autoLogging = false) : IGameTask
 {
     public string Id => "realtime-assist";
     public string Name => "实时辅助";
 
     public async Task<TaskResult> ExecuteAsync(TaskContext context, CancellationToken token)
     {
-        if (!skipDialogue && !autoPickup) return new(false, "请至少选择一项实时辅助功能");
+        if (!skipDialogue && !autoPickup && !autoMining && !autoLogging) return new(false, "请至少选择一项实时辅助功能");
         var delays = timing ?? RealtimeTiming.Default;
         if (delays.PollInterval <= TimeSpan.Zero || delays.DialogueCooldown <= TimeSpan.Zero
             || delays.PickupCooldown <= TimeSpan.Zero || delays.ResultTimeout <= TimeSpan.Zero
@@ -46,7 +48,7 @@ public sealed class RealtimeTask(IRealtimeRecognizer recognizer, bool skipDialog
             await context.Execution.WaitAsync(token);
             if (generation != context.Execution.Generation)
             { generation = context.Execution.Generation; ResetObservation(); }
-            if (frame.SystemTimestamp <= after || !Fresh(frame) || !context.Execution.IsObservationCurrent(frame))
+            if (frame.SystemTimestamp <= after || (previousFrame is not null && frame.Id <= previousFrame.Id) || !Fresh(frame) || !context.Execution.IsObservationCurrent(frame))
             { ResetObservation(); await context.Execution.DelayAsync(delays.PollInterval, token); continue; }
             after = frame.SystemTimestamp;
             if (previousFrame is not null)
@@ -73,7 +75,7 @@ public sealed class RealtimeTask(IRealtimeRecognizer recognizer, bool skipDialog
             if (stable >= 2) viewportNotice = false;
             if (pending is not null)
             {
-                absent = observation.Page != RealtimePage.Unknown && key.Length == 0 ? absent + 1 : 0;
+                absent = observation.Page != RealtimePage.Unknown && !observation.PickupBlocked && key.Length == 0 ? absent + 1 : 0;
                 if (absent >= 2 || stable >= 2 && !SamePrompt(key, pending))
                 {
                     context.Log(pending.StartsWith("dialogue:", StringComparison.Ordinal)
@@ -110,15 +112,15 @@ public sealed class RealtimeTask(IRealtimeRecognizer recognizer, bool skipDialog
                             context.Log("剧情按钮仍可见，已按设定间隔再次点击");
                             dialogueRetryReported = true;
                         }
-                        nextAction = context.Execution.Elapsed + delays.DialogueCooldown;
                         pending ??= key;
+                        await TrySecondClickAsync(frame, point, observation.Action, generation);
                         if (observation.Action is DialogueAction.ConfirmSummary or DialogueAction.ConfirmPrompt)
                             await context.Execution.DelayAsync(delays.ConfirmationSettle, token);
+                        nextAction = context.Execution.Elapsed + delays.DialogueCooldown;
                         after = Now;
                         ResetObservation();
                     }
-                    else if (observation.Page == RealtimePage.World && autoPickup && observation.Pickup is { } pickup
-                        && !observation.PickupBlocked)
+                    else if (SelectedPickup(observation) is { } pickup)
                     {
                         await context.Input.PressKeyAsync(frame, GameKey.Interact, token);
                         context.Log($"尝试拾取：{(string.IsNullOrWhiteSpace(pickup.Name) ? "名称未识别" : pickup.Name)}");
@@ -147,16 +149,55 @@ public sealed class RealtimeTask(IRealtimeRecognizer recognizer, bool skipDialog
             await context.Execution.DelayAsync(delays.PollInterval, token);
         }
 
+        async Task TrySecondClickAsync(FrameSnapshot first, ClientPoint point, DialogueAction action, int firstGeneration)
+        {
+            var released = Now;
+            using var check = CancellationTokenSource.CreateLinkedTokenSource(token);
+            // A late frame belongs to the next normal observation, not to this double-click.
+            check.CancelAfter(TimeSpan.FromMilliseconds(180));
+            try
+            {
+                var fresh = await context.Frames.ReadForInputCheckAsync(released, check.Token);
+                if (fresh is null || fresh.Id <= first.Id || fresh.SystemTimestamp <= released || !Fresh(fresh)
+                    || !first.SameViewport(fresh) || !context.Execution.IsObservationCurrent(fresh)) return;
+                var next = await recognizer.ObserveDialogueControlAsync(fresh, check.Token);
+                if (next.Page != RealtimePage.Dialogue || next.Action != action || next.SkipPoint is not { } button
+                    || Math.Abs(button.X - point.X) > 6 || Math.Abs(button.Y - point.Y) > 6) return;
+                var wait = RealtimeTiming.DoubleClickGap - (Now - released);
+                if (wait > TimeSpan.Zero) await context.Execution.DelayAsync(TimeSpan.FromMilliseconds(Math.Ceiling(wait.TotalMilliseconds)), check.Token);
+                check.Token.ThrowIfCancellationRequested();
+                if (context.Execution.Generation != firstGeneration || !context.Execution.IsObservationCurrent(fresh)) return;
+                // The verification deadline only limits the start. Once pressed, use the normal key-up and cancellation rules.
+                await context.Input.ClickAsync(fresh, button, token);
+            }
+            catch (OperationCanceledException) when (!token.IsCancellationRequested && check.IsCancellationRequested) { }
+            catch (InputUnavailableException error)
+            {
+                if (inputWaitReason != error.Message) context.Log("剧情双击的第二下未发送：" + error.Message);
+            }
+        }
+
         void ResetObservation() { stable = 0; previousKey = ""; absent = 0; }
     }
 
     private string ActionKey(RealtimeObservation observation) => observation.Page switch
     {
         RealtimePage.Dialogue when skipDialogue && observation.SkipPoint is not null => $"dialogue:{observation.Action}:" + observation.DialogueText,
-        RealtimePage.World when autoPickup && !observation.PickupBlocked && observation.Pickup is { } pickup =>
-            $"pickup:{pickup.Name}:{pickup.VisibleRows}:{pickup.Icon.Y / 10}",
+        RealtimePage.World when SelectedPickup(observation) is { } pickup => $"pickup:{pickup.Key}",
         _ => ""
     };
+
+    private PickupItem? SelectedPickup(RealtimeObservation observation)
+    {
+        if (observation.Page != RealtimePage.World || observation.PickupBlocked || observation.Pickup is not { } item) return null;
+        return item.Kind switch
+        {
+            PickupKind.Gather when autoPickup => item,
+            PickupKind.Mining when autoMining => item,
+            PickupKind.Logging when autoLogging => item,
+            _ => null
+        };
+    }
 
     private static bool SamePrompt(string first, string second)
     {

@@ -12,7 +12,7 @@ public interface IGlobalHotkeyApi
     void Unregister(nint handle, int id);
 }
 
-/// <summary>Owns both task hotkeys for one window. Editing suspends them without changing the startup bindings.</summary>
+/// <summary>Owns both task hotkeys for one window. Edits suspend dispatch and replace the pair together.</summary>
 public sealed class TaskHotkeys : IDisposable
 {
     private const uint NoRepeat = 0x4000;
@@ -28,7 +28,7 @@ public sealed class TaskHotkeys : IDisposable
     {
         public int Id { get; } = id;
         public string Name { get; } = name;
-        public HotkeyBinding Binding { get; } = binding;
+        public HotkeyBinding Binding { get; set; } = binding;
         public Func<Task> Action { get; } = action;
         public bool Registered { get; set; }
     }
@@ -54,7 +54,30 @@ public sealed class TaskHotkeys : IDisposable
         if (suspended) UnregisterAll(); else RegisterAll();
     }
 
+    public string? TryRebind(string pause, string stop)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (!HotkeyBinding.TryParsePair(pause, stop, out var pauseBinding, out var stopBinding, out var error)) return error;
+        var oldPause = _entries[0].Binding;
+        var oldStop = _entries[1].Binding;
+        UnregisterAll();
+        _entries[0].Binding = pauseBinding;
+        _entries[1].Binding = stopBinding;
+        var failure = TryRegisterAll();
+        if (failure is null) return null;
+        UnregisterAll();
+        _entries[0].Binding = oldPause;
+        _entries[1].Binding = oldStop;
+        if (!_suspended) RegisterAll();
+        return failure;
+    }
+
     private void RegisterAll()
+    {
+        if (TryRegisterAll() is { } message) _reportFailure(message);
+    }
+
+    private string? TryRegisterAll()
     {
         var failures = new List<string>();
         foreach (var entry in _entries)
@@ -64,8 +87,8 @@ public sealed class TaskHotkeys : IDisposable
             entry.Registered = error == 0;
             if (error != 0) failures.Add($"{entry.Name}快捷键 {entry.Binding.Text} 注册失败：{new Win32Exception(error).Message}（错误码 {error}）。");
         }
-        if (failures.Count > 0) _reportFailure(string.Join(Environment.NewLine, failures)
-            + Environment.NewLine + "快捷键可能已被占用，请在设置中更换并重启助手。仍可点击页面中的“停止任务”。");
+        return failures.Count == 0 ? null : string.Join(Environment.NewLine, failures)
+            + Environment.NewLine + "请在设置中更换被占用的快捷键。仍可点击页面中的“停止任务”。";
     }
 
     private void UnregisterAll()
@@ -82,7 +105,9 @@ public sealed class TaskHotkeys : IDisposable
     {
         if (_disposed || _suspended || message != 0x0312) return 0;
         var entry = _entries.FirstOrDefault(value => value.Id == wParam && value.Registered);
-        if (entry is null) return 0;
+        // A WM_HOTKEY queued for the old chord may arrive after the same registration ID is rebound.
+        var chord = unchecked((uint)(long)lParam);
+        if (entry is null || (chord >> 16) != entry.Binding.VirtualKey || (chord & 0x000F) != entry.Binding.Modifiers) return 0;
         handled = true;
         _ = InvokeAsync(entry);
         return 0;

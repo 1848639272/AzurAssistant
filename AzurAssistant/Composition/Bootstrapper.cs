@@ -17,9 +17,11 @@ public static class Bootstrapper
         bool exitAfterDaily = false, DailyLogStore? startupLog = null, bool enableGlobalHotkeys = true)
     {
         var log = startupLog ?? new DailyLogStore(Path.Combine(DataRoot(), "logs"));
-        log.Write("蔚蓝助手 v0.1.0 beta 已就绪");
-        var preview = new CapturePreviewService(() => new WindowsGraphicsFrameSource(GameWindow.Find("AzurPromilia")), log.Write);
-        var nativeInput = new WindowsGameInput(() => GameWindow.Find("AzurPromilia"));
+        log.Write("蔚蓝助手 v1.0.0_rc1_20261126 已就绪");
+        var preview = new CapturePreviewService(
+            () => new ReferenceSpaceFrameSource(new WindowsGraphicsFrameSource(GameWindow.Find("AzurPromilia"))), log.Write);
+        var launcher = new LauncherPreparation();
+        var nativeInput = new WindowsGameInput(launcher.InputWindow);
         var input = new InputCoordinator(nativeInput, timing => nativeInput.SetActivationTiming(
             timing.Scale(TimeSpan.FromSeconds(3)), timing.Scale(TimeSpan.FromMilliseconds(200)), timing.Scale(TimeSpan.FromMilliseconds(40))));
         var runner = new TaskRunner(preview, input, log);
@@ -27,18 +29,38 @@ public static class Bootstrapper
         var dataDirectory = Path.GetDirectoryName(settingsPath ?? Path.Combine(DataRoot(), "settings.json"))!;
         var commissionSettings = new CommissionSettingsStore(Path.Combine(dataDirectory, "commissions.json"));
         var weekly = new WeeklyProgressStore(Path.Combine(dataDirectory, "weekly-progress.json"));
+        var routesDirectory = Path.Combine(AppContext.BaseDirectory, "routes");
         var features = new FeatureCatalog(commissionSettings, weekly, async (timeout, token) =>
         {
             await preview.StopAsync();
             await GameCloser.CloseAsync(log.Write, timeout, token);
-        });
+        }, options => new JourneyRestartConnection(preview, () => GameWindow.FindIfPresent("AzurPromilia"), async (context, token) =>
+        {
+            var path = options.GameExecutablePath;
+            if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path) || !File.Exists(path)
+                || !string.Equals(Path.GetFileName(path), "launcher.exe", StringComparison.OrdinalIgnoreCase))
+            {
+                context.Log("未配置有效的官方启动器，请手动启动游戏；仍在等待新游戏窗口");
+                return;
+            }
+            context.Log("更新后游戏进程已退出，正在通过官方启动器重新启动一次");
+            var timing = ResponseTiming.FromLowPerformanceMode(options.LowPerformanceMode);
+            await launcher.RunAsync(path, context.Log, context.Execution, context.Input, StartJourneyTask.RestartTimeout,
+                timing.Scale(TimeSpan.FromMilliseconds(250)), token);
+        }).ReconnectAsync, routesDirectory);
         MainWindow? window = null;
         var commandLineExit = exitAfterDaily && runDailyFromCommandLine && enableStartupActions;
         var automation = new AutomationController(preview, runner, settings, log,
-            features.CreateDaily, features.CreateRealtime, enableStartupActions: enableStartupActions,
+            snapshot => snapshot.CustomRoutes || snapshot.EnterGame || DailyFeatureOrder.Choices.Any(choice => choice.Selected(snapshot))
+                ? features.WithExtraRewards(features.CreateDaily(snapshot), snapshot, daily: true) : features.CreateDaily(snapshot),
+            snapshot =>
+            {
+                var actions = snapshot.HasRealtimeActions ? features.WithExtraRewards(features.CreateRealtime(snapshot), snapshot) : null;
+                return snapshot.HideUid ? new UidOverlayTask(actions, preview, System.Windows.Application.Current.Dispatcher) : actions!;
+            }, enableStartupActions: enableStartupActions,
             commissionSettings: commissionSettings, weeklyProgress: weekly, createNavigation: features.CreateNavigation,
-            createRoute: features.CreateRoute, createRouteCapture: features.CreateRouteCapture,
-            navigationMaps: Game.Navigation.NavigationMapCatalog.Load(verifyFiles: false).Maps,
+            createRoute: (route, pickup, report) => pickup ? features.WithExtraRewards(features.CreateRoute(route, true, report)) : features.CreateRoute(route, false, report), createRouteRecording: features.CreateRouteRecording,
+            navigationMaps: Game.Navigation.NavigationMapCatalog.Load(verifyFiles: false, availableOnly: true).Maps, launcherPreparation: launcher,
             dailyCompleted: async result =>
             {
                 var activeWindow = window;
@@ -48,16 +70,11 @@ public static class Bootstrapper
                     code => System.Windows.Application.Current.Shutdown(code), log.Write,
                     onlyIfRequested: !commandLineExit)).Task.Unwrap();
             });
+        TaskHotkeys? hotkeys = null;
         window = new MainWindow(new MainViewModel(preview, log, runner, null, () =>
         {
-            try
-            {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!)
-                { UseShellExecute = true, Verb = "runas", Arguments = $"--wait-for-process {Environment.ProcessId}", WorkingDirectory = AppContext.BaseDirectory });
-                System.Windows.Application.Current.MainWindow?.Close();
-            }
-            catch (System.ComponentModel.Win32Exception ex) { log.Write($"管理员重启未完成：{ex.Message}"); }
-        }, automation, runDailyFromCommandLine, restartAssistant: () => AssistantRestarter.TryRestart(log.Write)));
+            if (AssistantRestarter.TryRestart(log.Write, elevated: true)) System.Windows.Application.Current.MainWindow?.Close();
+        }, automation, runDailyFromCommandLine, applyHotkeys: (pause, stop) => hotkeys?.TryRebind(pause, stop), routesDirectory: routesDirectory));
         try
         {
             var source = JsonSerializer.Deserialize<UpdateSource>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "update-source.json")))!;
@@ -71,7 +88,6 @@ public static class Bootstrapper
         }
         catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException or InvalidDataException or NullReferenceException)
         { log.Write($"更新配置读取失败：{ex.Message}"); window.ViewModel.SetUpdateStatus(false, "更新配置读取失败，请重新安装完整包。"); }
-        TaskHotkeys? hotkeys = null;
         var pendingHotkeyErrors = new List<string>();
         void ReportHotkeyFailure(string message)
         {
@@ -84,7 +100,7 @@ public static class Bootstrapper
         {
             if (!enableGlobalHotkeys) return;
             hotkeys = new TaskHotkeys(new System.Windows.Interop.WindowInteropHelper(window).Handle,
-                automation.EffectiveSettings.PauseHotkey, automation.EffectiveSettings.StopHotkey,
+                automation.Settings.PauseHotkey, automation.Settings.StopHotkey,
                 window.TogglePauseFromHotkeyAsync, window.ViewModel.StopTaskAsync, ReportHotkeyFailure);
         };
         window.HotkeyCaptureChanged += suspended => hotkeys?.SetSuspended(suspended);
@@ -102,7 +118,7 @@ public static class Bootstrapper
     public static async Task CompleteAutomaticExitAsync(Task<TaskResult?> completion, Func<bool> restartRequested,
         Func<Task> stop, Action<int> exit, Action<string> log, bool onlyIfRequested = false)
     {
-        // A requested settings restart retains closing ownership even if launching the new process fails.
+        // An installer handoff retains closing ownership even if launching the new process fails.
         var result = await completion;
         if (onlyIfRequested && result?.RequestApplicationExit != true) return;
         if (restartRequested()) return;

@@ -37,6 +37,7 @@ public sealed class BattlePassRecognizer(IDailyUiRecognizer shared, TemplateCata
         {
             var tasks = Match("tasks-tab"); var rewards = Match("rewards-tab");
             if (tasks == rewards) return Result(DailyPage.Unknown);
+            Match("close");
             Match("tasks-label"); Match("rewards-label");
             var claim = Match("claim-all");
             var empty = Match("empty-unlocked");
@@ -48,6 +49,6 @@ public sealed class BattlePassRecognizer(IDailyUiRecognizer shared, TemplateCata
         var ui = await shared.ObserveAsync(frame, token);
         if (ui.Page == DailyPage.Menu && Match("menu-entry"))
             return ui with { Targets = ui.Targets.Concat(targets.Where(p => p.Key == "menu-entry")).ToDictionary() };
-        return ui;
+        return ui.Page == DailyPage.Unknown ? ui with { Diagnostic = string.Join(",", scores) + "；" + ui.Diagnostic } : ui;
     }
 }

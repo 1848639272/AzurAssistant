@@ -65,6 +65,11 @@ public sealed class DailyUiRecognizer(TemplateCatalog templates, WorldHudReader 
         if (emptyMessage || emptyConfirm) return Result(DailyPage.Unknown);
         var mailReward = Match("mail-reward");
         var mailDismiss = Match("mail-dismiss");
+        if (mailReward && !mailDismiss && Match("reward-dismiss-faint"))
+        {
+            mailDismiss = true;
+            targets["mail-dismiss"] = targets["reward-dismiss-faint"];
+        }
         if (mailReward && mailDismiss) return Result(DailyPage.MailReward);
         if (mailReward || mailDismiss) return Result(DailyPage.Unknown);
         var homeReward = Match("home-reward");
@@ -82,16 +87,20 @@ public sealed class DailyUiRecognizer(TemplateCatalog templates, WorldHudReader 
         }
         if (Match("mail-title") && Match("mail-close"))
         {
+            if (Match("mail-empty-banner")) return Result(DailyPage.MailEmpty);
             Match("mail-claim");
             return Result(DailyPage.Mail);
         }
         if (Match("buildings-title"))
         {
+            Match("buildings-back");
             if (Match("buildings-production")) Match("buildings-claim-label");
             return Result(DailyPage.Buildings);
         }
-        if (Match("ranch-title"))
+        if (Match("ranch-management"))
         {
+            if (Match("dining-close")) targets["ranch-close"] = targets["dining-close"];
+            else if (!Match("ranch-title")) return Result(DailyPage.Unknown);
             var claim = Match("ranch-claim");
             var empty = Match("ranch-basket-empty");
             if (claim && empty)
@@ -106,8 +115,22 @@ public sealed class DailyUiRecognizer(TemplateCatalog templates, WorldHudReader 
         var dining = Match("home-dining");
         var buildings = Match("home-buildings");
         var ranch = Match("home-ranch");
-        if (homeTitle && (dining || buildings || ranch)) return Result(DailyPage.HomeCenter);
-        if (Match("menu-mail") && Match("menu-home")) return Result(DailyPage.Menu);
+        if (homeTitle && (dining || buildings || ranch))
+        {
+            if (Match("dining-close")) targets["home-close"] = targets["dining-close"];
+            if (ranch || dining && buildings)
+            {
+                // The ranch occupies the fourth bottom shortcut in this hub layout.
+                targets["home-ranch"] = new(1667, 962);
+                Match("home-ranch-locked");
+            }
+            return Result(DailyPage.HomeCenter);
+        }
+        if (Match("menu-mail"))
+        {
+            var home = Match("menu-home");
+            if (home || Match("menu-party")) return Result(DailyPage.Menu);
+        }
         // Translucent HUD backgrounds invalidate image correlation; full text is the world-page evidence.
         worldCandidate = true;
         return Result(DailyPage.Unknown);

@@ -11,11 +11,18 @@ public sealed class JourneyUpdateRecognizer(TemplateCatalog templates)
         var required = templates.Match(frame, "update-required");
         var resources = templates.Match(frame, "update-resources");
         var confirm = templates.Match(frame, "update-confirm");
-        if (title is not null && required is { } prefix && resources is { } suffix && confirm is { } button
-            && suffix.Center.X > prefix.Center.X && Math.Abs(prefix.Center.Y - suffix.Center.Y) <= 6)
-            return new(JourneyPage.UpdatePrompt, ConfirmPoint: button.Center);
+        var restart = templates.Match(frame, "update-restart");
+        if (title is not null && confirm is { } button)
+        {
+            if (restart is not null && required is null && resources is null)
+                return new(JourneyPage.RestartPrompt, ConfirmPoint: button.Center);
+            if (restart is null && required is { } prefix && resources is { } suffix
+                && suffix.Center.X > prefix.Center.X && Math.Abs(prefix.Center.Y - suffix.Center.Y) <= 6)
+                return new(JourneyPage.UpdatePrompt, ConfirmPoint: button.Center);
+        }
         // 弹窗证据不完整时阻止使用背景页面的点击目标。
-        return title is not null || required is not null || resources is not null || confirm is not null
-            ? new(JourneyPage.Unknown) : null;
+        if (title is not null || required is not null || resources is not null || confirm is not null || restart is not null)
+            return new(JourneyPage.Unknown);
+        return templates.Match(frame, "update-progress") is not null ? new(JourneyPage.Updating) : null;
     }
 }

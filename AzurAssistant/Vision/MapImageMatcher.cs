@@ -60,7 +60,7 @@ public sealed class MapImageMatcher : IDisposable
     }
 
     public static MapQueryFeatures Extract(FrameSnapshot frame, PixelRegion region, double resize, bool circular,
-        CancellationToken token, ClientPoint? excludedCenter = null, int excludedRadius = 0)
+        CancellationToken token, ClientPoint? excludedCenter = null, int excludedRadius = 0, bool detailedMinimap = false)
     {
         token.ThrowIfCancellationRequested();
         region.Validate(frame.Width, frame.Height);
@@ -68,13 +68,13 @@ public sealed class MapImageMatcher : IDisposable
         using var gray = new Mat();
         Cv2.CvtColor(image, gray, ColorConversionCodes.BGRA2GRAY);
         using var query = new Mat();
-        Cv2.Resize(gray, query, new Size(), resize, resize, InterpolationFlags.Area);
+        Cv2.Resize(gray, query, new Size(), resize, resize, detailedMinimap ? InterpolationFlags.Linear : InterpolationFlags.Area);
         using var mask = new Mat(query.Size(), MatType.CV_8UC1, Scalar.All(255));
         if (circular)
         {
             mask.SetTo(Scalar.All(0));
             var center = new Point(query.Width / 2, query.Height / 2 - 1);
-            Cv2.Circle(mask, center, (int)(67 * resize), Scalar.All(255), -1);
+            Cv2.Circle(mask, center, (int)((detailedMinimap ? 80 : 67) * resize), Scalar.All(255), -1);
             Cv2.Circle(mask, center, (int)(14 * resize), Scalar.All(0), -1);
         }
         if (excludedCenter is { } excluded && excludedRadius > 0)
@@ -83,7 +83,7 @@ public sealed class MapImageMatcher : IDisposable
         var descriptors = new Mat();
         try
         {
-            using var sift = SIFT.Create(12000, 3, .02);
+            using var sift = SIFT.Create(12000, 3, detailedMinimap ? .012 : .02);
             sift.DetectAndCompute(query, mask, out var points, descriptors);
             token.ThrowIfCancellationRequested();
             return new(region, resize, circular, query.Width, query.Height, points, descriptors);
@@ -92,7 +92,7 @@ public sealed class MapImageMatcher : IDisposable
     }
 
     public MapImageMatch? Match(MapQueryFeatures query, int minimumInliers, CancellationToken token,
-        Point2d? nearReference = null, double referenceRadius = 650)
+        Point2d? nearReference = null, double referenceRadius = 650, double descriptorRatio = .72)
     {
         token.ThrowIfCancellationRequested();
         var descriptors = query.Descriptors;
@@ -116,7 +116,7 @@ public sealed class MapImageMatcher : IDisposable
         }
         else pairs = _index is null ? _matcher.KnnMatch(descriptors, _descriptors, 2) : _index.KnnMatch(descriptors, 2);
         var matches = pairs
-            .Where(pair => pair.Length == 2 && pair[0].Distance < .72 * pair[1].Distance)
+            .Where(pair => pair.Length == 2 && pair[0].Distance < descriptorRatio * pair[1].Distance)
             .Select(pair => pair[0]).GroupBy(pair => pair.TrainIdx).Select(group => group.MinBy(pair => pair.Distance)).ToArray();
         if (matches.Length < minimumInliers) return null;
         var source = matches.Select(m => points[m.QueryIdx].Pt).ToArray();

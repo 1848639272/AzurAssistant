@@ -10,6 +10,7 @@ public sealed record PreviewSnapshot(PreviewState State, string Message, FrameSn
 public sealed class CapturePreviewService(Func<IFrameSource> sourceFactory, Action<string>? log = null) : IFrameFeed
 {
     private readonly object _gate = new();
+    private readonly SemaphoreSlim _captureRequested = new(0, 1);
     private CancellationTokenSource? _cancellation;
     private Task _run = Task.CompletedTask;
     private PreviewSnapshot _current = new(PreviewState.Idle, "画面预览已停止");
@@ -19,8 +20,10 @@ public sealed class CapturePreviewService(Func<IFrameSource> sourceFactory, Acti
     public FrameSnapshot? DiagnosticFrame { get { lock (_gate) return _diagnosticFrame; } }
     public bool IsRunning { get { lock (_gate) return !_run.IsCompleted; } }
 
-    public bool Start()
+    public bool Start(TimeSpan? frameInterval = null)
     {
+        var interval = frameInterval ?? TimeSpan.FromMilliseconds(200);
+        if (interval <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(frameInterval));
         lock (_gate)
         {
             if (!_run.IsCompleted) return false;
@@ -29,7 +32,7 @@ public sealed class CapturePreviewService(Func<IFrameSource> sourceFactory, Acti
             _current = new(PreviewState.Connecting, "正在连接游戏窗口…");
             _diagnosticFrame = null;
             log?.Invoke(_current.Message);
-            _run = Task.Run(() => RunAsync(_cancellation.Token));
+            _run = Task.Run(() => RunAsync(interval, _cancellation.Token));
             return true;
         }
     }
@@ -47,7 +50,7 @@ public sealed class CapturePreviewService(Func<IFrameSource> sourceFactory, Acti
         await run.ConfigureAwait(false);
     }
 
-    private async Task RunAsync(CancellationToken cancellationToken)
+    private async Task RunAsync(TimeSpan interval, CancellationToken cancellationToken)
     {
         PreviewSnapshot terminal = new(PreviewState.Idle, "画面预览已停止");
         try
@@ -94,7 +97,7 @@ public sealed class CapturePreviewService(Func<IFrameSource> sourceFactory, Acti
                         _current = new(PreviewState.Connecting, blackMessage);
                     }
                     // Loading transitions can be black. Publish no usable frame, but keep observing.
-                    await Task.Delay(200, cancellationToken).ConfigureAwait(false);
+                    await _captureRequested.WaitAsync(interval, cancellationToken).ConfigureAwait(false);
                     continue;
                 }
                 lock (_gate)
@@ -107,7 +110,7 @@ public sealed class CapturePreviewService(Func<IFrameSource> sourceFactory, Acti
                     }
                 }
                 retryPending = false;
-                await Task.Delay(200, cancellationToken).ConfigureAwait(false);
+                await _captureRequested.WaitAsync(interval, cancellationToken).ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
@@ -132,8 +135,15 @@ public sealed class CapturePreviewService(Func<IFrameSource> sourceFactory, Acti
         return true;
     }
 
-    public async Task<FrameSnapshot> ReadAfterAsync(TimeSpan timestamp, CancellationToken token)
+    public Task<FrameSnapshot> ReadAfterAsync(TimeSpan timestamp, CancellationToken token)
+        => ReadAfterAsync(timestamp, false, token);
+
+    public async Task<FrameSnapshot?> ReadForInputCheckAsync(TimeSpan timestamp, CancellationToken token)
+        => await ReadAfterAsync(timestamp, true, token);
+
+    internal async Task<FrameSnapshot> ReadAfterAsync(TimeSpan timestamp, bool expedite, CancellationToken token)
     {
+        var requestedAtId = long.MinValue;
         while (true)
         {
             token.ThrowIfCancellationRequested();
@@ -142,7 +152,12 @@ public sealed class CapturePreviewService(Func<IFrameSource> sourceFactory, Acti
                 throw new InvalidOperationException(snapshot.Message);
             var now = TimeSpan.FromSeconds((double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
             if (snapshot.Frame is { } frame && frame.SystemTimestamp > timestamp && now - frame.SystemTimestamp <= TimeSpan.FromSeconds(1)) return frame;
-            await Task.Delay(30, token).ConfigureAwait(false);
+            if (expedite && requestedAtId != (snapshot.Frame?.Id ?? -1))
+            {
+                requestedAtId = snapshot.Frame?.Id ?? -1;
+                lock (_gate) if (_captureRequested.CurrentCount == 0) _captureRequested.Release();
+            }
+            await Task.Delay(expedite ? 3 : 30, token).ConfigureAwait(false);
         }
     }
 }

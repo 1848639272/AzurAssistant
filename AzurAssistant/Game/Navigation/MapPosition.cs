@@ -52,7 +52,7 @@ public sealed record NavigationLayout(int SchemaVersion, string Version, string 
     }
 }
 
-public enum NavigationPage { Unknown, World, LocalMap, OtherMap, TeleportDetail, OverlapChoices, WorldMap }
+public enum NavigationPage { Unknown, World, LocalMap, OtherMap, TeleportDetail, OverlapChoices, WorldMap, MainMenu }
 public enum MovementMode { Unknown, Walk, Run }
 public sealed record NavigationStatus(MapPosition? Position, DateTimeOffset ObservedAt, string Detail, double? FacingDegrees = null);
 public sealed record NavigationObservation(FrameSnapshot Frame, NavigationPage Page, MapPosition? Position = null,

@@ -1,11 +1,11 @@
 {
   "ReferenceHeight": 1080,
   "ReferenceWidth": 1920,
-  "AssetVersion": "1.2.0",
+  "AssetVersion": "2026.11.26",
   "SchemaVersion": 2,
   "Templates": {
     "menu-entry": {
-      "Source": "录屏素材\\家园\\step1：esc打开主菜单，点击左下角家园中枢.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 1624,
         "Y": 46,
@@ -15,17 +15,17 @@
       "SourceSha256": "CCF732896CF093CBD4E55CBC8AF02EF13B53A3401B0197587FE1D43C7F791AF5",
       "Version": "1.2.0",
       "Search": {
-        "X": 1605,
-        "Y": 20,
-        "Height": 70,
-        "Width": 75
+        "X": 1621,
+        "Y": 14,
+        "Width": 90,
+        "Height": 70
       },
       "Sha256": "EE76979B9217FDF1C7392501BE3A73996815E9D6E4C76FE0B25EE3C1AD216EB1",
       "File": "menu-entry.png",
       "Threshold": 0.84
     },
     "day-tab": {
-      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 773,
         "Y": 29,
@@ -45,7 +45,7 @@
       "Threshold": 0.9
     },
     "week-tab": {
-      "Source": "录屏素材\\日常周常\\step11每周任务完成，领取周活跃度.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 1040,
         "Y": 29,
@@ -65,7 +65,7 @@
       "Threshold": 0.9
     },
     "day-label": {
-      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 791,
         "Y": 37,
@@ -85,7 +85,7 @@
       "Threshold": 0.88
     },
     "day-label-inactive": {
-      "Source": "录屏素材\\日常周常\\step11每周任务完成，领取周活跃度.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 791,
         "Y": 37,
@@ -105,7 +105,7 @@
       "Threshold": 0.88
     },
     "week-label": {
-      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 1058,
         "Y": 37,
@@ -125,147 +125,121 @@
       "Threshold": 0.88
     },
     "close": {
-      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1855,
-        "Y": 27,
-        "Height": 35,
-        "Width": 36
+        "X": 1857,
+        "Y": 31,
+        "Width": 28,
+        "Height": 29
       },
-      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
-      "Version": "1.2.0",
+      "Version": "2026.11.26",
       "Search": {
         "X": 1835,
         "Y": 10,
         "Height": 65,
         "Width": 70
       },
-      "Sha256": "B26CCC83C7A2318188B72A3226CED8059C2F614FF20C8CCC0F79E4ACB3C6BA74",
+      "Sha256": "D5904DACC5AF8DE310D209C7E396E5A6E3E5079192AB225004797528334CBBF1",
       "File": "close.png",
       "Threshold": 0.86
     },
     "row-claim-day": {
-      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1662,
-        "Y": 198,
-        "Height": 43,
-        "Width": 80
+        "X": 1658,
+        "Y": 231,
+        "Width": 42,
+        "Height": 17
       },
-      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
-      "Version": "1.2.0",
+      "Version": "2026.11.26",
       "Search": {
         "X": 1625,
         "Y": 170,
         "Height": 695,
         "Width": 143
       },
-      "Sha256": "2BFBC19B7A9DC5A9197E08F6460B9F895EDF30146F5BD319E8842FDB1DC3450A",
+      "Sha256": "F5AF68C0A686E5B130400C0AC8CAEBCE737507EAD962241CE1441386BE879B79",
       "File": "day-row-claim.png",
       "Threshold": 0.88
     },
     "row-claim-week": {
-      "Source": "录屏素材\\日常周常\\step11每周任务完成，领取周活跃度.jpg",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1662,
-        "Y": 198,
-        "Height": 43,
-        "Width": 80
+        "X": 1658,
+        "Y": 231,
+        "Width": 42,
+        "Height": 17
       },
-      "SourceSha256": "ECDC324A00C5CAED9B0E819F28D9ADB6B2CDC87F407FBE857EFFA2527CDC3999",
-      "Version": "1.2.0",
+      "Version": "2026.11.26",
       "Search": {
         "X": 1625,
         "Y": 170,
         "Height": 695,
         "Width": 143
       },
-      "Sha256": "2B3A4DC98400A2D7B613D31AD6956645F1B8E5E541F19F3363372A5CE14D9B7E",
+      "Sha256": "11E2E998A67EBE2F932AB6D86C33197CC53E7AD3ADE426481A8E570FBAD4E294",
       "File": "week-row-claim.png",
       "Threshold": 0.88
     },
     "row-progress": {
-      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1663,
-        "Y": 202,
-        "Height": 28,
-        "Width": 76
+        "X": 1640,
+        "Y": 365,
+        "Width": 73,
+        "Height": 21
       },
-      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
-      "Version": "1.2.0",
+      "Version": "2026.11.26",
       "Search": {
         "X": 1625,
         "Y": 170,
         "Height": 695,
         "Width": 143
       },
-      "Sha256": "1C25FDBCBA2D441EAD8018A5713158B8BC21B8B0A768103D244EDBD00FB187C3",
+      "Sha256": "D28AF06D48E3E76EEF614F7F9767C387B39222A799DE5350592853068F196A70",
       "File": "row-progress.png",
       "Threshold": 0.85
     },
     "row-go": {
-      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1640,
-        "Y": 314,
-        "Height": 40,
-        "Width": 121
+        "X": 1650,
+        "Y": 365,
+        "Width": 66,
+        "Height": 21
       },
-      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
-      "Version": "1.2.0",
+      "Version": "2026.11.26",
       "Search": {
         "X": 1625,
         "Y": 170,
         "Height": 695,
         "Width": 143
       },
-      "Sha256": "4C251AB67DE65829711B26559F4F0356D95C76D75332FDC50936A43F4E4D6644",
+      "Sha256": "3CFB6AD21F903120FFC3B052A33C7495B91FE51CC4A09EA15A63E17FBB24AC1E",
       "File": "row-go.png",
       "Threshold": 0.85
     },
     "row-claimed": {
-      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
-        "X": 1664,
-        "Y": 676,
-        "Height": 28,
-        "Width": 74
+        "X": 1640,
+        "Y": 772,
+        "Width": 73,
+        "Height": 22
       },
-      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
-      "Version": "1.2.0",
+      "Version": "2026.11.26",
       "Search": {
         "X": 1625,
         "Y": 170,
         "Height": 695,
         "Width": 143
       },
-      "Sha256": "1A20FEC1DA0A0FA7BA06FA6E2C09BA9277E396A076FAA5DCE9EF8FA9B525EE6A",
+      "Sha256": "63CEAFAC90BE444EEE617D97305F8F9597DEA719504E569FCE01FC597DA25EB2",
       "File": "row-claimed.png",
       "Threshold": 0.85
     },
-    "chest-ready-day": {
-      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
-      "SourceCrop": {
-        "X": 770,
-        "Y": 955,
-        "Height": 63,
-        "Width": 66
-      },
-      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
-      "Version": "1.2.0",
-      "Search": {
-        "X": 740,
-        "Y": 935,
-        "Height": 87,
-        "Width": 130
-      },
-      "Sha256": "F7BFCF6B8C78428FEF607CE6634F65496B0A5ED4154C2A52C8A2BF1196FC4806",
-      "File": "day-chest-ready.png",
-      "Threshold": 0.86
-    },
     "chest-alert": {
-      "Source": "录屏素材\\日常周常\\step2活跃度领取完成，领取活跃度奖励.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 822,
         "Y": 963,
@@ -285,87 +259,26 @@
       "Threshold": 0.8
     },
     "chest-alert-week": {
-      "Source": "录屏素材\\日常周常\\step12根据目前激活的周活跃度奖励，点击领取，只完成第一档.jpg",
+      "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
         "X": 822,
         "Y": 963,
-        "Height": 14,
-        "Width": 12
+        "Width": 12,
+        "Height": 14
       },
-      "SourceSha256": "209CC257487ADB9A280902BF86ED53E0843343F150AF1DE7A608869092C5F05D",
-      "Version": "1.2.0",
+      "Version": "2026.11.26",
       "Search": {
         "X": 812,
         "Y": 954,
         "Height": 33,
         "Width": 33
       },
-      "Sha256": "BF75BE393F384390D7981446795B17FA0295480F5300DBC8454816149071E22E",
+      "Sha256": "90F6D38335543637339E570B9BC380AF3B63EC64259A7ECE79FEE8455DF4D175",
       "File": "week-chest-alert.png",
       "Threshold": 0.8
     },
-    "chest-ready-week": {
-      "Source": "录屏素材\\日常周常\\step12根据目前激活的周活跃度奖励，点击领取，只完成第一档.jpg",
-      "SourceCrop": {
-        "X": 770,
-        "Y": 955,
-        "Height": 63,
-        "Width": 66
-      },
-      "SourceSha256": "209CC257487ADB9A280902BF86ED53E0843343F150AF1DE7A608869092C5F05D",
-      "Version": "1.2.0",
-      "Search": {
-        "X": 740,
-        "Y": 935,
-        "Height": 87,
-        "Width": 130
-      },
-      "Sha256": "CC7EF536E60D8524008CE1985A23F55EC0D2632B72ED5D9ED49D5044C377F027",
-      "File": "week-chest-ready-slot-1.png",
-      "Threshold": 0.86
-    },
-    "chest-ready-week-4": {
-      "Source": "录屏素材\\日常周常\\step13每周活跃度完成到第四档.jpg",
-      "SourceCrop": {
-        "X": 1400,
-        "Y": 955,
-        "Height": 63,
-        "Width": 66
-      },
-      "SourceSha256": "B41CC9735FBA723CE7484DED3CCA531426C4037706ED522042D0FC43BACEA09A",
-      "Version": "1.2.0",
-      "Search": {
-        "X": 1370,
-        "Y": 935,
-        "Height": 87,
-        "Width": 130
-      },
-      "Sha256": "A7B1362071A5DB3FA8FE94E7F1481AD7716EE73F4FD680A1A7B3486E40E52AFB",
-      "File": "week-chest-ready-slot-4.png",
-      "Threshold": 0.86
-    },
-    "chest-ready-week-5": {
-      "Source": "录屏素材\\日常周常\\step14每周活跃度全部完成的状态.jpg",
-      "SourceCrop": {
-        "X": 1610,
-        "Y": 955,
-        "Height": 63,
-        "Width": 66
-      },
-      "SourceSha256": "226EFBFF69FB38A8141AAC8116B33090BE6F4C8021F95AD97B359F91B6EDDC5D",
-      "Version": "1.2.0",
-      "Search": {
-        "X": 1580,
-        "Y": 935,
-        "Height": 87,
-        "Width": 130
-      },
-      "Sha256": "7F8CE72F08A835CDA712F911E69E123E25F448B7C6695A12EA5717A0E8D5447B",
-      "File": "week-chest-ready-slot-5.png",
-      "Threshold": 0.86
-    },
     "chest-locked": {
-      "Source": "录屏素材\\日常周常\\step1任务完成领取活跃度.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 772,
         "Y": 964,
@@ -385,7 +298,7 @@
       "Threshold": 0.86
     },
     "chest-open": {
-      "Source": "录屏素材\\日常周常\\step3每日活跃度奖励全部领取完成的状态.jpg",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 772,
         "Y": 964,
@@ -406,7 +319,7 @@
     },
     "chest-open-week": {
       "Channel": "RedMinusBlue",
-      "Source": "AzurAssistant.Tests\\Fixtures\\activity-week-claimed-live.png",
+      "Source": "蓝色星原：旅谣 · 游戏界面",
       "SourceCrop": {
         "X": 1402,
         "Y": 964,
@@ -424,6 +337,82 @@
       "Sha256": "0F50A91BEC5B0654237D9159687D98671A9FD9E2B2939364521954B109637A4A",
       "File": "week-chest-open.png",
       "Threshold": 0.86
+    },
+    "row-locked": {
+      "File": "row-locked.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "70727052C69C7201D725CE155C862511DFA5B4EE494254224B7C4241F03057F2",
+      "Crop": {
+        "X": 1640,
+        "Y": 501,
+        "Width": 73,
+        "Height": 23
+      },
+      "Search": {
+        "X": 1625,
+        "Y": 170,
+        "Width": 143,
+        "Height": 695
+      }
+    },
+    "row-go-day": {
+      "File": "row-go-day.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "E2B89835CC6E90DCE4E88E673EBF3DF93857E4ECA643E85AE37827773ACA1C7D",
+      "Crop": {
+        "X": 1652,
+        "Y": 229,
+        "Width": 62,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1625,
+        "Y": 170,
+        "Width": 143,
+        "Height": 695
+      }
+    },
+    "zero-activity": {
+      "File": "zero-activity.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "8A96EAF84722871618E70B0174F47BDC8A126749E425883BAA68E82126DE4ABA",
+      "Crop": {
+        "X": 361,
+        "Y": 962,
+        "Width": 98,
+        "Height": 41
+      },
+      "Search": {
+        "X": 352,
+        "Y": 950,
+        "Width": 118,
+        "Height": 65
+      }
+    },
+    "row-go-highlighted": {
+      "File": "row-go-highlighted.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.26",
+      "Sha256": "8674DA9391CAA642EC5053A969BFBBBE06D104DE2284D8FF165B8EE744336A3C",
+      "Crop": {
+        "X": 1656,
+        "Y": 228,
+        "Width": 61,
+        "Height": 24
+      },
+      "Search": {
+        "X": 1625,
+        "Y": 170,
+        "Width": 143,
+        "Height": 695
+      }
     }
   }
 }
