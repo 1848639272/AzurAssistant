@@ -108,7 +108,7 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
         {
             if (layout.Points.TryGetValue("back", out var legacyBack)) targets["back"] = legacyBack;
             else if (hub) Match("hub-close", "back");
-            else if (!Match("catalog-back", "back")) Match("catalog-back-light", "back");
+            else if (!Match("catalog-back", "back") && !Match("catalog-back-light", "back")) Match("catalog-back-story", "back");
         }
         CommissionObservation Result(CommissionPage page) => new(page, page == CommissionPage.Unknown ? new Dictionary<string, ClientPoint>() : targets)
             { Diagnostic = string.Join(",", diagnostic) };
@@ -188,7 +188,7 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
                 {
                     var left = Math.Max(region.X, (int)center - 90);
                     var right = Math.Min(region.X + region.Width, (int)center + 90);
-                    var retry = await Text("story-name-" + left, 3, new(left, 405, right - left, 62), true);
+                    var retry = await Text("story-name-" + left, 3, new(left, region.Y, right - left, region.Height), true);
                     if (retry.Count != 1 || retry[0].Confidence < .80) continue;
                     candidate = retry[0]; full = Normalize(index.Value + candidate.Text);
                 }
@@ -219,6 +219,40 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
                 if (name.Length > 0) targets["name:" + name] = new((int)(candidate.X + candidate.Width / 2),
                     (int)(candidate.Y + candidate.Height / 2));
             }
+        }
+        async Task<int?> AddHigherCrisisTiers(int? selectedTier)
+        {
+            // The public catalog scrolls; anchor the selected numeral to the level label directly below it.
+            var level = templates.Match(frame, "crisis-level-tag");
+            if (level is null) return selectedTier;
+            var selectedY = level.Center.Y - 32;
+            var column = layout.Regions["crisis-tiers"];
+            var visible = await Text("crisis-tiers", 2);
+            foreach (var word in visible)
+            {
+                var value = word.Text.Trim().Normalize(System.Text.NormalizationForm.FormKC);
+                var tier = value switch { "V" => 5, "VI" => 6, _ => 0 };
+                var x = (int)(word.X + word.Width / 2);
+                var y = (int)(word.Y + word.Height / 2);
+                if (tier == 0 || word.Confidence < .88 || Math.Abs(x - 97) > 9 || word.Height is < 20 or > 50
+                    || word.Y <= column.Y || word.Y + word.Height >= column.Y + column.Height) continue;
+                if (Enumerable.Range(1, 4).Any(n => targets.TryGetValue($"tier-{n}", out var other)
+                    && Math.Abs(other.Y - y) < 28)) continue;
+                targets[$"tier-{tier}"] = new(x, y);
+                if (Math.Abs(y - selectedY) <= 10) selectedTier = tier;
+            }
+            if (selectedTier is null)
+            {
+                var glyph = new PixelRegion(59, selectedY - 24, 77, 48);
+                var words = await Text("selected-crisis-numeral", 3, glyph);
+                if (words.Count == 1 && words[0].Confidence >= .88)
+                {
+                    var value = words[0].Text.Trim().Normalize(System.Text.NormalizationForm.FormKC);
+                    selectedTier = value switch { "V" => 5, "VI" => 6, _ => null };
+                    if (selectedTier is { } tier) targets[$"tier-{tier}"] = new(97, selectedY);
+                }
+            }
+            return selectedTier;
         }
         async Task<CommissionObservation> Resources(CommissionObservation value)
         {
@@ -284,7 +318,9 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
             if (!Match("result-return", "return") || !Match("result-again", "again")) return Result(CommissionPage.Unknown);
             return Result(CommissionPage.Result);
         }
-        if (Match("crisis-result-return", "return") && Match("crisis-result-reward")) return Result(CommissionPage.CrisisResult);
+        if (Match("crisis-result-return", "return")
+            && (Match("crisis-result-reward") || Match("crisis-result-complete-public", "crisis-result-reward")))
+            return Result(CommissionPage.CrisisResult);
         targets.Clear();
         if (Match("crisis-lobby") && Match("crisis-launch", "launch")) return Result(CommissionPage.Lobby);
         if (Match("prepare-start", "start") && (Match("team-list", "teams") || Match("team-list-hover", "teams")))
@@ -330,7 +366,7 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
         }
         targets.Clear();
         var daily = Match("daily-title");
-        var weekly = !daily && Match("weekly-title");
+        var weekly = !daily && (Match("weekly-title-public", "weekly-title") || Match("weekly-title"));
         if (daily || weekly)
         {
             ObserveReturnButton();
@@ -364,19 +400,22 @@ public sealed class CommissionRecognizer(IDailyUiRecognizer shared, PpOcrReader 
         if (Match("crisis-title"))
         {
             ObserveReturnButton();
+            Match("crisis-solo", "solo");
             if (!Match("crisis-create", "create")) Match("crisis-create-dark", "create");
             Match("crisis-enter", "enter"); Match("crisis-change", "change");
             if (read == CommissionRead.Navigation)
-                return Result(targets.ContainsKey("create") || targets.ContainsKey("enter") || targets.ContainsKey("change")
+                return Result(targets.ContainsKey("solo") || targets.ContainsKey("create") || targets.ContainsKey("enter") || targets.ContainsKey("change")
                     ? CommissionPage.Crisis : CommissionPage.Unknown);
             int? tier = null;
             for (var n = 1; n <= 6; n++)
             {
-                if (Match($"crisis-tier-{n}", $"tier-{n}")) tier = n;
-                else Match($"crisis-glyph-{n}", $"tier-{n}");
+                if ((n <= 4 && Match($"crisis-tier-{n}-public", $"tier-{n}")) || Match($"crisis-tier-{n}", $"tier-{n}")) tier = n;
+                else if (n > 4 || !Match($"crisis-glyph-{n}-public", $"tier-{n}")) Match($"crisis-glyph-{n}", $"tier-{n}");
             }
+            if (targets.ContainsKey("solo") && (tier is null || targets.ContainsKey("tier-4") && !targets.ContainsKey("tier-6")))
+                tier = await AddHigherCrisisTiers(tier);
             if (read == CommissionRead.Choices) { await AddCrisisNames(); return Result(CommissionPage.Crisis) with { Difficulty = tier }; }
-            var name = Regex.Replace(await Line("crisis-name"), @"\d{1,2}:\d{2}:\d{2}", "");
+            var name = string.Concat((await Text("crisis-name")).Where(t => !Regex.IsMatch(t.Text, @"\d{1,2}:\d{2}:\d{2}")).Select(t => t.Text));
             return (await Resources(Result(CommissionPage.Crisis))) with { Difficulty = tier, Name = name };
         }
         if (Match("hub-title"))

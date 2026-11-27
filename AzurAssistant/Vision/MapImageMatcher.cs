@@ -22,33 +22,37 @@ public sealed record MapImageMatch(double A, double B, double Tx, double Ty, int
 /// <summary>Cached reference SIFT features, ratio filtering and RANSAC reject UI overlays and unrelated images.</summary>
 public sealed class MapImageMatcher : IDisposable
 {
-    private readonly SIFT _sift = SIFT.Create(12000, 3, .02);
     private readonly Mat _descriptors = new();
     private readonly KeyPoint[] _keypoints;
     private readonly BFMatcher _matcher = new(NormTypes.L2);
-    private readonly FlannBasedMatcher? _index;
-    private readonly double _referenceFactor = 1;
-    public MapImageMatcher(string imagePath, string? featurePath = null)
+    private readonly FlannBasedMatcher _index;
+    private readonly double _referenceFactor;
+    public MapImageMatcher(string featurePath, int referenceWidth, int referenceHeight)
     {
-        if (featurePath is not null)
+        using var reader = new BinaryReader(File.OpenRead(featurePath));
+        if (reader.BaseStream.Length < 20 || new string(reader.ReadChars(4)) != "AZMF" || reader.ReadInt32() != 1)
+            throw new InvalidDataException("地图特征索引版本无效：" + Path.GetFileName(featurePath));
+        var count = reader.ReadInt32();
+        _referenceFactor = reader.ReadDouble();
+        if (count is < 100 or > 500000 || !double.IsFinite(_referenceFactor) || _referenceFactor is < 1 or > 4
+            || reader.BaseStream.Length != 20L + count * (8L + 128 * sizeof(float)))
+            throw new InvalidDataException("地图特征索引尺寸无效：" + Path.GetFileName(featurePath));
+        _keypoints = new KeyPoint[count];
+        var offset = (_referenceFactor - 1) / 2;
+        for (var i = 0; i < count; i++)
         {
-            using var reader = new BinaryReader(File.OpenRead(featurePath));
-            if (new string(reader.ReadChars(4)) != "AZMF" || reader.ReadInt32() != 1)
-                throw new InvalidDataException("地图特征索引版本无效。");
-            var count = reader.ReadInt32(); _referenceFactor = reader.ReadDouble();
-            if (count is < 100 or > 500000 || _referenceFactor is < 1 or > 4
-                || reader.BaseStream.Length != 20L + count * (8L + 128 * 4)) throw new InvalidDataException("地图特征索引尺寸无效。");
-            _keypoints = Enumerable.Range(0, count).Select(_ => new KeyPoint(reader.ReadSingle(), reader.ReadSingle(), 1)).ToArray();
-            _descriptors.Create(count, 128, MatType.CV_32FC1);
-            var bytes = reader.ReadBytes(count * 128 * 4); Marshal.Copy(bytes, 0, _descriptors.Data, bytes.Length);
-            _index = new(new OpenCvSharp.Flann.KDTreeIndexParams(4), new OpenCvSharp.Flann.SearchParams(96));
-            _index.Add([_descriptors]); _index.Train();
-            return;
+            var x = reader.ReadSingle(); var y = reader.ReadSingle();
+            var mapX = x * _referenceFactor + offset; var mapY = y * _referenceFactor + offset;
+            if (!float.IsFinite(x) || !float.IsFinite(y) || mapX < 0 || mapX >= referenceWidth || mapY < 0 || mapY >= referenceHeight)
+                throw new InvalidDataException("地图特征坐标超出声明的地图尺寸：" + Path.GetFileName(featurePath));
+            _keypoints[i] = new(x, y, 1);
         }
-        using var image = Cv2.ImDecode(File.ReadAllBytes(imagePath), ImreadModes.Grayscale);
-        if (image.Empty()) throw new InvalidDataException("地图底图无法读取。");
-        _sift.DetectAndCompute(image, null, out _keypoints, _descriptors);
-        if (_keypoints.Length < 100) throw new InvalidDataException("地图底图特征不足。");
+        _descriptors.Create(count, 128, MatType.CV_32FC1);
+        var bytes = reader.ReadBytes(count * 128 * sizeof(float));
+        Marshal.Copy(bytes, 0, _descriptors.Data, bytes.Length);
+        if (!Cv2.CheckRange(_descriptors, true)) throw new InvalidDataException("地图特征描述子无效：" + Path.GetFileName(featurePath));
+        _index = new(new OpenCvSharp.Flann.KDTreeIndexParams(4), new OpenCvSharp.Flann.SearchParams(96));
+        _index.Add([_descriptors]); _index.Train();
     }
 
     public MapImageMatch? Match(FrameSnapshot frame, PixelRegion region, double resize, bool circular,
@@ -92,7 +96,7 @@ public sealed class MapImageMatcher : IDisposable
     }
 
     public MapImageMatch? Match(MapQueryFeatures query, int minimumInliers, CancellationToken token,
-        Point2d? nearReference = null, double referenceRadius = 650, double descriptorRatio = .72)
+        Point2d? nearReference = null, double referenceRadius = 650, double descriptorRatio = .72, double minimumInlierRatio = .60)
     {
         token.ThrowIfCancellationRequested();
         var descriptors = query.Descriptors;
@@ -114,7 +118,7 @@ public sealed class MapImageMatcher : IDisposable
             }
             pairs = _matcher.KnnMatch(descriptors, local, 2);
         }
-        else pairs = _index is null ? _matcher.KnnMatch(descriptors, _descriptors, 2) : _index.KnnMatch(descriptors, 2);
+        else pairs = _index.KnnMatch(descriptors, 2);
         var matches = pairs
             .Where(pair => pair.Length == 2 && pair[0].Distance < descriptorRatio * pair[1].Distance)
             .Select(pair => pair[0]).GroupBy(pair => pair.TrainIdx).Select(group => group.MinBy(pair => pair.Distance)).ToArray();
@@ -130,7 +134,7 @@ public sealed class MapImageMatcher : IDisposable
         var a = affine.At<double>(0, 0); var b = affine.At<double>(1, 0);
         var tx = affine.At<double>(0, 2); var ty = affine.At<double>(1, 2);
         var accepted = Enumerable.Range(0, matches.Length).Where(i => inliers.At<byte>(i) != 0).ToArray();
-        if (accepted.Length < minimumInliers || accepted.Length < matches.Length * .60) return null;
+        if (accepted.Length < minimumInliers || accepted.Length < matches.Length * minimumInlierRatio) return null;
         var spanX = accepted.Max(i => source[i].X) - accepted.Min(i => source[i].X);
         var spanY = accepted.Max(i => source[i].Y) - accepted.Min(i => source[i].Y);
         var coverage = Math.Min(spanX / query.Width, spanY / query.Height);
@@ -163,7 +167,7 @@ public sealed class MapImageMatcher : IDisposable
         Marshal.Copy(pixels, 0, image.Data, pixels.Length);
         return image;
     }
-    public void Dispose() { _index?.Dispose(); _matcher.Dispose(); _descriptors.Dispose(); _sift.Dispose(); }
+    public void Dispose() { _index.Dispose(); _matcher.Dispose(); _descriptors.Dispose(); }
 }
 
 /// <summary>One frame's feature extraction shared across reference maps and nearby/global searches.</summary>
@@ -177,5 +181,31 @@ public sealed class MapQueryFeatures(PixelRegion region, double resize, bool cir
     internal int Height { get; } = height;
     internal KeyPoint[] Points { get; } = points;
     internal Mat Descriptors { get; } = descriptors;
+    internal static MapQueryFeatures MergeScales(params MapQueryFeatures[] samples)
+    {
+        if (samples.Length == 0) throw new ArgumentException("需要至少一个采样尺度。", nameof(samples));
+        var first = samples[0];
+        var points = new List<KeyPoint>();
+        var rows = new List<Mat>();
+        foreach (var sample in samples)
+        {
+            if (sample.Region != first.Region || sample.Circular != first.Circular)
+                throw new ArgumentException("只能合并同一画面区域的特征。");
+            if (sample.Descriptors.Empty()) continue;
+            var offset = (sample.Resize - 1) / 2;
+            foreach (var key in sample.Points)
+                points.Add(new((float)((key.Pt.X - offset) / sample.Resize),
+                    (float)((key.Pt.Y - offset) / sample.Resize), 1));
+            rows.Add(sample.Descriptors);
+        }
+        var combined = new Mat();
+        try
+        {
+            if (rows.Count > 0) Cv2.VConcat(rows, combined);
+            // Match() retains just one query per reference descriptor across all octaves.
+            return new(first.Region, 1, first.Circular, first.Region.Width, first.Region.Height, points.ToArray(), combined);
+        }
+        catch { combined.Dispose(); throw; }
+    }
     public void Dispose() => Descriptors.Dispose();
 }

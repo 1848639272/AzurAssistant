@@ -12,10 +12,10 @@ internal sealed class UidOverlayTask(IGameTask? actions, CapturePreviewService p
 
     public async Task<TaskResult> ExecuteAsync(TaskContext context, CancellationToken token)
     {
-        var mask = await dispatcher.InvokeAsync(() => new UidMaskWindow(() => preview.Current), DispatcherPriority.Normal, token);
+        var mask = await dispatcher.InvokeAsync(() => new UidMaskWindow(() => preview.Current, context.Log), DispatcherPriority.Normal, token);
         try
         {
-            context.Log("已开启游戏窗口 UID 遮罩");
+            context.Log("已启用 UID 遮罩，等待游戏画面");
             if (actions is not null) return await actions.ExecuteAsync(context, token);
             var after = TimeSpan.Zero;
             while (true)

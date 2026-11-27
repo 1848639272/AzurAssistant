@@ -12,6 +12,7 @@ public sealed class NavigationSession(TaskContext context, INavigationRecognizer
     private TimeSpan _after = Now;
     private long _lastId;
     private FrameSnapshot? _identity;
+    private bool _started;
     private MovementMode _movementMode;
     private long _modeGeneration = -1;
     private TimeSpan? _modeConfirmedAt;
@@ -24,6 +25,7 @@ public sealed class NavigationSession(TaskContext context, INavigationRecognizer
         CancellationToken token, double timeoutSeconds = 12, double stableMilliseconds = 300,
         NavigationStability stability = NavigationStability.Position, bool minimapOnly = false, bool teleportOnly = false)
     {
+        if (!_started) { recognizer.BeginLocalization(); _started = true; }
         using var deadline = context.Execution.CreateDeadline(token);
         deadline.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds));
         NavigationObservation? previous = null;
@@ -104,6 +106,21 @@ public sealed class NavigationSession(TaskContext context, INavigationRecognizer
 
     public Task<NavigationObservation> LocateMinimapAsync(string step, CancellationToken token, double stableMilliseconds = 0) =>
         WaitAsync(o => o.Position is not null, step, token, 5, stableMilliseconds, NavigationStability.Stationary, minimapOnly: true);
+
+    public async Task<NavigationObservation> RecoverTravelFixAsync(NavigationObservation last, double speed, CancellationToken token)
+    {
+        var origin = last.Position!;
+        _after = Now;
+        var speedLimit = Math.Clamp(speed * 2.5, 35, 180);
+        var radius = Math.Clamp(6 + speedLimit * (.15 + (_after - last.Frame.SystemTimestamp).TotalSeconds), 12, 90);
+        recognizer.BeginLocalization(origin);
+        try
+        {
+            return await WaitAsync(o => o.Position is { } p && p.SameMap(origin) && p.DistanceTo(origin) <= radius,
+                "松开W后原地核对同图邻近坐标", token, 5, 350, NavigationStability.Position, minimapOnly: true);
+        }
+        finally { recognizer.FinishLanding(); }
+    }
 
     public async Task<NavigationObservation> PrepareRouteAsync(CancellationToken token, string? expectedMapId = null)
     {

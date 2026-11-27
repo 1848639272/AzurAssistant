@@ -17,7 +17,7 @@ public static class Bootstrapper
         bool exitAfterDaily = false, DailyLogStore? startupLog = null, bool enableGlobalHotkeys = true)
     {
         var log = startupLog ?? new DailyLogStore(Path.Combine(DataRoot(), "logs"));
-        log.Write("蔚蓝助手 v1.0.0_rc1_20261126 已就绪");
+        log.Write("蔚蓝助手 v1.0.0_rc2_20261127 已就绪");
         var preview = new CapturePreviewService(
             () => new ReferenceSpaceFrameSource(new WindowsGraphicsFrameSource(GameWindow.Find("AzurPromilia"))), log.Write);
         var launcher = new LauncherPreparation();
@@ -75,6 +75,7 @@ public static class Bootstrapper
         {
             if (AssistantRestarter.TryRestart(log.Write, elevated: true)) System.Windows.Application.Current.MainWindow?.Close();
         }, automation, runDailyFromCommandLine, applyHotkeys: (pause, stop) => hotkeys?.TryRebind(pause, stop), routesDirectory: routesDirectory));
+        window.AttachGamePresentation(() => GameWindow.FindIfPresent("AzurPromilia"), enableStartupActions && !runDailyFromCommandLine);
         try
         {
             var source = JsonSerializer.Deserialize<UpdateSource>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "update-source.json")))!;

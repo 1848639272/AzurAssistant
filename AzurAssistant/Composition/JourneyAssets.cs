@@ -12,7 +12,7 @@ namespace AzurAssistant.Composition;
 
 public static class JourneyAssets
 {
-    public static StartJourneyRecognizer CreateRecognizer(PpOcrReader ocr, Func<FrameSnapshot, CancellationToken, Task<bool>>? isWorld = null)
+    public static StartJourneyRecognizer CreateRecognizer(PpOcrReader ocr, IDailyUiRecognizer? daily = null)
     {
         var settings = JsonSerializer.Deserialize<JourneySettings>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "assets", "start-journey", "recognition.json")))
             ?? throw new InvalidOperationException("开始旅程识别配置为空。");
@@ -21,12 +21,15 @@ public static class JourneyAssets
         using (var stream = File.OpenRead(Path.Combine(directory, "age-rating.png")))
             if (!Convert.ToHexString(SHA256.HashData(stream)).Equals(settings.AgeSha256, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("适龄标识模板校验失败。");
-        if (isWorld is null)
+        daily ??= new DailyUiRecognizer(new TemplateCatalog(Path.Combine(AppContext.BaseDirectory, "assets", "daily")), new WorldHudReader(ocr));
+        async Task<JourneyPage> ReadGamePage(FrameSnapshot frame, CancellationToken token) =>
+            (await daily.ObserveAsync(frame, token)).Page switch
         {
-            var daily = new DailyUiRecognizer(new TemplateCatalog(Path.Combine(AppContext.BaseDirectory, "assets", "daily")), new WorldHudReader(ocr));
-            isWorld = async (frame, token) => (await daily.ObserveAsync(frame, token)).Page is DailyPage.World or DailyPage.Menu;
-        }
-        return new StartJourneyRecognizer(Load("age-rating.png"), settings, isWorld,
+            DailyPage.World => JourneyPage.InGame,
+            DailyPage.Menu => JourneyPage.Menu,
+            _ => JourneyPage.Unknown
+        };
+        return new StartJourneyRecognizer(Load("age-rating.png"), settings, ReadGamePage,
             new JourneyRewardRecognizer(directory), new JourneyUpdateRecognizer(new TemplateCatalog(directory, "update.json")));
     }
     public static ImageTemplate Load(string name)

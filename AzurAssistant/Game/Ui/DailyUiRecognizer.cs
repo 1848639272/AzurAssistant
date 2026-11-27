@@ -4,7 +4,8 @@ using AzurAssistant.Vision;
 namespace AzurAssistant.Game.Ui;
 
 public enum DailyPage { Unknown, World, Menu, Mail, MailReward, HomeCenter, Buildings, Ranch, HomeReward, MailEmpty, DiningTable, HomeLevelUp,
-    ActivityDay, ActivityWeek, PassTasks, PassRewards, PassLevelUp, PassReward, PassSpecialReward }
+    ActivityDay, ActivityWeek, PassTasks, PassRewards, PassLevelUp, PassReward, PassSpecialReward,
+    Shop, ShopFeatured, ShopLimited, ShopGiftDetail, ShopReward }
 
 public record DailyUiObservation(DailyPage Page, IReadOnlyDictionary<string, ClientPoint> Targets)
 {
@@ -53,6 +54,13 @@ public sealed class DailyUiRecognizer(TemplateCatalog templates, WorldHudReader 
             targets[id] = match.Center;
             return true;
         }
+        bool MatchHomeClose(string target)
+        {
+            if (Match("dining-close")) targets[target] = targets["dining-close"];
+            else if (Match("home-close-hover")) targets[target] = targets["home-close-hover"];
+            else return false;
+            return true;
+        }
 
         // Overlays are checked first because the underlying page may remain visible.
         var homeLevel = Match("home-level-title");
@@ -80,9 +88,11 @@ public sealed class DailyUiRecognizer(TemplateCatalog templates, WorldHudReader 
         var diningSatiety = Match("dining-satiety");
         if (diningTitle || diningSatiety)
         {
-            var diningClose = Match("dining-close");
+            var diningClose = MatchHomeClose("dining-close");
             if (!diningTitle || !diningSatiety || !diningClose) return Result(DailyPage.Unknown);
             Match("dining-add");
+            if (Match("dining-cake-one")) targets["dining-cake"] = targets["dining-cake-one"];
+            else if (Match("dining-cake-two")) targets["dining-cake"] = targets["dining-cake-two"];
             return Result(DailyPage.DiningTable);
         }
         if (Match("mail-title") && Match("mail-close"))
@@ -99,8 +109,7 @@ public sealed class DailyUiRecognizer(TemplateCatalog templates, WorldHudReader 
         }
         if (Match("ranch-management"))
         {
-            if (Match("dining-close")) targets["ranch-close"] = targets["dining-close"];
-            else if (!Match("ranch-title")) return Result(DailyPage.Unknown);
+            if (!MatchHomeClose("ranch-close") && !Match("ranch-title")) return Result(DailyPage.Unknown);
             var claim = Match("ranch-claim");
             var empty = Match("ranch-basket-empty");
             if (claim && empty)
@@ -117,7 +126,7 @@ public sealed class DailyUiRecognizer(TemplateCatalog templates, WorldHudReader 
         var ranch = Match("home-ranch");
         if (homeTitle && (dining || buildings || ranch))
         {
-            if (Match("dining-close")) targets["home-close"] = targets["dining-close"];
+            MatchHomeClose("home-close");
             if (ranch || dining && buildings)
             {
                 // The ranch occupies the fourth bottom shortcut in this hub layout.

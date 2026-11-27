@@ -52,7 +52,6 @@
       "Threshold": 0.88,
       "Sha256": "EA8ECEE4123311C5DDF004B1D7D899539C6CBA92F8F299E1A6D7E36BF8BEEE19",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "5146577397414802E0DDD0767906E2A54B7E8884D02816B8576974C05F6C67F0",
       "SourceCrop": {
         "X": 938,
         "Y": 841,
@@ -91,7 +90,6 @@
       "Threshold": 0.78,
       "Sha256": "61304FA3B0833C4B385F52186E7FC51D908666416287FB6408AE23B629AD8FB7",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
       "SourceCrop": {
         "X": 938,
         "Y": 940,
@@ -187,7 +185,6 @@
       "Threshold": 0.85,
       "Sha256": "73FBD5B0483878F5EC86B807E9BE56EB52D2E728B56931D02D770B7BA63889FA",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "21CC47A5F41F6B9A3115437A817AEFF86180AF79C990621F0591C10340E55BC7",
       "SourceCrop": {
         "X": 928,
         "Y": 335,
@@ -207,7 +204,6 @@
       "Threshold": 0.85,
       "Sha256": "B599C633E19C5CCF92E2D9855C2DA6A366886924254278A54B3675F4D598A29C",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "21CC47A5F41F6B9A3115437A817AEFF86180AF79C990621F0591C10340E55BC7",
       "SourceCrop": {
         "X": 871,
         "Y": 796,
@@ -246,7 +242,6 @@
       "Threshold": 0.94,
       "Sha256": "21169D1666A09107749CD46BF1FF8DDD61181DC32D57981455E9E34CA91A9618",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "16D0C42F6920C542D6503767C3C0817DC3B0D72BD10D31CBD364559C40CC4170",
       "SourceCrop": {
         "X": 1254,
         "Height": 78,
@@ -320,6 +315,44 @@
       "Sha256": "6435286EA9703E9B47AF4B43B75F3003356942C6558CCC1E78FE227B8A402FAA",
       "Crop": {
         "X": 1136,
+        "Y": 915,
+        "Width": 12,
+        "Height": 78
+      },
+      "Search": {
+        "X": 544,
+        "Y": 906,
+        "Width": 812,
+        "Height": 98
+      }
+    },
+    "future-card-edge-7": {
+      "File": "login-card-edge-future-variant-7.png",
+      "Threshold": 0.94,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "CDC6E0E40FB8EE736E174C64694B273CF43E9567159B56FF40748243DBDFC8A2",
+      "Crop": {
+        "X": 1019,
+        "Y": 915,
+        "Width": 12,
+        "Height": 78
+      },
+      "Search": {
+        "X": 544,
+        "Y": 906,
+        "Width": 812,
+        "Height": 98
+      }
+    },
+    "future-card-edge-8": {
+      "File": "login-card-edge-future-variant-8.png",
+      "Threshold": 0.94,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.27",
+      "Sha256": "F37C99872C0D8E42EA4BA9AAA9D22C38C5A3967CAC927E4BBEC39865F3858307",
+      "Crop": {
+        "X": 1252,
         "Y": 915,
         "Width": 12,
         "Height": 78

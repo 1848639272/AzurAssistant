@@ -41,7 +41,7 @@ public sealed class RouteTask(INavigationRecognizer recognizer, RouteDefinition 
                 }
                 using var deadline = context.Execution.CreateDeadline(token);
                 deadline.CancelAfter(TimeSpan.FromMinutes(3));
-                var target = map.Position(point.X, point.Y);
+                var target = map.Position(point.X!.Value, point.Y!.Value);
                 await mover.MoveAsync(target, deadline.Token, maximumDistance: double.PositiveInfinity);
                 if (collector is not null) await collector.CollectAsync(target, deadline.Token);
             }
@@ -49,7 +49,7 @@ public sealed class RouteTask(INavigationRecognizer recognizer, RouteDefinition 
             if (last.TeleportId is null)
             {
                 var lastMap = last.Map is { } owner ? recognizer.Maps.Single(m => m.Id == owner.Id) : firstMap;
-                await session.ConfirmArrivalAsync(lastMap.Position(last.X, last.Y), token);
+                await session.ConfirmArrivalAsync(lastMap.Position(last.X!.Value, last.Y!.Value), token);
             }
             return new(true, $"路线“{route.Name}”的 {route.Points.Count} 个点位已完成");
         }

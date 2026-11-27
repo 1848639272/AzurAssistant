@@ -94,15 +94,18 @@ public sealed class JourneyRewardRecognizer
             var top = _templates.Match(frame, "login-arrow-top", At(center, _layout.TopArrow));
             var bottom = _templates.Match(frame, "login-arrow-bottom", At(center, _layout.BottomArrow));
             var highlight = _templates.Match(frame, "login-highlight", At(center, _layout.Edge));
-            var active = top is not null && Math.Abs(top.Center.X - center) <= _layout.MaxArrowOffset &&
-                (bottom is null ? highlight is not null : Math.Abs(top.Center.X - bottom.Center.X) <= _layout.MaxArrowOffset);
+            var triangle = FindBrightTriangle(frame, center);
+            var marker = triangle ?? top?.Center;
+            var active = marker is { } arrow && Math.Abs(arrow.X - center) <= _layout.MaxArrowOffset &&
+                (bottom is null ? highlight is not null || triangle is not null
+                    : Math.Abs(arrow.X - bottom.Center.X) <= _layout.MaxArrowOffset);
             if (active && check is null) available.Add(index);
-            if (check is not null && top is null && bottom is null && highlight is null)
+            if (check is not null && marker is null && bottom is null && highlight is null)
             { claimed.Add(index); idleCards++; }
-            else if (check is null && top is null && bottom is null && highlight is null
+            else if (check is null && marker is null && bottom is null && highlight is null
                 && _layout.FutureEdges
                     .Any(id => _templates.Match(frame, id, At(center, _layout.Edge)) is not null)) idleCards++;
-            else if ((top is not null || bottom is not null || highlight is not null || check is not null)
+            else if ((marker is not null || bottom is not null || highlight is not null || check is not null)
                 && (!active || check is not null)) ambiguous = true;
         }
         if (available.Count == 1 && !ambiguous)
@@ -115,6 +118,32 @@ public sealed class JourneyRewardRecognizer
         return new(JourneyPage.LoginReward, ClaimedCards: claimed,
             LoginRewardComplete: available.Count == 0 && !ambiguous && idleCards == 7 && claimed.Count > 0,
             ClosePoint: close);
+    }
+
+    private ClientPoint? FindBrightTriangle(FrameSnapshot frame, int center)
+    {
+        // The marker has a bright horizontal shoulder tapering to a tip. Compare it to nearby pixels
+        // in the same frame so character art behind the translucent glow can vary across columns.
+        var region = At(center, _layout.TopArrow);
+        int Light(int x, int y)
+        {
+            var pixel = frame.Pixels.Span.Slice(y * frame.Stride + x * 4, 3);
+            return (pixel[0] + 2 * pixel[1] + pixel[2]) / 4;
+        }
+        var firstX = Math.Max(center - 4, region.X + 5);
+        var lastX = Math.Min(center + 4, region.X + region.Width - 6);
+        for (var y = region.Y + 5; y < region.Y + region.Height - 8; y++)
+        for (var x = firstX; x <= lastX; x++)
+        {
+            var left = Light(x - 5, y);
+            var right = Light(x + 5, y);
+            var tip = Light(x, y + 4);
+            if (Math.Min(Math.Min(left, right), Math.Min(tip, Light(x, y))) < 233) continue;
+            if (left - Light(x - 5, y + 5) >= 18 && right - Light(x + 5, y + 5) >= 18 &&
+                tip - Light(x, y + 8) >= 18 && Light(x, y) - Light(x, y - 5) >= 12)
+                return new(x, y);
+        }
+        return null;
     }
 
     private static PixelRegion At(int center, PixelRegion region) => region with { X = center + region.X };

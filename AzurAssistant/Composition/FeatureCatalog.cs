@@ -1,6 +1,7 @@
 using System.IO;
 using AzurAssistant.Contracts;
 using AzurAssistant.Features.ClaimMail;
+using AzurAssistant.Features.Shop;
 using AzurAssistant.Features.Commissions;
 using AzurAssistant.Features.ActivityClaims;
 using AzurAssistant.Features.BattlePass;
@@ -26,6 +27,7 @@ public sealed class FeatureCatalog : IDisposable
     private readonly Lazy<TemplateCatalog> _dailyTemplates = new(() =>
         new TemplateCatalog(Path.Combine(AppContext.BaseDirectory, "assets", "daily")));
     private readonly Lazy<DailyUiRecognizer> _daily;
+    private readonly Lazy<ShopRecognizer> _shop;
     private readonly Lazy<StartJourneyRecognizer> _journey;
     private readonly Lazy<RealtimeRecognizer> _realtime;
     private readonly Lazy<DiningSatietyReader> _dining;
@@ -50,8 +52,8 @@ public sealed class FeatureCatalog : IDisposable
         _routesDirectory = routesDirectory ?? Path.Combine(AppContext.BaseDirectory, "routes");
         _daily = new(() => new DailyUiRecognizer(_dailyTemplates.Value,
             new WorldHudReader(_ocr)));
-        _journey = new(() => JourneyAssets.CreateRecognizer(_ocr, async (frame, token) =>
-            (await _daily.Value.ObserveAsync(frame, token)).Page is DailyPage.World or DailyPage.Menu));
+        _journey = new(() => JourneyAssets.CreateRecognizer(_ocr, _daily.Value));
+        _shop = new(() => new ShopRecognizer(_daily.Value, new TemplateCatalog(Path.Combine(AppContext.BaseDirectory, "assets", "shop"))));
         _realtime = new(() => RealtimeRecognizer.Load(_ocr));
         _navigation = new(() => new NavigationRecognizer(_daily.Value, _ocr));
         _dining = new(() => new DiningSatietyReader(_ocr));
@@ -99,7 +101,8 @@ public sealed class FeatureCatalog : IDisposable
             scheduled[i] = menuTasks[i].Id switch
             {
                 "claim-mail" => new ClaimMailTask(_daily.Value, timing, keepMenuOpen),
-                "home-center" => new HomeCenterTask(_daily.Value, _dining.Value, timing, keepMenuOpen),
+                "shop" => new ShopTask(_shop.Value, timing, keepMenuOpen),
+                "home-center" => new HomeCenterTask(_daily.Value, _dining.Value, timing, keepMenuOpen, settings.HomeCakesOnly),
                 "claim-activity" => new ActivityClaimsTask(_activity.Value, timing, keepMenuOpen),
                 "claim-battle-pass" => new BattlePassTask(_battlePass.Value, timing, keepMenuOpen),
                 "daily-commissions" => CreateCommission(CommissionKind.Daily, keepMenuOpen),

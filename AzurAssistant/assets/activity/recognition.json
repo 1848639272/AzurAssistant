@@ -12,7 +12,6 @@
         "Height": 24,
         "Width": 30
       },
-      "SourceSha256": "CCF732896CF093CBD4E55CBC8AF02EF13B53A3401B0197587FE1D43C7F791AF5",
       "Version": "1.2.0",
       "Search": {
         "X": 1621,
@@ -32,7 +31,6 @@
         "Height": 34,
         "Width": 99
       },
-      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
       "Version": "1.2.0",
       "Search": {
         "X": 750,
@@ -52,7 +50,6 @@
         "Height": 34,
         "Width": 109
       },
-      "SourceSha256": "ECDC324A00C5CAED9B0E819F28D9ADB6B2CDC87F407FBE857EFFA2527CDC3999",
       "Version": "1.2.0",
       "Search": {
         "X": 1020,
@@ -72,7 +69,6 @@
         "Height": 18,
         "Width": 70
       },
-      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
       "Version": "1.2.0",
       "Search": {
         "X": 778,
@@ -92,7 +88,6 @@
         "Height": 18,
         "Width": 70
       },
-      "SourceSha256": "ECDC324A00C5CAED9B0E819F28D9ADB6B2CDC87F407FBE857EFFA2527CDC3999",
       "Version": "1.2.0",
       "Search": {
         "X": 778,
@@ -112,7 +107,6 @@
         "Height": 18,
         "Width": 70
       },
-      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
       "Version": "1.2.0",
       "Search": {
         "X": 1048,
@@ -246,7 +240,6 @@
         "Height": 14,
         "Width": 12
       },
-      "SourceSha256": "CAEF253BCAF73675DBF5087E72B6C47E510908FBED83A0F3AEBA7311BCC864FE",
       "Version": "1.2.0",
       "Search": {
         "X": 812,
@@ -285,7 +278,6 @@
         "Height": 47,
         "Width": 50
       },
-      "SourceSha256": "AFBFE53604C2D7A4D8EB40CC66D810CFFED7C40ACBA0A257E3B8FCF2FCE8F148",
       "Version": "1.2.0",
       "Search": {
         "X": 740,
@@ -305,7 +297,6 @@
         "Height": 47,
         "Width": 50
       },
-      "SourceSha256": "0E93725572EFA302FAEA7EF989F98A40A236081BF0BCF8693B4D82DDAB893DD6",
       "Version": "1.2.0",
       "Search": {
         "X": 740,
@@ -326,7 +317,6 @@
         "Height": 47,
         "Width": 50
       },
-      "SourceSha256": "1AF9A74C7484A777186DC0FA651DE83E141D4592E0FF194DF904A9C2289BD0F1",
       "Version": "1.2.0",
       "Search": {
         "X": 1370,

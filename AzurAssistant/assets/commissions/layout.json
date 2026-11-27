@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 1,
-  "Version": "2026.11.26",
+  "Version": "2026.11.28",
   "Source": "蓝色星原：旅谣 · 委托界面",
   "Regions": {
     "daily-name": {
@@ -30,7 +30,7 @@
     "weekly-list": {
       "X": 80,
       "Y": 950,
-      "Width": 605,
+      "Width": 917,
       "Height": 60
     },
     "crisis-name": {
@@ -40,9 +40,9 @@
       "Height": 84
     },
     "crisis-list": {
-      "X": 273,
+      "X": 243,
       "Y": 154,
-      "Width": 445,
+      "Width": 475,
       "Height": 820
     },
     "crisis-tiers": {
@@ -136,10 +136,10 @@
       "Height": 51
     },
     "story-names": {
-      "X": 780,
-      "Y": 415,
-      "Width": 1070,
-      "Height": 38
+      "X": 770,
+      "Y": 409,
+      "Width": 1080,
+      "Height": 68
     },
     "weekly-counter": {
       "X": 1393,
@@ -311,37 +311,31 @@
   "PointSources": {
     "hub-regional-tab": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
       "Version": "1.1.0",
       "RequiredHubSection": "Either"
     },
     "hub-assembly-tab": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
       "Version": "1.1.0",
       "RequiredHubSection": "Either"
     },
     "hub-daily": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
       "Version": "1.1.0",
       "RequiredHubSection": "Regional"
     },
     "hub-weekly": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
       "Version": "1.1.0",
       "RequiredHubSection": "Regional"
     },
     "hub-crisis": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "fe55a5e83cbba935306ad645794e87756f7c5850a394d9e93108a6b6444258bf",
       "Version": "1.1.0",
       "RequiredHubSection": "Assembly"
     },
     "hub-story": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "cece01f8ee2c02d5f27ddbb3999389a697bd315bf217aae5e70846776dd31f8d",
       "Version": "1.3.0",
       "RequiredPage": "Hub Regional"
     },
@@ -363,37 +357,31 @@
     },
     "story-left-from": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
       "Version": "1.3.0",
       "RequiredPage": "Story with unique selected chapter"
     },
     "story-left-to": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
       "Version": "1.3.0",
       "RequiredPage": "Story with unique selected chapter"
     },
     "story-right-from": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
       "Version": "1.3.0",
       "RequiredPage": "Story with unique selected chapter"
     },
     "story-right-to": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "70087098abe2f6e4a86a624b7e5dc1f663412163ee67b4d2063e3418b02d73cf",
       "Version": "1.3.0",
       "RequiredPage": "Story with unique selected chapter"
     },
     "bond-dismiss": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "ab24d3dbfd46ed433c2f027227f4059e375fa5b9b862faec6bfa9c2eee4cb819",
       "Version": "1.4.0",
       "RequiredPage": "BondLevelUp with opaque bond-level-title text"
     },
     "mvp-dismiss": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "fa79f25dd84f5e703ed4db0b59a44a342dd3a96c901ef35283da20958ea2d5e9",
       "Version": "1.4.2",
       "RequiredPage": "Mvp with mvp anchor",
       "Description": "Dismiss the MVP panel at the lower-center position (966,903)."
@@ -402,14 +390,12 @@
   "RegionSources": {
     "reward-cost-number": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "4bc9fbf837211529c45b5f377b5ce38d605ade521b06e6bf07778ae51929293b",
       "Version": "1.4.1",
       "RequiredPage": "Reward or Multiplier with reward-title and reward-claim",
       "Description": "Only the displayed cost number and trailing bracket, excluding resource icon, multiplier and reward amounts."
     },
     "auto-key": {
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "ef481389dc4670d6954c1c73be11236f21c14d912d8eb0fe03effc7a62a4fb31",
       "Version": "1.4.5",
       "RequiredPage": "No higher-priority dialog or result; inactive auto-icon matched, and neither enabled marker matched",
       "Description": "Three-times OCR of the full F1 shortcut, confidence at least 0.90 and an unclipped box; F1 itself is present in both enabled and disabled states."

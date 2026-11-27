@@ -20,7 +20,7 @@ public sealed record AssistantRelease : IComparable<AssistantRelease>
 {
     public int SchemaVersion { get; init; } = 1;
     public string Product { get; init; } = "AzurAssistant";
-    public string ProductVersion { get; init; } = "1.0.0_rc1_20261126";
+    public string ProductVersion { get; init; } = "1.0.0_rc2_20261127";
     public long BuildNumber { get; init; }
     public string ReleaseId { get; init; } = "development";
     public string Architecture { get; init; } = "win-x64";

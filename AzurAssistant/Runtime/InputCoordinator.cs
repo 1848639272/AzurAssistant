@@ -47,6 +47,18 @@ public sealed class InputCoordinator(IGameInput backend, Action<ResponseTiming>?
             ObjectDisposedException.ThrowIf(_disposed, this);
             await backend.ActivateAsync(token);
         }
+        public async Task<bool> TryActivateWindowAsync(nint window, int processId, CancellationToken token)
+        {
+            using var action = await _execution.EnterActionAsync(token);
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            backend.ReleaseAll();
+            try
+            {
+                return _focus is null ? await backend.TryActivateWindowAsync(window, processId, token)
+                    : await _focus.RequestAsync(window, processId, token);
+            }
+            finally { if (_execution is TaskPauseController control) control.InvalidateObservations(); }
+        }
         public async Task PrepareForObservationAsync(CancellationToken token)
         {
             using var action = await _execution.EnterActionAsync(token);

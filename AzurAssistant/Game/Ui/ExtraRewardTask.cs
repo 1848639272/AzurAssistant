@@ -34,12 +34,16 @@ internal sealed class ExtraRewardTask(IGameTask task, TemplateCatalog templates,
         receipt.ClickedAt > origin.SystemTimestamp && receipt.Window == origin.WindowHandle &&
         receipt.Process == origin.ProcessId && receipt.Generation == context.Execution.Generation;
 
+    internal static bool ObservedAfter(TaskContext context, FrameSnapshot origin) =>
+        context.Frames is RewardFrames frames && frames.LastShowcaseAt > origin.SystemTimestamp;
+
     private sealed record ReturnReceipt(TimeSpan ClickedAt, nint Window, int Process, int Generation);
 
     private sealed class RewardFrames(TaskContext context, TemplateCatalog templates, TimeSpan pollInterval,
         TimeSpan stableDuration, TimeSpan afterClick) : IFrameFeed
     {
         public ReturnReceipt? LastReturn { get; private set; }
+        public TimeSpan LastShowcaseAt { get; private set; }
 
         public async Task<FrameSnapshot?> ReadForInputCheckAsync(TimeSpan timestamp, CancellationToken token)
         {
@@ -51,6 +55,7 @@ internal sealed class ExtraRewardTask(IGameTask task, TemplateCatalog templates,
         {
             var first = await context.Frames.ReadAfterAsync(timestamp, token);
             if (first.Width != 1920 || first.Height != 1080 || Inspect(templates, first) is not { } initial) return first;
+            LastShowcaseAt = first.SystemTimestamp;
             context.Input.ReleaseAll();
             using var deadline = context.Execution.CreateDeadline(token);
             deadline.CancelAfter(TimeSpan.FromSeconds(5) + afterClick * 2);

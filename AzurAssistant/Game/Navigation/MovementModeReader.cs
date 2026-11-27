@@ -22,8 +22,8 @@ public sealed class MovementModeReader
     }
     public async Task<MovementMode> ReadAsync(FrameSnapshot frame, CancellationToken token)
     {
-        foreach (var preprocessing in new[] { OcrPreprocessing.Original, OcrPreprocessing.WhiteText })
-        foreach (var scale in Enumerable.Range(_settings.Scale, 4 - _settings.Scale))
+        foreach (var preprocessing in new[] { OcrPreprocessing.Original, OcrPreprocessing.LocalContrast, OcrPreprocessing.WhiteText })
+        foreach (var scale in Enumerable.Range(_settings.Scale, preprocessing == OcrPreprocessing.LocalContrast ? 1 : 4 - _settings.Scale))
         {
             var text = await _ocr.ReadAsync(frame, token, _settings.Region, scale, preprocessing);
             var mode = ReadEvidence(text, _settings.MinimumConfidence);
@@ -38,14 +38,17 @@ public sealed class MovementModeReader
             .Where(c => !char.IsWhiteSpace(c.Letter)).ToArray();
         var mode = Parse(new string(characters.Select(c => c.Letter).ToArray()));
         // Both current-state clauses contain eight characters. Confidence of the alternate-mode instruction is irrelevant.
-        return mode != MovementMode.Unknown && characters.Take(8).Average(c => c.Confidence) >= minimumConfidence
+        // Center on the threshold before summing so eight scores exactly on the boundary are accepted.
+        return mode != MovementMode.Unknown && characters.Take(8).Sum(c => c.Confidence - minimumConfidence) >= 0
             ? mode : MovementMode.Unknown;
     }
     public static MovementMode Parse(string text)
     {
         text = text.Replace(" ", "").Trim();
-        if (text.StartsWith("已切换至步行状态", StringComparison.Ordinal)) return MovementMode.Walk;
-        if (text.StartsWith("已切换至奔跑状态", StringComparison.Ordinal)) return MovementMode.Run;
+        const string walk = "已切换至步行状态";
+        const string run = "已切换至奔跑状态";
+        if (text.StartsWith(walk, StringComparison.Ordinal) && !text.Contains(run, StringComparison.Ordinal)) return MovementMode.Walk;
+        if (text.StartsWith(run, StringComparison.Ordinal) && !text.Contains(walk, StringComparison.Ordinal)) return MovementMode.Run;
         return MovementMode.Unknown;
     }
 }

@@ -62,8 +62,8 @@ internal sealed class ForegroundRecovery(IGameWindowFocus window, IGameInput inp
                     _interruptions.Dequeue();
                 _interruptions.Enqueue(now);
                 if (_interruptions.Count >= 3)
-                    throw new InvalidOperationException("30 秒内连续三次置前被其他操作打断，一条龙已停止。");
-                log($"输入前置前被其他操作打断（{_interruptions.Count}/3），重新确认前台。");
+                    throw new InvalidOperationException($"30 秒内连续三次置前被其他操作打断，一条龙已停止。{window.DescribeForeground()}");
+                log($"输入前置前被其他操作打断（{_interruptions.Count}/3），重新确认前台。{window.DescribeForeground()}");
             }
             else if (!prior.Granted && now - prior.Started < DeniedRetryInterval)
                 return;
@@ -71,14 +71,29 @@ internal sealed class ForegroundRecovery(IGameWindowFocus window, IGameInput inp
                 _interruptions.Clear();
         }
 
-        token.ThrowIfCancellationRequested();
-        var tick = window.LastInputTick;
         log("操作前确认持续失焦，正在尝试置前。");
+        await RequestAsync(frame.WindowHandle, frame.ProcessId, token);
+    }
+
+    internal async Task<bool> RequestAsync(nint handle, int processId, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        var now = clock?.Invoke() ?? Stopwatch.GetElapsedTime(0);
+        var alreadyFocused = window.HasInputFocus(handle, processId);
         execution.SetFocusRecovery(true);
         bool granted;
-        try { granted = await window.TryActivateOnceAsync(token); }
+        try { granted = await input.TryActivateWindowAsync(handle, processId, token); }
+        catch (Exception error) when (error is not OperationCanceledException)
+        {
+            log($"置前请求失败。{window.DescribeForeground()}");
+            throw;
+        }
         finally { execution.SetFocusRecovery(false); }
-        _pending = new(frame.WindowHandle, frame.ProcessId, now, tick, granted);
-        log(granted ? "已置前，重新观察操作目标。" : "尚未取得前台，等待新画面再确认操作。");
+        // Only input after the confirmed transfer can interrupt it. Denied requests are throttled from their start.
+        _pending = granted && alreadyFocused ? null : new(handle, processId,
+            granted ? clock?.Invoke() ?? Stopwatch.GetElapsedTime(0) : now, granted ? window.LastInputTick : null, granted);
+        log(granted ? "已确认目标窗口在前台并持有输入焦点，重新观察操作目标。"
+            : $"置前未确认，等待新画面后自动重试。{window.DescribeForeground()}");
+        return granted;
     }
 }

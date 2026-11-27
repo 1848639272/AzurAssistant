@@ -96,11 +96,15 @@ public sealed class MapTeleporter(TaskContext context, INavigationRecognizer rec
         await context.Execution.DelayAsync(TimeSpan.FromSeconds(1), token);
         var landing = target.LandingX is { } lx && target.LandingY is { } ly ? destination.Position(lx, ly)
             : target.ArrivalMapId == map.Id ? map.Position(target.X, target.Y) : null;
-        var arrived = await WaitAsync(o => o.Page == NavigationPage.World && o.Position is { } p && destination.Contains(p)
-            && (landing is null || p.DistanceTo(landing) <= target.ArrivalRadius), "验证传送后地图与落点", token, 60, 700,
-            NavigationStability.Stationary);
-        context.Log($"传送到达 {destination.Name} ({arrived.Position!.X:F1}, {arrived.Position.Y:F1})"
-            + (landing is null ? "；该跨区入口尚无精确出生点标定" : ""));
+        recognizer.BeginLocalization(landing);
+        try
+        {
+            var arrived = await WaitAsync(o => o.Page == NavigationPage.World && o.Position is { } p && destination.Contains(p)
+                && (landing is null || p.DistanceTo(landing) <= target.ArrivalRadius), "验证传送后地图与落点", token, 60, 700,
+                NavigationStability.Stationary);
+            context.Log($"传送到达 {destination.Name} ({arrived.Position!.X:F1}, {arrived.Position.Y:F1})");
+        }
+        finally { recognizer.FinishLanding(); }
     }
 
     private async Task<NavigationObservation> FindTargetAsync(NavigationObservation current, NavigationTeleport target,

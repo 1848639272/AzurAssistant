@@ -21,7 +21,8 @@ public sealed class LauncherPreparation
         try
         {
             await execution.WaitAsync(runToken);
-            if (!GameLauncher.IsGameRunning())
+            var awaitingLaunch = !GameLauncher.IsGameRunning();
+            if (awaitingLaunch)
             {
                 path = Path.GetFullPath(path);
                 var filename = Path.GetFileName(path);
@@ -55,17 +56,30 @@ public sealed class LauncherPreparation
                 }
             }
             _launcher = null;
-            stage = "等待 AzurPromilia.exe 的游戏窗口";
-            while (true)
-            {
-                await execution.WaitAsync(runToken);
-                if (GameWindow.FindIfPresent("AzurPromilia") is not null) { log("游戏窗口已就绪"); return; }
-                await execution.DelayAsync(poll, runToken);
-            }
+            stage = awaitingLaunch ? "等待游戏窗口并从启动器切换到游戏" : "等待 AzurPromilia.exe 的游戏窗口";
+            await WaitForGameAsync(() => GameWindow.FindIfPresent("AzurPromilia"), awaitingLaunch, execution, input, log, poll, runToken);
         }
         catch (OperationCanceledException) when (!token.IsCancellationRequested)
         { throw new TimeoutException($"启动游戏超时（{stage}），请检查启动器、游戏更新或登录提示。"); }
         finally { _launcher = null; }
+    }
+
+    internal static async Task WaitForGameAsync(Func<GameWindow?> find, bool launched, TaskExecution execution,
+        IGameInput input, Action<string> log, TimeSpan poll, CancellationToken token)
+    {
+        GameWindow? game;
+        do
+        {
+            await execution.WaitAsync(token);
+            game = find();
+            if (game is null) await execution.DelayAsync(poll, token);
+        } while (game is null);
+        log("游戏窗口已就绪");
+        if (launched)
+        {
+            log("正在从启动器切换到游戏窗口");
+            await input.TryActivateWindowAsync(game.Handle, game.ProcessId, token);
+        }
     }
 
     private static async Task ClickStartAsync(GameWindow window, TaskExecution execution, IGameInput input,

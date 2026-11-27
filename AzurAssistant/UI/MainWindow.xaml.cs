@@ -11,6 +11,7 @@ using Microsoft.Win32;
 using AzurAssistant.Runtime;
 using AzurAssistant.Contracts;
 using AzurAssistant.Features.NavigationTest;
+using AzurAssistant.Platform;
 
 namespace AzurAssistant.UI;
 
@@ -49,7 +50,13 @@ public partial class MainWindow : Window
         Activated += (_, _) => UpdateHotkeyCapture();
         Deactivated += (_, _) => { ViewModel.CommitHotkeyEdit(); SetHotkeyCapture(false); };
         _refresh = new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background,
-            (_, _) => ViewModel.Refresh(), Dispatcher);
+            (_, _) => RefreshPresentation(), Dispatcher);
+    }
+
+    private void RefreshPresentation()
+    {
+        ViewModel.Refresh();
+        _gameStatus?.Refresh(DateTimeOffset.UtcNow);
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -58,6 +65,8 @@ public partial class MainWindow : Window
         _startupHandled = true;
         _refresh.Start();
         ShowFirstInstallNotice();
+        if (_requestBorderAccessOnLoad) await RequestCaptureBorderPermissionAsync();
+        if (_closing || _closedCleanly) return;
         await CheckUpdatesAsync(automatic: true);
         if (!_closing && !_updateLaunched && !ViewModel.RestartRequested) ViewModel.Initialize();
     }
@@ -90,8 +99,10 @@ public partial class MainWindow : Window
         await ViewModel.CaptureRoutePointAsync(teleport: true);
         if (!_closing) Activate();
     }
-    private void OnCancelRouteRecording(object sender, RoutedEventArgs e) => ViewModel.CancelRouteRecording();
+    private async void OnCancelRouteRecording(object sender, RoutedEventArgs e) => await ViewModel.CancelRouteRecordingAsync();
     private void OnSaveRecordedRoute(object sender, RoutedEventArgs e) => ViewModel.SaveRecordedRoute();
+    private void OnOpenRouteDirectory(object sender, RoutedEventArgs e) => ViewModel.OpenRouteDirectory();
+    private void OnEditRoute(object sender, RoutedEventArgs e) => ViewModel.EditSelectedRoute();
     private void OnRunRoute(object sender, RoutedEventArgs e) => ViewModel.RunSelectedRoute();
     private void OnRemoveRoutePoint(object sender, RoutedEventArgs e)
     { if (sender is FrameworkElement { DataContext: RoutePointDraft point }) ViewModel.RemoveRecordedPoint(point); }
@@ -372,6 +383,8 @@ public partial class MainWindow : Window
         ClearDailyDrop();
         IsEnabled = false;
         _refresh.Stop();
+        _gameStatus?.Dispose();
+        DisposeTray();
         await ViewModel.StopAsync();
         _closedCleanly = true;
         // A stopped session may complete synchronously; never reenter Window.Close from its Closing event.

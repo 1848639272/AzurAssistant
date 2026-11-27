@@ -232,7 +232,9 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
                 if (selected is null)
                 { unavailable.Add(name); context.Log($"未找到指定副本「{name}」，停止该类查找，继续其他已配置副本"); break; }
                 var entry = await PrepareCrisisEntryAsync(s, selected, token);
-                if (entry.Ui.Page == CommissionPage.Crisis) await s.ClickAsync(entry, "enter", "进入副本", token);
+                var solo = entry.Ui.Page == CommissionPage.Crisis && entry.Ui.Has("solo");
+                if (solo) await StartSoloCrisisAsync(s, entry, context, token);
+                else if (entry.Ui.Page == CommissionPage.Crisis) await s.ClickAsync(entry, "enter", "进入副本", token);
                 else await s.ClickAsync(entry, "launch", "开始讨伐", token);
                 await FightAsync(s, token);
                 var reward = await RewardAsync(s, resource, false, token);
@@ -244,7 +246,7 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
                 reward = await SelectMultiplierAsync(s, reward, multiplier, unitCost, resource, false, token);
                 available = resource == RewardResource.BlueKey ? reward.Ui.BlueKeys!.Value : reward.Ui.YellowKeys!.Value;
                 await s.ClickAsync(reward, "claim", $"领取并结算（{multiplier} 倍）", token);
-                var result = await ResultReadyAsync(s, "确认讨伐奖励结算", token, CommissionPage.CrisisResult);
+                var result = await ResultReadyAsync(s, "确认讨伐奖励结算", token, CommissionPage.CrisisResult, solo);
                 expectedRemaining = available - multiplier;
                 claims += multiplier;
                 typeClaims += multiplier;
@@ -272,7 +274,7 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
             ?? throw new CommissionStepException($"未找到指定副本「{options.CrisisNormal}」，危机目录预检未完成");
         return await session.WaitAsync("预检确认危机目录仍为所选目标", u => u.Page == CommissionPage.Crisis
             && Equal(u.Name, options.CrisisNormal) && u.Difficulty == options.CrisisDifficulty
-            && (u.Has("create") || u.Has("enter") || u.Has("change")), token);
+            && (u.Has("solo") || u.Has("create") || u.Has("enter") || u.Has("change")), token);
     }
 
     /// <summary>Prepares the normal target and its party, stopping before entering or launching combat.</summary>
@@ -292,6 +294,7 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
     {
         var name = selected.Ui.Name;
         var tier = selected.Ui.Difficulty;
+        if (selected.Ui.Has("solo")) return selected;
         if (selected.Ui.Has("change"))
         {
             await s.ClickAsync(selected, "change", "更换目标副本", token);
@@ -305,6 +308,32 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
             return await s.WaitAsync("等待讨伐队伍页面与开始按钮", u => u.Page == CommissionPage.Lobby && u.Has("launch"), token);
         }
         throw new CommissionStepException("没有创建队伍或进入副本按钮，未进行匹配");
+    }
+
+    private async Task StartSoloCrisisAsync(CommissionSession session, CommissionFrame selected, TaskContext context, CancellationToken token)
+    {
+        await session.ClickAsync(selected, "solo", "单人挑战危机讨伐", token);
+        bool Entry(CommissionObservation ui) => ui.Page is CommissionPage.Battle or CommissionPage.Reward or CommissionPage.Lobby
+            || ui.Page == CommissionPage.Prepare && Equal(ui.Name, selected.Ui.Name);
+        var next = await session.WaitAsync("确认单人讨伐入口", ui => Entry(ui) || ui.Page == CommissionPage.LeaveParty,
+            token, timeout: loadingTimeout ?? TimeSpan.FromSeconds(90));
+        if (next.Ui.Page == CommissionPage.LeaveParty)
+        {
+            await session.ClickAsync(next, "confirm", "确认退出当前小队并进入单人讨伐", token);
+            next = await session.WaitAsync("确认单人讨伐页面", Entry, token, timeout: loadingTimeout ?? TimeSpan.FromSeconds(90));
+        }
+        if (next.Ui.Page == CommissionPage.Lobby)
+            await session.ClickAsync(next, "launch", "开始讨伐", token);
+        if (next.Ui.Page == CommissionPage.Prepare)
+        {
+            if (!string.IsNullOrWhiteSpace(TeamName))
+            {
+                var (_, teamSelected) = await SelectTeamAsync(session, context, next, token);
+                next = await session.WaitAsync("核对单人讨伐与队伍", ui => ui.Page == CommissionPage.Prepare
+                    && Equal(ui.Name, selected.Ui.Name) && (!teamSelected || Equal(ui.Team, TeamName)), token);
+            }
+            await session.ClickAsync(next, "start", "开始单人讨伐", token);
+        }
     }
 
     private async Task<CommissionFrame> OpenCrisisCatalogAsync(CommissionSession s, CancellationToken token)
@@ -384,9 +413,11 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
         return reward;
     }
 
-    private async Task<CommissionFrame> ResultReadyAsync(CommissionSession s, string step, CancellationToken token, CommissionPage page)
+    private async Task<CommissionFrame> ResultReadyAsync(CommissionSession s, string step, CancellationToken token, CommissionPage page,
+        bool allowSoloResult = false)
     {
-        bool IsSettlement(CommissionObservation ui) => ui.Page == page || ui.Page == CommissionPage.BondLevelUp
+        bool IsResult(CommissionObservation ui) => ui.Page == page || allowSoloResult && ui.Page == CommissionPage.Result;
+        bool IsSettlement(CommissionObservation ui) => IsResult(ui) || ui.Page == CommissionPage.BondLevelUp
             || page == CommissionPage.CrisisResult && ui.Page == CommissionPage.Mvp;
         var current = await s.WaitAsync(step, IsSettlement, token);
         var bondDismissals = 0;
@@ -425,7 +456,7 @@ public sealed class CommissionTask(CommissionKind kind, CommissionOptions option
                 continue;
             }
             current = await s.DelayAndObserveAsync(step + "：等待按钮稳定", ActionTiming.ResultDelay, IsSettlement, token);
-            if (current.Ui.Page == page) return current;
+            if (IsResult(current.Ui)) return current;
         }
         throw new CommissionStepException("结算画面反复切换，未确认稳定结算页，停止该项");
     }

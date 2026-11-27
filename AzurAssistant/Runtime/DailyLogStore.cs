@@ -6,7 +6,7 @@ namespace AzurAssistant.Runtime;
 
 public enum LogLevel { Info, Warning, Error }
 
-public sealed record LogEntry(long Id, DateTimeOffset Time, string Message, LogLevel Level = LogLevel.Info)
+public sealed record LogEntry(long Id, DateTimeOffset Time, string Message, LogLevel Level = LogLevel.Info, bool IsUserCancellation = false)
 {
     public string LevelText => Level switch { LogLevel.Warning => "WARN", LogLevel.Error => "ERROR", _ => "INFO" };
     public override string ToString() => $"{Time:HH:mm:ss} [{LevelText}]   {Message}";
@@ -41,12 +41,14 @@ public sealed class DailyLogStore
 
     public void Write(string message) => Write(message, LogLevel.Info);
 
-    public void Write(string message, LogLevel level)
+    public void Write(string message, LogLevel level) => Write(message, level, isUserCancellation: false);
+
+    internal void Write(string message, LogLevel level, bool isUserCancellation)
     {
         lock (_gate)
         {
             var now = _clock.GetLocalNow();
-            var entry = new LogEntry(++_sequence, now, message.Replace('\r', ' ').Replace('\n', ' '), level);
+            var entry = new LogEntry(++_sequence, now, message.Replace('\r', ' ').Replace('\n', ' '), level, isUserCancellation);
             _recent.Enqueue(entry);
             while (_recent.Count > 200) _recent.Dequeue();
             var line = $"{now.ToString("yyyy-MM-dd HH:mm:ss.fff zzz", CultureInfo.InvariantCulture)} [PID {Environment.ProcessId}] [{entry.LevelText}] {entry.Message}";

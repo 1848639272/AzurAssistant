@@ -1,31 +1,14 @@
 {
   "SchemaVersion": 1,
-  "Version": "1.2.0",
+  "Version": "1.3.1",
   "Region": {
-    "X": 740,
-    "Y": 115,
-    "Width": 435,
-    "Height": 42
+    "X": 756,
+    "Y": 118,
+    "Width": 177,
+    "Height": 35
   },
   "Scale": 2,
-  "MinimumConfidence": 0.9,
-  "Sources": [
-    {
-      "Source": "蓝色星原：旅谣 · 移动状态提示",
-      "Sha256": "7155ca96ff6c26d3d4b68acd8426dce61137306cde53a802c78ae4a7cb2a249f"
-    },
-    {
-      "Source": "蓝色星原：旅谣 · 移动状态提示",
-      "Sha256": "8ee5db9f555ecbb9fc7810c8df8f126aca2337a0f3483251b4bb3a49cb8650c5"
-    },
-    {
-      "Source": "蓝色星原：旅谣 · 移动状态提示",
-      "Sha256": "da19f0323451662929e08fcae7f69ef30a4a649aad3b00a64a16ca741f0f3460"
-    },
-    {
-      "Source": "蓝色星原：旅谣 · 移动状态提示",
-      "Sha256": "4055da4e31d05eb35eec7f40e54aed038ccfe7512cb5e6ce2578549f3c03afdc"
-    }
-  ],
-  "Purpose": "限定文字ROI读取当前状态前8字及其独立置信度；原图不足时分离白字重读，不解析后半句目标或匹配半透明背景。"
+  "MinimumConfidence": 0.8,
+  "Source": "蓝色星原：旅谣 · 移动状态提示",
+  "Purpose": "单独读取提示左侧完整的当前状态分句，校验八个字的置信度。"
 }

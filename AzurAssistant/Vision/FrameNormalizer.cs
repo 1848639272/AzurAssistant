@@ -5,7 +5,7 @@ namespace AzurAssistant.Vision;
 
 /// <summary>
 /// Rescales a captured client area onto the fixed reference client area every recognition asset was captured in.
-/// The frame source passes native 1080p through and sends the supported larger client sizes here.
+/// The frame source passes native 1080p through and sends other supported client sizes here.
 /// </summary>
 internal static class FrameNormalizer
 {
@@ -23,7 +23,8 @@ internal static class FrameNormalizer
             // Wrap the caller's buffer instead of copying it: the pool frame is already an owned BGRA32 block.
             using var image = Mat.FromPixelData(height, width, MatType.CV_8UC4, (nint)origin);
             using var target = new Mat();
-            Cv2.Resize(image, target, Reference, 0, 0, InterpolationFlags.Area);
+            Cv2.Resize(image, target, Reference, 0, 0,
+                width < ReferenceWidth ? InterpolationFlags.Linear : InterpolationFlags.Area);
             var resized = new byte[checked(ReferenceWidth * ReferenceHeight * 4)];
             Marshal.Copy(target.Data, resized, 0, resized.Length);
             return resized;

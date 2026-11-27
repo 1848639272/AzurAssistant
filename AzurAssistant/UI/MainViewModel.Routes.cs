@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.ComponentModel;
+using System.Diagnostics;
 using AzurAssistant.Features.Routes;
 using AzurAssistant.Runtime;
 using AzurAssistant.Game.Navigation;
@@ -10,18 +12,27 @@ public sealed record SavedRoute(string Path, RouteDefinition Route)
 {
     public string Name => Route.Name;
 }
-public sealed class RoutePointDraft(RoutePoint point, string mapName)
+public sealed class RoutePointDraft(RoutePoint point, string mapName, string? destinationName, int number) : INotifyPropertyChanged
 {
     public RoutePoint Point { get; } = point;
     public string Name { get; set; } = point.Name;
-    public string Location => $"{mapName} · {(Point.TeleportId is null ? "坐标" : "传送")}   X {Point.X:F1}   Y {Point.Y:F1}"
-        + (Point.FacingDegrees is { } angle ? $"   {angle:F1}°" : "");
+    public int Number { get; private set; } = number;
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public void SetNumber(int value)
+    {
+        if (Number == value) return;
+        Number = value;
+        PropertyChanged?.Invoke(this, new(nameof(Number)));
+    }
+    public string Location => Point.TeleportId is not null
+        ? Point.Landing is { } landing ? $"{destinationName}落点 ({landing.X:F1}, {landing.Y:F1})" : $"{mapName} · 传送"
+        : $"{mapName} · X {Point.X:F1}   Y {Point.Y:F1}" + (Point.FacingDegrees is { } angle ? $"   {angle:F1}°" : "");
 }
 
 public sealed class DailyRouteRow(MainViewModel owner, DailyRouteChoice choice, int index)
 {
     public int Index { get; } = index;
-    public string Label => $"{Index + 1}. {choice.Name}";
+    public string Label => $"{Index + 1}. {owner.SavedRoutes.FirstOrDefault(r => string.Equals(Path.GetFileName(r.Path), choice.File, StringComparison.OrdinalIgnoreCase))?.Name ?? choice.Name}";
     public bool AutoPickup { get => choice.AutoPickup; set => owner.SetDailyRoutePickup(Index, value); }
 }
 
@@ -30,6 +41,11 @@ public sealed partial class MainViewModel
     private RouteStore? _routeStore;
     private RouteStore Routes => _routeStore ??= new(routesDirectory ?? Path.Combine(AppContext.BaseDirectory, "routes"), NavigationMaps);
     private bool _capturingPoint;
+    private SavedRoute? _editing;
+    public bool IsRouteDraftOpen => IsRecordingRoute || _editing is not null;
+    public bool CanCancelDraft => IsRouteDraftOpen && !_capturingPoint;
+    public bool CanChangeDraft => IsRouteDraftOpen && !_capturingPoint && !IsPaused && (CanConfigure || automation?.IsRecording == true);
+    public bool CanRemovePoint => IsRouteDraftOpen ? CanChangeDraft : CanRunRoute;
     private string _routeName = "";
     private bool _routeAutoPickup;
     private SavedRoute? _selectedRoute;
@@ -39,13 +55,27 @@ public sealed partial class MainViewModel
     public string RouteMessage { get; private set; } = "选择路线运行，或开始录制。";
     public string RouteName { get => _routeName; set { _routeName = value; Notify(); Notify(nameof(CanSaveRoute)); } }
     public bool RouteAutoPickup { get => _routeAutoPickup; set { _routeAutoPickup = value; Notify(); } }
-    public SavedRoute? SelectedRoute { get => _selectedRoute; set { _selectedRoute = value; Notify(); Notify(nameof(SelectedRouteDescription)); Notify(nameof(SelectedRoutePoints)); Notify(nameof(CanRunRoute)); } }
-    public string SelectedRouteDescription => SelectedRoute is { } selected ? $"{MapName(selected.Route.Map.Id)} 起始 · {selected.Route.Points.Count} 个点位" : "尚未选择路线";
-    public IReadOnlyList<RoutePointDraft> SelectedRoutePoints => SelectedRoute is { Route: var route }
-        ? route.Points.Select(p => new RoutePointDraft(p, MapName((p.Map ?? route.Map).Id))).ToArray() : [];
-    public bool CanBeginRoute => CanConfigure && !IsRecordingRoute && !_capturingPoint;
-    public bool CanCaptureRoutePoint => IsRecordingRoute && !_capturingPoint && !IsPaused && (CanConfigure || automation?.IsRecording == true);
-    public bool CanSaveRoute => CanCaptureRoutePoint && RecordedPoints.Count > 0 && !string.IsNullOrWhiteSpace(RouteName);
+    public SavedRoute? SelectedRoute
+    {
+        get => _selectedRoute;
+        set
+        {
+            if (_selectedRoute == value) return;
+            _selectedRoute = value;
+            SelectedRoutePoints = value is null ? [] : Routes.ForSaving(value.Route).Points
+                .Select((point, i) => MakeDraft(point, value.Route.Map, i + 1)).ToArray();
+            Notify(); Notify(nameof(VisibleRoutePoints)); Notify(nameof(CanRemovePoint));
+            Notify(nameof(SelectedRoutePoints)); Notify(nameof(CanRunRoute));
+        }
+    }
+    public IReadOnlyList<RoutePointDraft> SelectedRoutePoints { get; private set; } = [];
+    public IEnumerable<RoutePointDraft> VisibleRoutePoints => IsRouteDraftOpen ? RecordedPoints : SelectedRoutePoints;
+    private RoutePointDraft MakeDraft(RoutePoint point, RouteMap owner, int number) =>
+        new(point, MapName((point.Map ?? owner).Id), point.Landing is { } l ? MapName(l.Map.Id) : null, number);
+    public bool CanBeginRoute => CanConfigure && !IsRouteDraftOpen && !_capturingPoint;
+    public bool CanCaptureRoutePoint => CanChangeDraft;
+    public bool CanRecordTeleport => CanCaptureRoutePoint && _editing?.Route.SchemaVersion != 1;
+    public bool CanSaveRoute => CanChangeDraft && RecordedPoints.Count > 0 && !string.IsNullOrWhiteSpace(RouteName);
     public bool CanRunRoute => CanBeginRoute && SelectedRoute is not null;
 
     public bool CustomRoutes { get => Settings.CustomRoutes; set => SaveSettings(Settings with { CustomRoutes = value }); }
@@ -79,7 +109,7 @@ public sealed partial class MainViewModel
 
     public void LoadRoutes()
     {
-        if (IsRecordingRoute || _capturingPoint) return;
+        if (IsRouteDraftOpen || _capturingPoint) return;
         var selected = SelectedRoute?.Path;
         SavedRoutes.Clear();
         Notify(nameof(DailyRouteHint));
@@ -95,7 +125,7 @@ public sealed partial class MainViewModel
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException or ArgumentException) { invalid++; Report("路线读取失败：" + Path.GetFileName(path) + "；" + ex.Message); }
         }
         SelectedRoute = SavedRoutes.FirstOrDefault(r => r.Path == selected) ?? SavedRoutes.FirstOrDefault();
-        Notify(nameof(DailyRouteHint));
+        Notify(nameof(DailyRouteHint)); Notify(nameof(DailyRouteRows));
         if (invalid > 0) SetRouteMessage($"有 {invalid} 个无效路线文件，已跳过并保留原文件，详见日志。");
     }
     public void BeginRouteRecording()
@@ -103,12 +133,34 @@ public sealed partial class MainViewModel
         if (!CanBeginRoute) return;
         if (automation?.StartRecording() != true) { SetRouteMessage("无法开始定位，请检查助手与游戏连接。"); return; }
         RecordedPoints.Clear(); RouteName = "";
-        IsRecordingRoute = true; Notify(nameof(IsRecordingRoute));
+        IsRecordingRoute = true; DraftChanged();
         SetRouteMessage("移动角色到点位后点击“记录当前点”，再编辑该点名称；完成后命名并保存整条路线。"); RefreshRouteState();
+    }
+    public void EditSelectedRoute()
+    {
+        if (!CanRunRoute || SelectedRoute is not { } selected) return;
+        _editing = selected;
+        RecordedPoints.Clear();
+        foreach (var row in SelectedRoutePoints)
+            RecordedPoints.Add(MakeDraft(row.Point, selected.Route.Map, row.Number));
+        RouteName = selected.Name;
+        DraftChanged();
+        SetRouteMessage(selected.Route.SchemaVersion == 1 ? "旧版单地图路线支持追加同图步行点，保存时保留原格式。" : "编辑完成后保存，取消可还原此次修改。");
+    }
+    public void OpenRouteDirectory()
+    {
+        try
+        {
+            Directory.CreateDirectory(Routes.DirectoryPath);
+            Process.Start(new ProcessStartInfo(Routes.DirectoryPath) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or Win32Exception)
+        { SetRouteMessage("无法打开路线文件夹：" + ex.Message); }
     }
     public async Task CaptureRoutePointAsync(bool teleport = false)
     {
-        if (!CanCaptureRoutePoint || automation is null || !automation.StartRecording()) return;
+        if (!CanCaptureRoutePoint || (teleport && !CanRecordTeleport)) return;
+        if (automation?.StartRecording() != true) { SetRouteMessage("无法开始定位，请检查助手与游戏连接。"); return; }
         _capturingPoint = true; RefreshRouteState();
         try
         {
@@ -117,7 +169,12 @@ public sealed partial class MainViewModel
             if (result.Point is { Map: { } map } point)
             {
                 if (point.TeleportId is null) point = point with { Name = "点位 " + (RecordedPoints.Count + 1) };
-                RecordedPoints.Add(new(point, MapName(map.Id)));
+                if (_editing?.Route is { SchemaVersion: 1 } legacy)
+                {
+                    if (map != legacy.Map) { SetRouteMessage("旧版单地图路线只能追加起始地图中的点位。"); return; }
+                    point = point with { Map = null, FacingDegrees = null };
+                }
+                RecordedPoints.Add(MakeDraft(point, map, RecordedPoints.Count + 1));
             }
             SetRouteMessage(result.Message);
         }
@@ -125,8 +182,14 @@ public sealed partial class MainViewModel
     }
     public void RemoveRecordedPoint(RoutePointDraft point)
     {
-        if (!CanCaptureRoutePoint) return;
-        RecordedPoints.Remove(point);
+        if (!IsRouteDraftOpen && CanRunRoute && SelectedRoutePoints.Contains(point))
+        {
+            var index = point.Number - 1;
+            EditSelectedRoute();
+            point = RecordedPoints[index];
+        }
+        if (!CanChangeDraft || !RecordedPoints.Remove(point)) return;
+        for (var i = point.Number - 1; i < RecordedPoints.Count; i++) RecordedPoints[i].SetNumber(i + 1);
         RefreshRouteState();
     }
     public void SaveRecordedRoute()
@@ -134,29 +197,55 @@ public sealed partial class MainViewModel
         if (!CanSaveRoute) return;
         try
         {
-            var route = new RouteDefinition(RouteDefinition.CurrentSchema, RouteName.Trim(), RecordedPoints[0].Point.Map!, null,
+            var original = _editing?.Route;
+            var route = new RouteDefinition(original?.SchemaVersion == 1 ? 1 : RouteDefinition.CurrentSchema, RouteName.Trim(),
+                RecordedPoints[0].Point.Map ?? original!.Map, original?.AutoPickup,
                 RecordedPoints.Select(p => p.Point with { Name = p.Name.Trim() }).ToArray());
-            var path = Routes.Save(route); automation?.FinishRecording(); IsRecordingRoute = false; Notify(nameof(IsRecordingRoute));
-            LoadRoutes(); SelectedRoute = SavedRoutes.Single(r => r.Path == path);
-            SetRouteMessage("路线已保存为 JSON，可导出分享或直接运行。"); RefreshRouteState();
+            string path;
+            if (_editing is { } editing) { path = editing.Path; Routes.Update(path, editing.Route, route); }
+            else path = Routes.Save(route);
+            EndDraft();
+            SelectWrittenRoute(path, "路线已保存，可导出分享或直接运行。");
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or ArgumentException) { SetRouteMessage("保存失败：" + ex.Message); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or ArgumentException or System.Text.Json.JsonException) { SetRouteMessage("保存失败：" + ex.Message); }
     }
-    public void CancelRouteRecording()
+    public async Task CancelRouteRecordingAsync()
     {
-        if (_capturingPoint) return;
-        automation?.FinishRecording(); IsRecordingRoute = false; RecordedPoints.Clear();
-        Notify(nameof(IsRecordingRoute)); RefreshRouteState(); SetRouteMessage("已取消本次录制。");
+        if (!CanCancelDraft) return;
+        _capturingPoint = true;
+        RefreshRouteState();
+        try
+        {
+            if (automation is not null) await automation.CancelRecordingAsync();
+            EndDraft();
+        }
+        finally { _capturingPoint = false; RefreshRouteState(); }
+        LoadRoutes(); SetRouteMessage("已取消本次修改。");
+    }
+    private void EndDraft()
+    {
+        if (automation?.IsRecording == true) automation.FinishRecording();
+        IsRecordingRoute = false; _editing = null; RecordedPoints.Clear(); DraftChanged();
+    }
+    private void DraftChanged()
+    {
+        Notify(nameof(IsRecordingRoute)); Notify(nameof(IsRouteDraftOpen)); Notify(nameof(VisibleRoutePoints)); RefreshRouteState();
     }
     public void ImportRoute(string path)
     {
         if (!CanBeginRoute) return;
         try
         {
-            var route = Routes.Read(path); var saved = Routes.Save(route); LoadRoutes(); SelectedRoute = SavedRoutes.Single(r => r.Path == saved);
-            SetRouteMessage("已导入“" + route.Name + "”，点击运行路线开始。");
+            var route = Routes.Read(path);
+            SelectWrittenRoute(Routes.Save(route), "已导入“" + route.Name + "”，点击运行路线开始。");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException or ArgumentException) { SetRouteMessage("导入失败：" + ex.Message); }
+    }
+    private void SelectWrittenRoute(string path, string message)
+    {
+        LoadRoutes();
+        SelectedRoute = SavedRoutes.FirstOrDefault(r => string.Equals(r.Path, path, StringComparison.OrdinalIgnoreCase));
+        SetRouteMessage(SelectedRoute is null ? "文件已写入，但暂未能重新载入，请检查路线目录。" : message);
     }
     public void ExportSelectedRoute(string path)
     {
@@ -197,5 +286,5 @@ public sealed partial class MainViewModel
     }
     private void SetRouteMessage(string value) { RouteMessage = value; Notify(nameof(RouteMessage)); }
     private void RefreshRouteState()
-    { Notify(nameof(CanBeginRoute)); Notify(nameof(CanCaptureRoutePoint)); Notify(nameof(CanSaveRoute)); Notify(nameof(CanRunRoute)); }
+    { Notify(nameof(CanBeginRoute)); Notify(nameof(CanRemovePoint)); Notify(nameof(CanChangeDraft)); Notify(nameof(CanCancelDraft)); Notify(nameof(CanCaptureRoutePoint)); Notify(nameof(CanRecordTeleport)); Notify(nameof(CanSaveRoute)); Notify(nameof(CanRunRoute)); }
 }

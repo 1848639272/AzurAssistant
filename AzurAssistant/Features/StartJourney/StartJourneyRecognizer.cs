@@ -14,7 +14,7 @@ public interface IJourneyRecognizer
 }
 
 public sealed class StartJourneyRecognizer(ImageTemplate ageRating, JourneySettings settings,
-    Func<FrameSnapshot, CancellationToken, Task<bool>> isWorld, JourneyRewardRecognizer? rewards = null,
+    Func<FrameSnapshot, CancellationToken, Task<JourneyPage>> readGamePage, JourneyRewardRecognizer? rewards = null,
     JourneyUpdateRecognizer? updates = null) : IJourneyRecognizer, IDisposable
 {
     public void Dispose() { }
@@ -31,7 +31,8 @@ public sealed class StartJourneyRecognizer(ImageTemplate ageRating, JourneySetti
         if (match.Score >= settings.AgeThreshold)
             return reward ?? new JourneyObservation(JourneyPage.Start,
                 new ClientPoint(settings.StartClick[0], settings.StartClick[1]), InitialPageScore: match.Score);
-        if (await isWorld(frame, token)) return reward ?? new(JourneyPage.InGame, InitialPageScore: match.Score);
+        var gamePage = await readGamePage(frame, token);
+        if (gamePage is JourneyPage.InGame or JourneyPage.Menu) return reward ?? new(gamePage, InitialPageScore: match.Score);
         if (giftPanel is not null && rewards?.FindSpecialGiftBlank(frame, giftPanel) is { } blank)
             return new(JourneyPage.PossibleGiftReward, ClosePoint: blank);
         return reward ?? new(JourneyPage.Unknown, InitialPageScore: match.Score);

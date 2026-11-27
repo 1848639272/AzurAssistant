@@ -19,7 +19,7 @@
     <TextBlock Text="蔚蓝助手使用说明" FontSize="20" FontWeight="Bold" LineHeight="30" />
     <TextBlock Text="蔚蓝助手（AzurAssistant）是一款开源、免费的《蓝色星原：旅谣》辅助工具，可从下方项目地址免费下载。" />
     <TextBlock Text="助手采用纯视觉识别，通过游戏画面判断当前状态，再模拟键盘和鼠标完成操作。运行过程中不修改游戏文件，也不读写游戏进程内存。" />
-    <TextBlock>当前版本为 <Bold>v1.0.0_rc1 开发预览版</Bold>，部分功能可能暂时无法使用。</TextBlock>
+    <TextBlock>当前版本为 <Bold>v1.0.0_rc2 开发预览版</Bold>，部分功能可能暂时无法使用。</TextBlock>
     <TextBlock Text="账号风险提示" FontSize="16" FontWeight="Bold" Margin="0,4,0,6" />
     <TextBlock Text="模拟操作仍可能被游戏检测到，并可能导致账号受限或封禁。请根据自身情况决定是否使用，并自行承担使用本工具的风险及相应责任。" />
     <TextBlock Margin="0,2,0,0">B 站账号：<Bold>o柴v柴o</Bold></TextBlock>

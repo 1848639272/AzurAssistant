@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Windows.Automation;
 using AzurAssistant.Contracts;
 
 namespace AzurAssistant.Platform;
@@ -10,6 +11,7 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput, 
     private sealed record ActivationTiming(TimeSpan Timeout, TimeSpan RetryInterval, TimeSpan PollInterval);
     private ActivationTiming _activationTiming = new(TimeSpan.FromSeconds(3), TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(40));
     private GameWindow? _target;
+    private Task _automationFocus = Task.CompletedTask;
     private bool _leftHeld;
     private readonly HashSet<ushort> _heldScans = [];
     private readonly object _holdGate = new();
@@ -22,6 +24,13 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput, 
     [StructLayout(LayoutKind.Sequential)] private struct FlashInfo { public uint Size; public nint Window; public uint Flags, Count, Timeout; }
     [DllImport("user32.dll")] private static extern bool FlashWindowEx(ref FlashInfo info);
     [DllImport("user32.dll")] private static extern bool SetForegroundWindow(nint window);
+    [StructLayout(LayoutKind.Sequential)] private struct GuiThreadInfo
+    {
+        public uint Size, Flags;
+        public nint Active, Focus, Capture, MenuOwner, MoveSize, Caret;
+        public NativeMethods.Rect CaretRect;
+    }
+    [DllImport("user32.dll")] private static extern bool GetGUIThreadInfo(uint thread, ref GuiThreadInfo info);
     [DllImport("user32.dll")] private static extern int GetSystemMetrics(int index);
     [DllImport("user32.dll", SetLastError = true)] private static extern bool GetClipCursor(out NativeMethods.Rect rectangle);
     [DllImport("user32.dll")] private static extern nint WindowFromPoint(NativeMethods.Point point);
@@ -74,8 +83,30 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput, 
         _target = target;
     }
 
-    public bool IsTargetForeground => _target is { } window && NativeMethods.GetForegroundWindow() == window.Handle &&
-        !NativeMethods.IsIconic(window.Handle) && GameWindow.Exists(window.Handle, window.ProcessId);
+    public bool IsTargetForeground => _target is { } target && HasInputFocus(target.Handle, target.ProcessId);
+
+    public bool HasInputFocus(nint handle, int processId)
+    {
+        if (NativeMethods.GetForegroundWindow() != handle || NativeMethods.IsIconic(handle)) return false;
+        var thread = NativeMethods.GetWindowThreadProcessId(handle, out var pid);
+        var info = new GuiThreadInfo { Size = (uint)Marshal.SizeOf<GuiThreadInfo>() };
+        return thread != 0 && pid == processId && GetGUIThreadInfo(thread, ref info) &&
+            info.Active == handle && info.Focus != 0 && (info.Focus == handle || GetAncestor(info.Focus, 2) == handle) &&
+            NativeMethods.GetForegroundWindow() == handle;
+    }
+
+    public string DescribeForeground()
+    {
+        var handle = NativeMethods.GetForegroundWindow();
+        if (handle == 0) return "当前没有前台窗口。";
+        var thread = NativeMethods.GetWindowThreadProcessId(handle, out var pid);
+        var name = "未知";
+        try { using var process = Process.GetProcessById((int)pid); name = process.ProcessName; }
+        catch (Exception e) when (e is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception) { }
+        var info = new GuiThreadInfo { Size = (uint)Marshal.SizeOf<GuiThreadInfo>() };
+        var focus = thread != 0 && GetGUIThreadInfo(thread, ref info) ? $"0x{info.Focus:X}" : "未知";
+        return $"当前前台进程={name}，PID={pid}，窗口=0x{handle:X}，输入焦点={focus}。";
+    }
 
     public bool HasMovedSince(FrameSnapshot frame)
     {
@@ -85,58 +116,79 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput, 
             (geometry.X != frame.ClientLeft || geometry.Y != frame.ClientTop);
     }
 
-    public async Task<bool> TryActivateOnceAsync(CancellationToken token)
+    public Task<bool> TryActivateWindowAsync(nint window, int processId, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        var target = _target ?? throw new InvalidOperationException("还没有选定游戏窗口。");
-        if (!GameWindow.Exists(target.Handle, target.ProcessId)) throw new InvalidOperationException("原游戏窗口已关闭。");
+        if (!GameWindow.Exists(window, processId)) return Task.FromResult(false);
+        if (_target is null || _target.Handle != window || _target.ProcessId != processId) SelectActivationTarget();
+        var target = _target!;
+        if (target.Handle != window || target.ProcessId != processId || !GameWindow.Exists(window, processId))
+            return Task.FromResult(false);
+        return RequestFocusAsync(target, token);
+    }
+
+    private async Task<bool> RequestFocusAsync(GameWindow target, CancellationToken token)
+    {
+        if (HasInputFocus(target.Handle, target.ProcessId)) return true;
+        var timing = _activationTiming;
         var timer = Stopwatch.StartNew();
         if (NativeMethods.IsIconic(target.Handle))
-        {
             ShowWindowAsync(target.Handle, 9); // SW_RESTORE is asynchronous across window threads.
-            while (NativeMethods.IsIconic(target.Handle) && timer.Elapsed < _activationTiming.Timeout)
-                await Task.Delay(_activationTiming.PollInterval, token);
+        SetForegroundWindow(target.Handle);
+        using var fallback = CancellationTokenSource.CreateLinkedTokenSource(token);
+        var fallbackToken = fallback.Token;
+        var requested = false;
+        try
+        {
+            while (timer.Elapsed < timing.Timeout)
+            {
+                token.ThrowIfCancellationRequested();
+                if (!GameWindow.Exists(target.Handle, target.ProcessId)) return false;
+                if (HasInputFocus(target.Handle, target.ProcessId)) return true;
+                if (!requested && timer.Elapsed >= timing.RetryInterval && !NativeMethods.IsIconic(target.Handle) && _automationFocus.IsCompleted)
+                {
+                    // A provider may stall. Keep its call off the input/UI thread and allow only one in flight.
+                    requested = true;
+                    _automationFocus = Task.Run(() => RequestElementFocus(target, fallbackToken));
+                }
+                await Task.Delay(timing.PollInterval, token);
+            }
         }
-        if (IsTargetForeground) return true;
-        // Windows can deny a background caller. Notify through the game taskbar button while waiting for actual focus.
-        if (!SetForegroundWindow(target.Handle))
+        finally { fallback.Cancel(); }
+        if (HasInputFocus(target.Handle, target.ProcessId)) return true;
+        if (GameWindow.Exists(target.Handle, target.ProcessId))
         {
             var flash = new FlashInfo { Size = (uint)Marshal.SizeOf<FlashInfo>(), Window = target.Handle, Flags = 2, Count = 1 };
             FlashWindowEx(ref flash);
         }
-        while (timer.Elapsed < _activationTiming.Timeout)
+        return false;
+    }
+
+    private static void RequestElementFocus(GameWindow target, CancellationToken token)
+    {
+        try
         {
-            if (IsTargetForeground) return true;
-            await Task.Delay(_activationTiming.PollInterval, token);
+            if (token.IsCancellationRequested || !GameWindow.Exists(target.Handle, target.ProcessId)) return;
+            var element = AutomationElement.FromHandle(target.Handle);
+            if (element.Current.ProcessId == target.ProcessId && !token.IsCancellationRequested && GameWindow.Exists(target.Handle, target.ProcessId))
+                element.SetFocus();
         }
-        return IsTargetForeground;
+        catch (Exception e) when (e is ElementNotAvailableException or ElementNotEnabledException or
+            InvalidOperationException or ArgumentException or UnauthorizedAccessException or COMException or TimeoutException)
+        {
+            // A missing, busy or non-focusable provider leaves the native focus check in charge of the result.
+        }
     }
 
     public async Task ActivateAsync(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        var timing = _activationTiming;
         ReleaseAll();
         SelectActivationTarget();
-        if (NativeMethods.IsIconic(_target!.Handle)) ShowWindowAsync(_target.Handle, 9);
-        SetForegroundWindow(_target.Handle);
-        var timer = Stopwatch.StartNew();
-        var lastAttempt = -1L;
-        while (timer.Elapsed < timing.Timeout)
-        {
-            token.ThrowIfCancellationRequested();
-            var attempt = timer.Elapsed.Ticks / timing.RetryInterval.Ticks;
-            if (attempt != lastAttempt)
-            {
-                if (NativeMethods.IsIconic(_target.Handle)) ShowWindowAsync(_target.Handle, 9);
-                SetForegroundWindow(_target.Handle);
-                lastAttempt = attempt;
-            }
-            if (NativeMethods.GetForegroundWindow() == _target.Handle && !NativeMethods.IsIconic(_target.Handle))
-            { _target.Observe(); return; }
-            await Task.Delay(timing.PollInterval, token);
-        }
-        throw new InvalidOperationException("无法将游戏置于前台，请点击游戏窗口后重新开始。");
+        var target = _target!;
+        if (!await RequestFocusAsync(target, token))
+            throw new InvalidOperationException($"未取得游戏窗口的输入焦点。{DescribeForeground()}");
+        target.Observe();
     }
 
     public async Task ClickAsync(FrameSnapshot frame, ClientPoint point, CancellationToken token)
@@ -227,9 +279,9 @@ public sealed class WindowsGameInput(Func<GameWindow> findWindow) : IGameInput, 
         return target;
     }
 
-    private static void RequireForeground(GameWindow target)
+    private void RequireForeground(GameWindow target)
     {
-        if (NativeMethods.GetForegroundWindow() != target.Handle) throw new ForegroundLostException();
+        if (!HasInputFocus(target.Handle, target.ProcessId)) throw new ForegroundLostException();
     }
 
     /// <summary>Maps a reference-space client point onto the frame's native client pixels.</summary>

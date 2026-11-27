@@ -42,6 +42,10 @@ public sealed record AssistantSettings
     public bool RandomInteractionDelay { get; init; }
     public bool LowPerformanceMode { get; init; }
     public bool ShowPreview { get; init; } = true;
+    public bool ShowGameStatusBorder { get; init; } = true;
+    public bool ShowGameStatusLog { get; init; }
+    public int GameStatusLogScalePercent { get; init; } = 100;
+    public bool CloseToTray { get; init; }
     public bool DarkMode { get; init; }
     public string PauseHotkey { get; init; } = "F9";
     public string StopHotkey { get; init; } = "F10";
@@ -53,6 +57,8 @@ public sealed record AssistantSettings
     public int ExitGameDelaySeconds { get; init; }
     public bool CloseAssistantAfterExitGame { get; init; }
     public bool ClaimMail { get; init; }
+    public bool Shop { get; init; }
+    public bool HomeCakesOnly { get; init; }
     public bool HomeCenter { get; init; }
     public bool ClaimActivity { get; init; }
     public bool ClaimBattlePass { get; init; }

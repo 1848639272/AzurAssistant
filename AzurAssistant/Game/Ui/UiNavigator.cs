@@ -26,6 +26,37 @@ internal sealed class UiNavigator(TaskContext context, IDailyUiRecognizer recogn
     public async Task<ObservedUi> WaitAsync(string step, CancellationToken token, string? target = null, params DailyPage[] pages)
         => await WaitCoreAsync(step, token, target, pages);
 
+    public async Task<ObservedUi> DragRowAsync(ObservedUi source, ClientPoint from, ClientPoint to, string step, CancellationToken token,
+        params DailyPage[] revealedPages)
+    {
+        var page = source.Ui.Page;
+        using var deadline = context.Execution.CreateDeadline(token);
+        deadline.CancelAfter(timing.StepTimeout);
+        try
+        {
+            while (true)
+            {
+                await context.Execution.WaitAsync(deadline.Token);
+                if (!Fresh(source.Frame) || !context.Execution.IsObservationCurrent(source.Frame))
+                    source = await WaitAsync(step + "前确认页面", deadline.Token, null, page);
+                try
+                {
+                    await context.Input.DragAsync(source.Frame, from, to, deadline.Token);
+                    break;
+                }
+                catch (ObservationInvalidatedException) { source = await WaitAsync(step + "前重新确认页面", deadline.Token, null, page); }
+            }
+        }
+        catch (OperationCanceledException) when (!token.IsCancellationRequested)
+        {
+            throw new UiStepException(step + "：未能在有效画面上拖动");
+        }
+        _after = Now;
+        context.Log(step);
+        await context.Execution.DelayAsync(timing.ActionSettle, token);
+        return await WaitAsync(step + "后确认页面", token, null, [page, .. revealedPages]);
+    }
+
     public async Task<ObservedUi> TransitionAsync(ObservedUi source, string? actionTarget, string step,
         CancellationToken token, string? resultTarget = null, int offsetY = 0, bool allowRetry = true,
         Func<ObservedUi, CancellationToken, Task<bool>>? accept = null, params DailyPage[] pages)

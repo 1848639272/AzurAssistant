@@ -9,7 +9,7 @@ public sealed class DailyTaskOption(DailyFeatureChoice choice, MainViewModel own
     public string Id => choice.Id;
     public string Name => choice.Name;
     public MainViewModel Owner => owner;
-    public bool HasSettings => Id is "daily-commissions" or "weekly-echoes" or "crisis-raids" or "story-commissions";
+    public bool HasSettings => Id is "home-center" or "daily-commissions" or "weekly-echoes" or "crisis-raids" or "story-commissions";
     public bool IsExpanded
     {
         get => _isExpanded;

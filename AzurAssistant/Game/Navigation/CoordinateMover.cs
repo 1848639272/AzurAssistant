@@ -8,6 +8,11 @@ public sealed class CoordinateMover(TaskContext context, NavigationSession sessi
     // The same mover owns contiguous walking points; teleports begin a new camera calibration.
     private double? _turnGain;
     private long _gainGeneration = -1;
+    private sealed class TravelFixLost(NavigationObservation last, double speed, string reason) : Exception(reason)
+    {
+        public NavigationObservation Last { get; } = last;
+        public double Speed { get; } = speed;
+    }
 
     public async Task MoveAsync(MapPosition target, CancellationToken token, double maximumDistance = 250)
     {
@@ -20,6 +25,7 @@ public sealed class CoordinateMover(TaskContext context, NavigationSession sessi
         _gainGeneration = generation;
         var turns = 0;
         var retryCalibration = false;
+        var recoveries = 0;
         for (var step = 0; step < 60; step++)
         {
             try
@@ -94,6 +100,16 @@ public sealed class CoordinateMover(TaskContext context, NavigationSession sessi
                 var mode = current.Position!.DistanceTo(target) > 16 ? MovementMode.Run : MovementMode.Walk;
                 current = await session.SetMovementModeAsync(mode, token);
                 (current, motion) = await TravelAsync(current, target, motion, _turnGain, mode, token);
+            }
+            catch (TravelFixLost lost)
+            {
+                if (++recoveries > 3) throw new NavigationException("同一点位行进期间已三次重新定位，仍反复丢失坐标，已停止。");
+                context.Log($"已松开W，原地重新定位（{recoveries}/3）：{lost.Message}；最后可信位置 ({lost.Last.Position!.X:F1}, {lost.Last.Position.Y:F1})");
+                current = await session.RecoverTravelFixAsync(lost.Last, lost.Speed, token);
+                motion = null;
+                turns = 0;
+                retryCalibration = false;
+                context.Log($"已在新帧重新确认位置 ({current.Position!.X:F1}, {current.Position.Y:F1})，重新判断至当前点位的方向");
             }
             catch (ObservationInvalidatedException)
             {
@@ -190,13 +206,18 @@ public sealed class CoordinateMover(TaskContext context, NavigationSession sessi
             while (true)
             {
                 await context.Execution.DelayAsync(TimeSpan.FromMilliseconds(70), token);
-                current = await session.WaitAsync(_ => true, "持续前进定位", token, 1, 0, minimapOnly: true);
+                var remaining = .72 - NavigationSession.Age(previous.Frame).TotalSeconds;
+                if (remaining <= 0) throw new TravelFixLost(previous, speed, "上一张前进定位帧已过期");
+                try { current = await session.WaitAsync(_ => true, "持续前进定位", token, Math.Min(.55, remaining), 0, minimapOnly: true); }
+                catch (NavigationException ex) { throw new TravelFixLost(previous, speed, ex.Message); }
                 if (generation != context.Execution.Generation) throw new ObservationInvalidatedException();
-                if (current.Position is null) throw new NavigationException("行进小地图定位丢失，已松开W；请重新定位后继续。");
+                if (current.Position is null) throw new TravelFixLost(previous, speed, current.Diagnostic);
                 LogTravelTurn(current);
                 var dt = (current.Frame.SystemTimestamp - previous.Frame.SystemTimestamp).TotalSeconds;
-                if (dt <= 0 || current.Position.DistanceTo(previous.Position!) > Math.Max(8, dt * 180))
-                    throw new NavigationException("行进坐标发生不可信跳变，已停止。");
+                if (dt <= 0 || !current.Position.SameMap(previous.Position!) || current.Position.DistanceTo(previous.Position!) > Math.Max(8, dt * 180))
+                    throw new TravelFixLost(previous, speed, "行进坐标与上一张定位帧不连续");
+                if (NavigationSession.Age(previous.Frame).TotalSeconds > .72)
+                    throw new TravelFixLost(current, speed, "前进定位观察超时");
                 var distance = current.Position.DistanceTo(target);
                 if (distance < bestDistance - .8) { bestDistance = distance; progressAt = current.Frame.SystemTimestamp; }
                 if (current.Frame.SystemTimestamp - progressAt > TimeSpan.FromSeconds(1.8))

@@ -21,6 +21,8 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     private FrameSnapshot? _displayedFrame;
     private PreviewSnapshot? _lastSnapshot;
     private long _lastLog;
+    private DateTimeOffset _overlayErrorUntil;
+    private string? _lastLogError;
     private bool _initialized;
     private string _selectedPage = "home";
     private AssistantSettings _localSettings = new();
@@ -134,9 +136,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     }
     private CommissionOptions? _commissionDraft;
     private string? _dailyCategory;
-    private bool? _customCrisisSpecial;
     private readonly Dictionary<string, string> _claimLimitDrafts = new();
-    private const string CustomSpecialChoice = "自定义副本名称";
     // Keep option collection identities stable through the periodic status refresh so an open popup retains focus.
     private static readonly IReadOnlyList<string> DailyCategories = Array.AsReadOnly(
         Features.Commissions.CommissionOptions.DailyChoices.Select(d => d.Category).Distinct().ToArray());
@@ -146,9 +146,6 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     private static readonly IReadOnlyDictionary<string, IReadOnlyList<int>> DailyTiers =
         Features.Commissions.CommissionOptions.DailyChoices.ToDictionary(d => d.Name,
             d => (IReadOnlyList<int>)Array.AsReadOnly(Enumerable.Range(d.MinDifficulty, d.MaxDifficulty - d.MinDifficulty + 1).ToArray()));
-    private static readonly IReadOnlyDictionary<int, IReadOnlyList<string>> SpecialNames = Enumerable.Range(1, 6)
-        .ToDictionary(tier => tier, tier => (IReadOnlyList<string>)Array.AsReadOnly(
-            Features.Commissions.CommissionOptions.GetSpecialChoices(tier).Append(CustomSpecialChoice).ToArray()));
     private CommissionOptions CommissionOptions => _commissionDraft ?? automation?.CommissionSettings?.Current ?? new();
     public IReadOnlyList<string> DailyCategoryChoices => DailyCategories;
     public string DailyCategory
@@ -185,7 +182,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     }
     public string StoryTeam { get => CommissionOptions.StoryTeamName; set => SetCommissionDraft(CommissionOptions with { StoryTeamName = value }); }
     public IReadOnlyList<string> CrisisDungeonChoices => Features.Commissions.CommissionOptions.GetCrisisChoices(CrisisDifficulty);
-    public IReadOnlyList<string> SpecialDungeonChoices => SpecialNames.GetValueOrDefault(CrisisDifficulty) ?? Array.Empty<string>();
+    public IReadOnlyList<string> SpecialDungeonChoices => Features.Commissions.CommissionOptions.GetSpecialChoices(CrisisDifficulty);
     public bool CrisisSpecialEnabled
     {
         get => CommissionOptions.CrisisSpecialEnabled;
@@ -196,29 +193,6 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         get => CommissionOptions.CrisisNormalEnabled;
         set => SetCommissionDraft(CommissionOptions with { CrisisNormalEnabled = value });
     }
-    public bool CrisisUsesCustomSpecial => _customCrisisSpecial
-        ?? !Features.Commissions.CommissionOptions.GetSpecialChoices(CrisisDifficulty).Contains(CrisisSpecial);
-    public string CrisisSpecialChoice
-    {
-        get => CrisisUsesCustomSpecial ? CustomSpecialChoice : CrisisSpecial;
-        set
-        {
-            if (value == CrisisSpecialChoice) return;
-            if (value == CustomSpecialChoice)
-            {
-                _customCrisisSpecial = true;
-                SetCommissionDraft(CommissionOptions with { CrisisSpecial = "" });
-            }
-            else if (Features.Commissions.CommissionOptions.GetSpecialChoices(CrisisDifficulty).Contains(value))
-            {
-                _customCrisisSpecial = false;
-                SetCommissionDraft(CommissionOptions with { CrisisSpecial = value });
-            }
-            else return;
-            Notify(nameof(CrisisSpecialChoice));
-            Notify(nameof(CrisisUsesCustomSpecial));
-        }
-    }
     public string CrisisOrderDescription => (CrisisSpecialEnabled, CrisisNormalEnabled) switch
     {
         (true, true) => "先刷惊喜副本，再刷普通副本",
@@ -226,9 +200,6 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         (false, true) => "仅刷普通副本",
         _ => "未选择刷取类型，本任务将跳过"
     };
-    public string CrisisCustomNameHint => CrisisNormalEnabled
-        ? "请输入当前难度下的完整名称；未找到时会记录并继续普通副本"
-        : "请输入当前难度下的完整名称；未找到时会记录并结束本任务";
     public bool DailyClaimLimitEnabled { get => CommissionOptions.DailyClaimLimitEnabled; set => SetCommissionDraft(CommissionOptions with { DailyClaimLimitEnabled = value }); }
     public bool WeeklyClaimLimitEnabled { get => CommissionOptions.WeeklyClaimLimitEnabled; set => SetCommissionDraft(CommissionOptions with { WeeklyClaimLimitEnabled = value }); }
     public bool StoryClaimLimitEnabled { get => CommissionOptions.StoryClaimLimitEnabled; set => SetCommissionDraft(CommissionOptions with { StoryClaimLimitEnabled = value }); }
@@ -276,7 +247,6 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         {
             if (!SixDifficulties.Contains(value) || value == CrisisDifficulty) return;
             var normal = Features.Commissions.CommissionOptions.GetCrisisChoices(value);
-            _customCrisisSpecial = null;
             SetCommissionDraft(CommissionOptions with
             {
                 CrisisDifficulty = value,
@@ -293,14 +263,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     public string CrisisSpecial
     {
         get => CommissionOptions.CrisisSpecial;
-        set
-        {
-            // Text entry stays custom even when an intermediate prefix equals a known preset.
-            _customCrisisSpecial = true;
-            SetCommissionDraft(CommissionOptions with { CrisisSpecial = value ?? "" });
-            Notify(nameof(CrisisSpecialChoice));
-            Notify(nameof(CrisisUsesCustomSpecial));
-        }
+        set { if (SpecialDungeonChoices.Contains(value)) SetCommissionDraft(CommissionOptions with { CrisisSpecial = value }); }
     }
     public string CommissionTeam { get => CommissionOptions.TeamName; set => SetCommissionDraft(CommissionOptions with { TeamName = value }); }
     public string CommissionNote { get; private set; } = "请先手动三星通关所选难度";
@@ -345,8 +308,21 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     public void ResetWeeklyProgress() { automation?.ResetWeeklyProgress(); Notify(string.Empty); }
     public string DailySelectionText => SelectionText(new[] { (LaunchGame, "启动游戏"), (EnterGame, "进入游戏") }
         .Concat(OrderedDailyTasks.Select(c => (c.IsSelected, c.Name))).Append((CustomRoutes, "自定义路线")).Append((ExitGame, "关闭游戏")).ToArray());
-    public string RealtimeSelectionText => SelectionText([(AutoSkipDialogue, "自动跳过对话"), (AutoPickup, "自动拾取采集物"),
-        (AutoMining, "自动挖矿"), (AutoLogging, "自动砍树"), (HideUid, "隐藏 UID")]);
+    public string RealtimeSelectionText => RealtimeNames(Settings);
+    private static string RealtimeNames(AssistantSettings s) => SelectionText([(s.AutoSkipDialogue, "自动跳过对话"), (s.AutoPickup, "自动拾取采集物"),
+        (s.AutoMining, "自动挖矿"), (s.AutoLogging, "自动砍树"), (s.HideUid, "隐藏 UID")]);
+    public bool ShowGameStatusBorder { get => Settings.ShowGameStatusBorder; set => SaveSettings(Settings with { ShowGameStatusBorder = value }); }
+    public bool ShowGameStatusLog { get => Settings.ShowGameStatusLog; set => SaveSettings(Settings with { ShowGameStatusLog = value }); }
+    public int GameStatusLogScalePercent
+    {
+        get => Settings.GameStatusLogScalePercent;
+        set { if (value != Settings.GameStatusLogScalePercent && value is >= 50 and <= 200) SaveSettings(Settings with { GameStatusLogScalePercent = value }); }
+    }
+    public bool CloseToTray { get => Settings.CloseToTray; set => SaveSettings(Settings with { CloseToTray = value }); }
+    internal GameStatusColor OverlayColor(DateTimeOffset now) => now < _overlayErrorUntil ? GameStatusColor.Error
+        : IsBusy ? GameStatusColor.Active : GameStatusColor.Idle;
+    internal string RunningRealtimeNames => automation?.RunningRealtimeSelection is { } started ? RealtimeNames(started) : "";
+    internal FrameSnapshot? OverlayFrame => preview.Current.Frame;
     public string GameExecutablePath { get => Settings.GameExecutablePath; set => SaveSettings(Settings with { GameExecutablePath = value }); }
     public string LaunchPathHint => string.IsNullOrWhiteSpace(Settings.GameExecutablePath)
         ? "请先在设置中选择游戏启动器" : Settings.GameExecutablePath;
@@ -451,6 +427,7 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
     public bool LaunchGame { get => Settings.LaunchGame; set => SaveSettings(Settings with { LaunchGame = value }); }
     public bool EnterGame { get => Settings.EnterGame; set => SaveSettings(Settings with { EnterGame = value }); }
     public bool ClaimMail { get => Settings.ClaimMail; set => SaveSettings(Settings with { ClaimMail = value }); }
+    public bool HomeCakesOnly { get => Settings.HomeCakesOnly; set => SaveSettings(Settings with { HomeCakesOnly = value }); }
     public bool HomeCenter { get => Settings.HomeCenter; set => SaveSettings(Settings with { HomeCenter = value }); }
     public bool ClaimActivity { get => Settings.ClaimActivity; set => SaveSettings(Settings with { ClaimActivity = value }); }
     public bool ClaimBattlePass { get => Settings.ClaimBattlePass; set => SaveSettings(Settings with { ClaimBattlePass = value }); }
@@ -595,7 +572,12 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
         {
             log.Maintain();
             foreach (var entry in log.ReadAfter(_lastLog))
-            { Logs.Insert(0, entry.ToString()); _lastLog = entry.Id; }
+            {
+                Logs.Insert(0, entry.ToString());
+                _lastLog = entry.Id;
+                if (entry.Level == LogLevel.Error && !entry.IsUserCancellation && entry.Time.AddSeconds(10) > _overlayErrorUntil)
+                    _overlayErrorUntil = entry.Time.AddSeconds(10);
+            }
             while (Logs.Count > 200) Logs.RemoveAt(Logs.Count - 1);
         }
         else if (_lastSnapshot?.State != current.State || _lastSnapshot.Message != current.Message)
@@ -603,7 +585,11 @@ public sealed partial class MainViewModel(CapturePreviewService preview, DailyLo
             Logs.Insert(0, $"{DateTime.Now:HH:mm:ss}   {current.Message}");
             if (Logs.Count > 80) Logs.RemoveAt(Logs.Count - 1);
         }
+        if (current.State == PreviewState.Faulted && (_lastSnapshot?.State != current.State || _lastSnapshot.Message != current.Message)
+            || LogError is not null && _lastLogError != LogError)
+            _overlayErrorUntil = DateTimeOffset.UtcNow.AddSeconds(10);
         _lastSnapshot = current;
+        _lastLogError = LogError;
         // IME composition defers text source updates; polling must not push old editable values back into controls.
         Notify(nameof(PreviewImage));
         Notify(nameof(StateText));

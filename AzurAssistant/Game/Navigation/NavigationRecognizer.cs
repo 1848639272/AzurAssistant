@@ -13,9 +13,17 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
     private readonly PpOcrReader _ocr;
     private readonly TemplateCatalog _templates;
     private readonly Dictionary<string, MapImageMatcher> _maps = [];
+    private readonly Dictionary<string, MapImageMatcher> _landingTerrain = [];
     private string? _lastMiniMap;
     private string? _lastDisplayMap;
     private MapPosition? _lastPosition;
+    private MapPosition? _landingHint;
+    private FrameSnapshot? _lastFixFrame;
+    private MapPosition? _candidate;
+    private long _candidateFrame;
+    private TimeSpan _candidateAt;
+    private double _lastScale;
+    private bool _checkingLanding;
     private string _targetMap = "200000";
     private string _targetTeleport = "village-star-node";
     private readonly MovementModeReader _movementMode;
@@ -34,7 +42,11 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
         var initial = Maps.FirstOrDefault(m => m.Id == _targetMap && m.Teleports.Any(t => t.Id == _targetTeleport)) ?? Maps[0];
         _targetMap = initial.Id;
         _targetTeleport = initial.Teleports.FirstOrDefault()?.Id ?? "";
-        foreach (var map in Maps) _maps.Add(map.Id, new(Path.Combine(directory, map.MapFile), Path.Combine(directory, map.FeatureFile)));
+        foreach (var map in Maps)
+        {
+            _maps.Add(map.Id, new(Path.Combine(directory, map.FeatureFile), map.Width, map.Height));
+            if (map.LandingFeatureFile is { } file) _landingTerrain.Add(map.Id, new(Path.Combine(directory, file), map.Width, map.Height));
+        }
         _movementMode = new(ocr, directory);
         var manifest = JsonSerializer.Deserialize<TemplateManifest>(File.ReadAllText(Path.Combine(directory, "recognition.json")))!;
         using var arrow = Cv2.ImDecode(File.ReadAllBytes(Path.Combine(directory, manifest.Templates["map-player-arrow"].File)), ImreadModes.Color);
@@ -65,6 +77,8 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
             return new(frame, NavigationPage.WorldMap, WorldRegion: _templates.Match(frame, Maps.Single(m => m.Id == _targetMap).WorldTemplate)?.Center);
         if (_templates.Match(frame, "adventure-title") is not null || _templates.Match(frame, "adventure-title-wide") is not null)
         {
+            _lastFixFrame = null;
+            _candidate = null;
             // Keep the right-hand details panel and all fixed edge UI out of reference matching.
             // Teleport selection needs the map transform and named target, not a scan for the player's outline.
             var marker = locateMapPlayer ? FindPlayerMarker(frame) : null;
@@ -114,10 +128,10 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
             return new(frame, NavigationPage.LocalMap, position, match, TeleportIcon: icon, Diagnostic: Describe(match) + iconDiagnostic,
                 DisplayedMapId: map.Id, WorldMapButton: world);
         }
-        var page = (await _daily.ObserveAsync(frame, token)).Page;
-        if (page == DailyPage.Menu) return new(frame, NavigationPage.MainMenu);
-        if (page != DailyPage.World)
-            return new(frame, NavigationPage.Unknown, Diagnostic: "未确认地图或世界画面");
+        var daily = await _daily.ObserveAsync(frame, token);
+        if (daily.Page == DailyPage.Menu) return new(frame, NavigationPage.MainMenu);
+        if (daily.Page != DailyPage.World)
+            return new(frame, NavigationPage.Unknown, Diagnostic: $"未确认大世界或地图，当前 {daily.Page}；{daily.Diagnostic}");
         return (await ObserveMinimapAsync(frame, token)) with { Page = NavigationPage.World };
     }
 
@@ -127,12 +141,19 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
         _templates.ValidateFrame(frame);
         var registration = Register(frame, true, null, token);
         if (registration is null)
-            return Task.FromResult(new NavigationObservation(frame, NavigationPage.Unknown, Diagnostic: "小地图未匹配已知地图"));
+        {
+            if (_candidate is null) _lastFixFrame = null;
+            return Task.FromResult(new NavigationObservation(frame, NavigationPage.Unknown,
+                Diagnostic: _candidate is null ? "小地图地形证据不足" : "小地图候选位置等待下一帧确认"));
+        }
         var (map, mini) = registration.Value;
         var point = mini.Project(Layout.MinimapCenter.X, Layout.MinimapCenter.Y);
         var location = PositionOrNull(map, point);
         _lastPosition = location;
-        return Task.FromResult(new NavigationObservation(frame, NavigationPage.World, location, mini, FacingDegrees: ReadFacing(frame, mini), Diagnostic: Describe(mini)));
+        _lastScale = mini.Scale;
+        _lastFixFrame = frame;
+        var diagnostic = (mini.Inliers < 14 || mini.Inliers < mini.Matches * .60 ? "连续帧确认候选；" : "") + Describe(mini);
+        return Task.FromResult(new NavigationObservation(frame, NavigationPage.World, location, mini, FacingDegrees: ReadFacing(frame, mini), Diagnostic: diagnostic));
     }
 
     public Task<MovementMode> ReadMovementModeAsync(FrameSnapshot frame, CancellationToken token) => _movementMode.ReadAsync(frame, token);
@@ -143,9 +164,26 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
         _targetMap = mapId; _targetTeleport = teleportId;
     }
 
+    public void BeginLocalization(MapPosition? landingHint = null)
+    {
+        _lastPosition = null; _lastFixFrame = null; _candidate = null; _lastMiniMap = null;
+        _landingHint = landingHint;
+        _checkingLanding = landingHint is not null;
+    }
+
+    public void FinishLanding()
+    {
+        _checkingLanding = false;
+        _landingHint = null;
+        _candidate = null;
+    }
+
     private (NavigationMap Map, MapImageMatch Match)? Register(FrameSnapshot frame, bool mini, ClientPoint? marker, CancellationToken token)
     {
-        var cached = mini ? _lastMiniMap : _lastDisplayMap;
+        var cached = mini ? _landingHint?.MapId ?? _lastMiniMap : _lastDisplayMap;
+        var previous = mini && _lastFixFrame is { } last && frame.SameViewport(last)
+            && frame.SystemTimestamp >= last.SystemTimestamp && frame.SystemTimestamp - last.SystemTimestamp < TimeSpan.FromSeconds(3)
+            ? _lastPosition : null;
         var region = mini ? Layout.Minimap : new PixelRegion(80, 100, 1300, 825);
         using var query = MapImageMatcher.Extract(frame, region, mini ? 1 : .35, mini, token, marker, mini ? 0 : 75);
         var result = FindBest(query);
@@ -153,24 +191,45 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
         {
             // Sample more of the visible terrain when icons and sparse detail dominate the central disk.
             using var detail = MapImageMatcher.Extract(frame, region, 1.35, true, token, detailedMinimap: true);
-            using var seedFeatures = MapImageMatcher.Extract(frame, region, 1.125, true, token, detailedMinimap: true);
-            result = FindBest(detail, seedFeatures);
+            result = MatchLandingTerrain(detail, token);
+            if (result is null)
+            {
+                using var seed = MapImageMatcher.Extract(frame, region, 1.125, true, token, detailedMinimap: true);
+                var coarseLocations = new Dictionary<string, Point2d>();
+                result = FindBest(detail, seed, coarseLocations);
+                if (result is null)
+                {
+                    using var fine = MapImageMatcher.Extract(frame, region, 1.65, true, token, detailedMinimap: true);
+                    using var finer = MapImageMatcher.Extract(frame, region, 2.25, true, token, detailedMinimap: true);
+                    using var pooled = MapQueryFeatures.MergeScales(query, seed, detail, fine, finer);
+                    result = RefineSparseTerrain(pooled, detail, _landingHint ?? previous, coarseLocations, token);
+                    if (result is null && previous is not null && !_checkingLanding)
+                        return TrackCandidate(frame, previous, pooled, seed, token);
+                }
+            }
         }
+        if (mini) _candidate = null;
         if (result is { } best)
         {
             if (mini) _lastMiniMap = best.Map.Id; else _lastDisplayMap = best.Map.Id;
         }
         return result;
 
-        (NavigationMap Map, MapImageMatch Match)? FindBest(MapQueryFeatures features, MapQueryFeatures? seedFeatures = null)
+        (NavigationMap Map, MapImageMatch Match)? FindBest(MapQueryFeatures features, MapQueryFeatures? seedFeatures = null,
+            Dictionary<string, Point2d>? coarseLocations = null)
         {
             var candidates = new List<(NavigationMap Map, MapImageMatch Match)>();
             foreach (var map in Maps.OrderByDescending(m => m.Id == cached))
             {
-                var near = mini && _lastPosition is { } p && p.MapId == map.Id ? new Point2d(p.X, p.Y) : (Point2d?)null;
+                if (mini && _landingHint is { } destination && map.Id != destination.MapId) continue;
+                var near = mini && (_landingHint ?? previous) is { } p && p.MapId == map.Id ? new Point2d(p.X, p.Y) : (Point2d?)null;
                 var matcher = _maps[map.Id];
                 MapImageMatch? match;
-                if (seedFeatures is not null) match = MatchMinimapTerrain(matcher, features, seedFeatures, near, token);
+                if (seedFeatures is not null)
+                {
+                    match = MatchMinimapTerrain(matcher, features, seedFeatures, near, token, out var estimate);
+                    if (estimate is { } point) coarseLocations![map.Id] = point;
+                }
                 else
                 {
                     var local = near is null ? null : matcher.Match(features, 14, token, near, 450 * map.MovementScale);
@@ -181,15 +240,94 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
                 if (seedFeatures is null && map.Id == cached) return (map, match);
                 candidates.Add((map, match));
             }
-            var ordered = candidates.OrderByDescending(c => c.Match.Inliers).ToArray();
-            return ordered.Length == 0 || ordered.Length > 1 && ordered[0].Match.Inliers < ordered[1].Match.Inliers * 1.5
-                ? null : ordered[0];
+            return SelectUnique(candidates);
         }
     }
 
-    private MapImageMatch? MatchMinimapTerrain(MapImageMatcher matcher, MapQueryFeatures features, MapQueryFeatures seedFeatures, Point2d? near,
-        CancellationToken token)
+    private static (NavigationMap Map, MapImageMatch Match)? SelectUnique(List<(NavigationMap Map, MapImageMatch Match)> candidates)
     {
+        var ordered = candidates.OrderByDescending(c => c.Match.Inliers).ToArray();
+        return ordered.Length == 0 || ordered.Length > 1 && ordered[0].Match.Inliers < ordered[1].Match.Inliers * 1.5
+            ? null : ordered[0];
+    }
+
+    private (NavigationMap, MapImageMatch)? MatchLandingTerrain(MapQueryFeatures features, CancellationToken token)
+    {
+        // Every output is a transform of the current pixels. The destination hint only narrows the search.
+        var candidates = new List<(NavigationMap, MapImageMatch)>();
+        var hint = _landingHint is { } h ? new Point2d(h.X, h.Y) : (Point2d?)null;
+        foreach (var map in Maps)
+        {
+            if (_landingHint is { } expected && expected.MapId != map.Id || !_landingTerrain.TryGetValue(map.Id, out var terrain)) continue;
+            var hit = terrain.Match(features, 14, token, hint, 220);
+            if (hit is { Coverage: >= .38, Scale: > 2.15 and < 2.39 } && Math.Abs(Math.Atan2(hit.B, hit.A)) < .035)
+                candidates.Add((map, hit));
+        }
+        return SelectUnique(candidates);
+    }
+
+    private (NavigationMap, MapImageMatch)? TrackCandidate(FrameSnapshot frame, MapPosition previous,
+        MapQueryFeatures detail, MapQueryFeatures seed, CancellationToken token)
+    {
+        var earlier = _candidate;
+        _candidate = null;
+        if (_lastFixFrame is not { } last || last.Id >= frame.Id) return null;
+        var map = Maps.Single(m => m.Id == previous.MapId);
+        var near = new Point2d(previous.X, previous.Y);
+        var matcher = _maps[map.Id];
+        var hit = matcher.Match(detail, 10, token, near, 250 * map.MovementScale, .76, .50)
+            ?? matcher.Match(seed, 10, token, near, 250 * map.MovementScale, .76, .50);
+        if (hit is null || Math.Abs(hit.Scale / _lastScale - 1) >= .04 || Math.Abs(Math.Atan2(hit.B, hit.A)) >= .035) return null;
+        var current = PositionOrNull(map, hit.Project(Layout.MinimapCenter.X, Layout.MinimapCenter.Y));
+        double MovementLimit(TimeSpan elapsed) => map.MovementScale * (5 + 100 * elapsed.TotalSeconds);
+        if (current is null || previous.DistanceTo(current) > MovementLimit(frame.SystemTimestamp - last.SystemTimestamp)) return null;
+
+        var age = frame.SystemTimestamp - _candidateAt;
+        var agrees = earlier is not null && earlier.MapId == current.MapId && frame.Id > _candidateFrame
+            && age > TimeSpan.Zero && age < TimeSpan.FromMilliseconds(900) && earlier.DistanceTo(current) <= MovementLimit(age);
+        _candidate = current;
+        _candidateAt = frame.SystemTimestamp;
+        _candidateFrame = frame.Id;
+        return agrees ? (map, hit) : null;
+    }
+
+    private (NavigationMap, MapImageMatch)? RefineSparseTerrain(MapQueryFeatures features, MapQueryFeatures detail, MapPosition? recent,
+        IReadOnlyDictionary<string, Point2d> coarseLocations, CancellationToken token)
+    {
+        var candidates = new List<(NavigationMap, MapImageMatch)>();
+        foreach (var map in Maps.OrderByDescending(m => recent?.MapId == m.Id))
+        {
+            if (_landingHint is { } destination && destination.MapId != map.Id) continue;
+            var near = recent?.MapId == map.Id ? new Point2d(recent.X, recent.Y) : (Point2d?)null;
+            var hasLandmarks = _landingTerrain.TryGetValue(map.Id, out var landmarks);
+            var center = Layout.MinimapCenter;
+            if (near is null && hasLandmarks)
+            {
+                var proposal = landmarks!.Match(detail, 8, token, descriptorRatio: .72, minimumInlierRatio: .50)
+                    ?? landmarks.Match(features, 8, token, descriptorRatio: .72, minimumInlierRatio: .50);
+                if (Plausible(proposal)) near = proposal!.Project(center.X, center.Y);
+            }
+            if (near is null && coarseLocations.TryGetValue(map.Id, out var coarse)) near = coarse;
+            if (near is null) continue;
+            var terrain = _maps[map.Id].Match(features, 14, token, near, 250 * map.MovementScale, .76);
+            if (!Plausible(terrain) && hasLandmarks)
+            {
+                terrain = landmarks!.Match(features, 14, token, near, 250, .76);
+                if (terrain is { Coverage: < .38 }) terrain = null;
+            }
+            if (!Plausible(terrain)) continue;
+            if (recent?.MapId != map.Id && terrain!.Project(center.X, center.Y).DistanceTo(near.Value) > 6) continue;
+            if (recent?.MapId == map.Id) return (map, terrain!);
+            candidates.Add((map, terrain!));
+        }
+        return SelectUnique(candidates);
+        static bool Plausible(MapImageMatch? hit) => hit is { Scale: > 2.15 and < 2.39 } && Math.Abs(Math.Atan2(hit.B, hit.A)) <= .035;
+    }
+
+    private MapImageMatch? MatchMinimapTerrain(MapImageMatcher matcher, MapQueryFeatures features, MapQueryFeatures seedFeatures, Point2d? near,
+        CancellationToken token, out Point2d? globalCandidate)
+    {
+        globalCandidate = null;
         if (near is not null)
         {
             var local = matcher.Match(features, 14, token, near, 250, .76)
@@ -202,6 +340,7 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
         if (seed is null || Math.Abs(Math.Atan2(seed.B, seed.A)) > .035) return null;
         var center = Layout.MinimapCenter;
         var estimate = seed.Project(center.X, center.Y);
+        if (seed.Scale is > 2.15 and < 2.39) globalCandidate = estimate;
         var refined = matcher.Match(features, 14, token, estimate, Math.Max(200, seed.Scale * 110), .76);
         return refined is not null && Math.Abs(refined.Scale / seed.Scale - 1) <= .04
             && refined.Project(center.X, center.Y).DistanceTo(estimate) <= 6 ? refined : null;
@@ -210,14 +349,29 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
     private async Task<(ClientPoint? Point, string? Name)> ReadOverlapAsync(FrameSnapshot frame, CancellationToken token)
     {
         var icon = _templates.Match(frame, "overlap-teleport-icon");
-        if (icon is null) return (null, null);
-        var roi = new PixelRegion(icon.Center.X + 24, Math.Max(90, icon.Center.Y - 23),
-            Math.Min(350, frame.Width - icon.Center.X - 35), 47);
-        var text = await _ocr.ReadAsync(frame, token, roi, 2);
-        var name = string.Concat(text.Where(x => x.Confidence >= .80).OrderBy(x => x.X).Select(x => x.Text))
-            .Replace(" ", "").Replace("・", "·").Replace(".", "·");
-        return Maps.SelectMany(m => m.Teleports).Any(t => t.Name == name)
-            ? (new ClientPoint(icon.Center.X + 130, icon.Center.Y), name) : (null, null);
+        var divider = icon is null ? _templates.Match(frame, "overlap-row-divider")?.Center
+            : new ClientPoint(icon.Center.X + 23, icon.Center.Y);
+        if (divider is not { } anchor) return (null, null);
+        var expected = Maps.Single(m => m.Id == _targetMap).Teleports.FirstOrDefault(t => t.Id == _targetTeleport);
+        static string Letters(string s) => string.Concat(s.Where(char.IsLetterOrDigit));
+        (ClientPoint? Point, string? Name) other = (null,null);
+        foreach (var offset in new[] { 0, -1, 1, -2, 2, -3, 3 })
+        {
+            var y = anchor.Y + offset * 54;
+            if (y < 100 || y > frame.Height - 100 || anchor.X + 170 >= frame.Width) continue;
+            if (offset != 0 && _templates.Match(frame,"overlap-row-divider",new(anchor.X - 12, y - 24, 24, 48)) is null) continue;
+            var x = anchor.X + 6;
+            var roi = new PixelRegion(x, y - 22, Math.Min(350,frame.Width-x), 45);
+            if (expected?.OverlapTemplate is { } label && _templates.Match(frame,label,roi) is { } match)
+                return (match.Center,expected.Name);
+            var text = await _ocr.ReadAsync(frame, token, roi, 2);
+            var name = Letters(string.Concat(text.Where(t => t.Confidence >= .80).OrderBy(t => t.X).Select(t => t.Text)));
+            var names = Maps.SelectMany(m => m.Teleports).Select(t => t.Name).Distinct().Where(s => Letters(s) == name).ToArray();
+            if (names.Length != 1) continue;
+            other = (new ClientPoint(x+75,y),names[0]);
+            if (names[0] == expected?.Name) return other;
+        }
+        return other;
     }
 
     private ClientPoint? FindPlayerMarker(FrameSnapshot frame)
@@ -298,5 +452,5 @@ public sealed class NavigationRecognizer : INavigationRecognizer, IDisposable
     private static MapPosition? PositionOrNull(NavigationMap map, Point2d point) => point.X >= 0 && point.Y >= 0 && point.X < map.Width && point.Y < map.Height
         ? map.Position(point.X, point.Y) : null;
     private static string Describe(MapImageMatch match) => $"内点 {match.Inliers}/{match.Matches}，误差 {match.MedianError:F2}px，比例 {match.Scale:F4}";
-    public void Dispose() { foreach (var arrow in _arrows) arrow.Dispose(); foreach (var mask in _arrowMasks) mask.Dispose(); foreach (var map in _maps.Values) map.Dispose(); }
+    public void Dispose() { foreach (var arrow in _arrows) arrow.Dispose(); foreach (var mask in _arrowMasks) mask.Dispose(); foreach (var map in _maps.Values.Concat(_landingTerrain.Values)) map.Dispose(); }
 }

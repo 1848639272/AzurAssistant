@@ -11,7 +11,7 @@ public sealed class WorldHudReader
 {
     private readonly PpOcrReader _ocr;
     private readonly Settings _settings;
-    private sealed record Label(PixelRegion Region, int[] Scales, double MinimumConfidence);
+    private sealed record Label(PixelRegion Region, int[] Scales, double MinimumConfidence, PixelRegion? Region900 = null);
     private sealed record Settings(int SchemaVersion, int Width, int Height, Label Esc, Label Enter);
 
     public WorldHudReader(PpOcrReader ocr, string? directory = null)
@@ -29,6 +29,7 @@ public sealed class WorldHudReader
                 || label.Scales.Distinct().Count() != label.Scales.Length || !double.IsFinite(label.MinimumConfidence) || label.MinimumConfidence is <= 0 or > 1)
                 throw new InvalidDataException("大世界OCR标签参数不受支持。");
             label.Region.Validate(_settings.Width, _settings.Height);
+            label.Region900?.Validate(_settings.Width, _settings.Height);
         }
     }
 
@@ -38,10 +39,13 @@ public sealed class WorldHudReader
     {
         if (frame.Width != _settings.Width || frame.Height != _settings.Height)
             throw new InvalidOperationException("大世界识别当前仅支持1920×1080客户区。");
+        PixelRegion[] regions = frame.ContentWidth == 1600 && frame.ContentHeight == 900 && label.Region900 is { } compact
+            ? [compact, label.Region] : [label.Region];
+        foreach (var region in regions)
         foreach (var preprocessing in new[] { OcrPreprocessing.Original, OcrPreprocessing.WhiteText })
         foreach (var scale in label.Scales)
         {
-            var text = await _ocr.ReadAsync(frame, token, label.Region, scale, preprocessing);
+            var text = await _ocr.ReadAsync(frame, token, region, scale, preprocessing);
             var matches = text.Where(item => item.Confidence >= label.MinimumConfidence
                 && string.Equals(item.Text.Trim(), expected, StringComparison.OrdinalIgnoreCase)).ToArray();
             if (matches.Length != 1) continue;

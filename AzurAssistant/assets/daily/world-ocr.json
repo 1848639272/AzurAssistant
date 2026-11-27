@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 2,
-  "Version": "2.0.0",
+  "Version": "2.1.0",
   "Width": 1920,
   "Height": 1080,
   "Esc": {
@@ -9,6 +9,12 @@
       "Y": 60,
       "Width": 65,
       "Height": 48
+    },
+    "Region900": {
+      "X": 32,
+      "Y": 67,
+      "Width": 40,
+      "Height": 30
     },
     "MinimumConfidence": 0.85,
     "Scales": [
@@ -30,9 +36,7 @@
     ]
   },
   "Source": "蓝色星原：旅谣 · 游戏界面",
-  "SourceSha256": "4C95F6420CD75B26FBA006E378B5386D2B965A40E920CA2580D00388D419475D",
   "EnterSource": "蓝色星原：旅谣 · 游戏界面",
-  "EnterSourceSha256": "598D11CB916426C4C2C9FA6F26D6E757C1F09F3A5F6F9DC9B9B6AF61F57CA2C4",
   "Purpose": "已知页面和部分弹窗优先拦截；同帧限定区域完整Esc和Enter文字共同确认世界，半透明图片模板不参与世界判定。"
 }
 

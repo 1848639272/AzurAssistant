@@ -14,7 +14,7 @@ public sealed class GitHubReleaseClient(HttpClient http, UpdateSource source)
     private HttpRequestMessage Request(Uri uri)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, uri);
-        request.Headers.UserAgent.ParseAdd("AzurAssistant/1.0.0_rc1_20261126");
+        request.Headers.UserAgent.ParseAdd("AzurAssistant/1.0.0_rc2_20261127");
         if (uri.Host == "api.github.com")
         {
             request.Headers.Accept.ParseAdd("application/vnd.github+json");

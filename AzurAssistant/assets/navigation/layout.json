@@ -1,11 +1,9 @@
 {
-  "SchemaVersion": 2,
-  "Version": "1.1.0",
+  "SchemaVersion": 3,
+  "Version": "1.2.0",
   "MapId": "200000",
   "Floor": 0,
   "CoordinateVersion": "village-pixel-v1",
-  "MapFile": "village-map.png",
-  "MapSha256": "e80e5a43acc39210ee1bf35b0976267eebb47d39858259ceb8faeb520fac38be",
   "Width": 2048,
   "Height": 2048,
   "Source": "蓝色星原：旅谣 · 夏露露村小地图",

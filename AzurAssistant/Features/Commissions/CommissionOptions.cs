@@ -39,7 +39,7 @@ public sealed record CommissionOptions
         .Concat(new[] { "无惧之战砧", "凋零的挽歌", "温和的雷鸣", "深巢梦魇", "林间幻梦", "吞噬之渊", "焚灼之域" }.Select(n => new DungeonChoice(n, "首领挑战", 6)))
         .Concat(new[] { "苍雷之卫", "烈炎之佑", "常青之庇", "湍流之守", "丘薮之陲", "长风之护", "厚岩之盾", "严寒之屏", "日月之捍", "急炽之御" }
             .Select((n, i) => new DungeonChoice(n, "武备获取", 5, i < 2 ? 1 : i < 5 ? 2 : 4))).ToArray();
-    public static IReadOnlyList<string> WeeklyChoices { get; } = ["暗焰兽", "双翼之舞"];
+    public static IReadOnlyList<string> WeeklyChoices { get; } = ["暗焰兽", "双翼之舞", "灾陨者"];
     public static IReadOnlyList<StoryChapterChoice> StoryChapters { get; } = Array.AsReadOnly<StoryChapterChoice>([
         new(1, "Ⅰ · 萨满手札"), new(2, "Ⅱ · 祖赞卡神话"), new(3, "Ⅲ · 狼神传说"), new(4, "Ⅳ · 狂风将至")]);
     private static readonly IReadOnlyDictionary<int, IReadOnlyList<string>> StoryByChapter =
@@ -52,23 +52,30 @@ public sealed record CommissionOptions
         };
     public static IReadOnlyList<string> GetStoryChoices(int chapter)
         => StoryByChapter.GetValueOrDefault(chapter) ?? Array.Empty<string>();
-    // Supplied 2026-10-03 crisis screenshots 3.1–3.7 define separate lists per tier.
     private static readonly IReadOnlyDictionary<int, IReadOnlyList<string>> CrisisByDifficulty =
         new Dictionary<int, IReadOnlyList<string>>
         {
             [1] = Array.AsReadOnly(new[] { "声音太吵了", "危险的运输路线" }),
-            [2] = Array.AsReadOnly(new[] { "管管奇波，救救植物", "被阻截的路线" }),
-            [3] = Array.AsReadOnly(new[] { "迷幻之舞", "按照书上所说", "猪王争霸", "好机会", "我盯上它了" }),
-            [4] = Array.AsReadOnly(new[] { "新人的第一次", "成为好朋友吧", "吓唬一下就好", "抓住机会", "听说有甜的" }),
+            [2] = Array.AsReadOnly(new[] { "管管奇波，救救草药", "被阻截的路线" }),
+            [3] = Array.AsReadOnly(new[] { "迷幻之舞", "顺路帮个忙", "猪王争霸", "好机会", "我踩错地方了" }),
+            [4] = Array.AsReadOnly(new[] { "新人的第一次", "锤子啊！！！", "吓唬一下就好", "抓住机会", "想去那边" }),
             [5] = Array.AsReadOnly(new[] { "像样的猎物", "前段勘路", "……能不能留几只", "影响训练", "谁准你们乱跑", "机会难得", "太多光点", "本来想带点藤蔓回去", "我就是笑了它一下", "安静处理" }),
             [6] = Array.AsReadOnly(new[] { "拿蝶练手", "太烫了，但我想吃", "……本来想捡海草", "别怪我没拦着", "暗焰兽太坏了", "锤子啊！！！", "卷土重来", "别惊扰太多", "外围清扫", "顺便采点草" })
         };
-    private static readonly IReadOnlyList<string> TierSixSpecialChoices = Array.AsReadOnly(new[] { "已确认目标", "拿它们热身" });
+    private static readonly IReadOnlyList<string>[] SpecialByDifficulty =
+    [
+        Array.AsReadOnly(new[] { "码头烂掉了", "紧急悬赏" }),
+        Array.AsReadOnly(new[] { "电光闪闪", "先把蝶群拨开" }),
+        Array.AsReadOnly(new[] { "雷鸣阵阵", "逐风舞步" }),
+        Array.AsReadOnly(new[] { "猪猪别撞我呀", "光线聚集" }),
+        Array.AsReadOnly(new[] { "其实是我先惹的", "锤子啊！！！" }),
+        Array.AsReadOnly(new[] { "拿它们热身", "已确认目标" })
+    ];
 
     public static IReadOnlyList<string> GetCrisisChoices(int difficulty)
         => CrisisByDifficulty.GetValueOrDefault(difficulty) ?? Array.Empty<string>();
     public static IReadOnlyList<string> GetSpecialChoices(int difficulty)
-        => difficulty == 6 ? TierSixSpecialChoices : Array.Empty<string>();
+        => difficulty >= 1 && difficulty <= SpecialByDifficulty.Length ? SpecialByDifficulty[difficulty - 1] : Array.Empty<string>();
 
     public void Validate()
     {
@@ -84,8 +91,8 @@ public sealed record CommissionOptions
             throw new InvalidDataException("请选择当前主线章节下的关卡，原关卡不会自动替换。");
         if (CrisisNormalEnabled && !GetCrisisChoices(CrisisDifficulty).Contains(CrisisNormal))
             throw new InvalidDataException("请选择当前危机讨伐难度下的普通副本，原副本不会自动替换。");
-        if (CrisisSpecialEnabled && (string.IsNullOrWhiteSpace(CrisisSpecial) || CrisisSpecial.Length > 80 || CrisisSpecial.Any(char.IsControl)))
-            throw new InvalidDataException("已开启惊喜副本，请填写有效的完整副本名称（最多 80 字）。");
+        if (CrisisSpecialEnabled && !GetSpecialChoices(CrisisDifficulty).Contains(CrisisSpecial))
+            throw new InvalidDataException("请从当前难度的惊喜副本列表重新选择并保存。");
         ValidateClaimLimit(DailyClaimLimitEnabled, DailyClaimLimit, "日常委托");
         ValidateClaimLimit(WeeklyClaimLimitEnabled, WeeklyClaimLimit, "往厄残影");
         ValidateClaimLimit(CrisisSpecialEnabled && CrisisSpecialClaimLimitEnabled, CrisisSpecialClaimLimit, "危机惊喜副本");

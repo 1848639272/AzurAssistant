@@ -25,6 +25,12 @@ public sealed class AutomationController(
 {
     private readonly object _completionGate = new();
     private bool _dailyCompletionPending;
+    private Task<TaskResult>? _realtimeRun;
+    private AssistantSettings? _realtimeSelection;
+    public AssistantSettings? RunningRealtimeSelection
+    {
+        get { lock (_completionGate) return _realtimeRun is { IsCompleted: false } ? _realtimeSelection : null; }
+    }
     private bool _initialized;
     private NavigationStatus? _navigationStatus;
     public NavigationStatus? NavigationStatus => Volatile.Read(ref _navigationStatus);
@@ -150,8 +156,11 @@ public sealed class AutomationController(
         if (!snapshot.HasRealtimeSelection)
         { log.Write("请先在实时辅助页面选择功能。"); return false; }
         var response = ResponseTiming.FromLowPerformanceMode(snapshot.LowPerformanceMode);
-        return Start(() => createRealtime(snapshot), new TaskRunOptions(null, ResponseTiming: response,
-            CaptureInterval: snapshot.HasRealtimeActions ? response.Scale(RealtimeTiming.Default.PollInterval) : null));
+        if (!Start(() => createRealtime(snapshot), new TaskRunOptions(null, ResponseTiming: response,
+            CaptureInterval: snapshot.HasRealtimeActions ? response.Scale(RealtimeTiming.Default.PollInterval) : null))) return false;
+        _realtimeRun = runner.Completion;
+        _realtimeSelection = snapshot;
+        return true;
     }
 
     private async Task<TaskResult> CompleteDailyAsync(Task<TaskResult> completion)
@@ -239,6 +248,11 @@ public sealed class AutomationController(
         }
         await Task.WhenAny(request, completion);
         return request.IsCompleted ? await request : new(null, (await completion).Message);
+    }
+
+    public Task CancelRecordingAsync()
+    {
+        lock (_completionGate) return IsRecording ? runner.StopAsync() : Task.CompletedTask;
     }
 
     public void FinishRecording()

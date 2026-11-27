@@ -6,6 +6,8 @@ using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Graphics.Imaging;
+using Windows.Foundation.Metadata;
+using Windows.Security.Authorization.AppCapabilityAccess;
 
 namespace AzurAssistant.Platform;
 
@@ -22,6 +24,24 @@ public sealed class WindowsGraphicsFrameSource : IFrameSource
     private long _viewportVersion;
     private long _sequence;
     private bool _recreate;
+    private static int _borderPermissionVersion;
+    private int _borderVersion;
+    internal static bool SupportsBorderlessCapture { get; } =
+        ApiInformation.IsPropertyPresent("Windows.Graphics.Capture.GraphicsCaptureSession", "IsBorderRequired");
+
+    internal static async Task<bool> RequestBorderlessAccessAsync()
+    {
+        if (!SupportsBorderlessCapture) return false;
+        var granted = await NativeMethods.RequestBorderlessAccess() == AppCapabilityAccessStatus.Allowed;
+        if (granted) Interlocked.Increment(ref _borderPermissionVersion);
+        return granted;
+    }
+
+    private void ApplyBorderPreference(int version)
+    {
+        if (SupportsBorderlessCapture && _session is not null) NativeMethods.TryHideCaptureBorder(_session);
+        _borderVersion = version;
+    }
 
     public WindowsGraphicsFrameSource(GameWindow window)
     {
@@ -36,6 +56,7 @@ public sealed class WindowsGraphicsFrameSource : IFrameSource
             _pool = Direct3D11CaptureFramePool.CreateFreeThreaded(_device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 2, _size);
             _session = _pool.CreateCaptureSession(item);
             _session.IsCursorCaptureEnabled = false;
+            ApplyBorderPreference(Volatile.Read(ref _borderPermissionVersion));
             _session.StartCapture();
         }
         catch { Dispose(); throw; }
@@ -44,6 +65,8 @@ public sealed class WindowsGraphicsFrameSource : IFrameSource
     public async Task<FrameSnapshot> ReadAsync(CancellationToken cancellationToken)
     {
         ObjectDisposedException.ThrowIf(_pool is null, this);
+        var borderVersion = Volatile.Read(ref _borderPermissionVersion);
+        if (_borderVersion != borderVersion) ApplyBorderPreference(borderVersion);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(ReadTimeout);
         var received = 0;

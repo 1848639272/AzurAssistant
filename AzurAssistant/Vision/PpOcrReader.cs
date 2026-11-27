@@ -9,7 +9,7 @@ using SkiaSharp;
 
 namespace AzurAssistant.Vision;
 
-public enum OcrPreprocessing { Original, WhiteText }
+public enum OcrPreprocessing { Original, WhiteText, LocalContrast }
 
 /// <summary>Local Chinese PP-OCRv5 inference; one serialized, lazily loaded CPU session set per reader.</summary>
 public sealed class PpOcrReader(string? modelDirectory = null) : IDisposable
@@ -50,6 +50,7 @@ public sealed class PpOcrReader(string? modelDirectory = null) : IDisposable
         var height = checked(roi.Height * scale);
         using var bitmap = new SKBitmap(new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Opaque));
         var row = new byte[width * 4];
+        var contrast = preprocessing == OcrPreprocessing.LocalContrast ? EnhanceLocalContrast(frame, roi, token) : null;
         for (var y = 0; y < height; y++)
         {
             token.ThrowIfCancellationRequested();
@@ -57,7 +58,12 @@ public sealed class PpOcrReader(string? modelDirectory = null) : IDisposable
             {
                 frame.Pixels.Span.Slice(((y / scale + roi.Y) * frame.Width + x / scale + roi.X) * 4, 4)
                     .CopyTo(row.AsSpan(x * 4, 4));
-                if (preprocessing == OcrPreprocessing.WhiteText)
+                if (contrast != null)
+                {
+                    var value = contrast[(y / scale) * roi.Width + x / scale];
+                    row[x * 4] = row[x * 4 + 1] = row[x * 4 + 2] = value;
+                }
+                else if (preprocessing == OcrPreprocessing.WhiteText)
                 {
                     var b = row[x * 4]; var g = row[x * 4 + 1]; var r = row[x * 4 + 2];
                     var minimum = Math.Min(r, Math.Min(g, b)); var maximum = Math.Max(r, Math.Max(g, b));
@@ -85,6 +91,40 @@ public sealed class PpOcrReader(string? modelDirectory = null) : IDisposable
                     ? Array.AsReadOnly(characters.ToArray()) : null
             };
         }).ToArray();
+    }
+
+    // Remove the local background luminance while retaining edges of faded, translucent glyphs.
+    private static byte[] EnhanceLocalContrast(FrameSnapshot frame, PixelRegion roi, CancellationToken token)
+    {
+        const int radius = 2;
+        var paddedWidth = roi.Width + 2 * radius;
+        var paddedHeight = roi.Height + 2 * radius;
+        var gray = new byte[paddedWidth * paddedHeight];
+        var pixels = frame.Pixels.Span;
+        for (var y = 0; y < paddedHeight; y++)
+        {
+            token.ThrowIfCancellationRequested();
+            var rowOffset = Math.Clamp(roi.Y + y - radius, 0, frame.Height - 1) * frame.Stride;
+            for (var x = 0; x < paddedWidth; x++)
+            {
+                var i = rowOffset + 4 * Math.Clamp(roi.X + x - radius, 0, frame.Width - 1);
+                gray[y * paddedWidth + x] = (byte)((29 * pixels[i] + 150 * pixels[i + 1] + 77 * pixels[i + 2]) >> 8);
+            }
+        }
+        var result = new byte[roi.Width * roi.Height];
+        for (var y = 0; y < roi.Height; y++)
+        {
+            token.ThrowIfCancellationRequested();
+            for (var x = 0; x < roi.Width; x++)
+            {
+                var sum = 0;
+                for (var dy = 0; dy < 5; dy++)
+                for (var dx = 0; dx < 5; dx++) sum += gray[(y + dy) * paddedWidth + x + dx];
+                var center = gray[(y + radius) * paddedWidth + x + radius];
+                result[y * roi.Width + x] = (byte)Math.Clamp(128 + 2 * (center - sum / 25), 0, 255);
+            }
+        }
+        return result;
     }
 
     private RapidOcr LoadEngine(CancellationToken token)

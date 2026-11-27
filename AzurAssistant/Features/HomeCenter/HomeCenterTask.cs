@@ -3,7 +3,8 @@ using AzurAssistant.Game.Ui;
 
 namespace AzurAssistant.Features.HomeCenter;
 
-public sealed class HomeCenterTask(IDailyUiRecognizer recognizer, IDiningSatietyReader dining, DailyUiTiming? timing = null, bool keepMenuOpen = false) : IGameTask
+public sealed class HomeCenterTask(IDailyUiRecognizer recognizer, IDiningSatietyReader dining, DailyUiTiming? timing = null,
+    bool keepMenuOpen = false, bool cakesOnly = false) : IGameTask
 {
     public string Id => "home-center";
     public string Name => "家园中枢";
@@ -66,7 +67,12 @@ public sealed class HomeCenterTask(IDailyUiRecognizer recognizer, IDiningSatiety
                 "dining-add", accept: ReadBaseline, pages: [DailyPage.DiningTable]);
             var before = baseline!;
             var diningOutcome = "餐桌饱腹值已满，无需补充";
-            if (before.Current < before.Capacity)
+            if (before.Current < before.Capacity && cakesOnly)
+            {
+                (table, diningOutcome) = await FeedCakesAsync(table, before, navigator, context, token);
+                context.Log(diningOutcome);
+            }
+            else if (before.Current < before.Capacity)
             {
                 pendingClaim = "餐桌补充";
                 previous = null;
@@ -133,5 +139,62 @@ public sealed class HomeCenterTask(IDailyUiRecognizer recognizer, IDiningSatiety
             if (diningDiagnostic.Length > 0) reason += "；" + diningDiagnostic;
             return new(false, reason);
         }
+    }
+
+    private async Task<(ObservedUi Table, string Outcome)> FeedCakesAsync(ObservedUi table, DiningSatiety satiety,
+        UiNavigator navigator, TaskContext context, CancellationToken token)
+    {
+        var added = 0;
+        var drags = 0;
+        var stationaryDrags = 0;
+        while (satiety.Current < satiety.Capacity)
+        {
+            if (!table.Ui.Has("dining-cake"))
+            {
+                if (++drags > 10) throw new UiStepException("餐桌食材列表未确认到达右端，停止查找波波饼");
+                var previousShelf = table.Frame;
+                table = await navigator.DragRowAsync(table, new(1420, 957), new(825, 957), "向右查找波波饼", token);
+                stationaryDrags = !table.Ui.Has("dining-cake") && table.Ui.Has("dining-add") && SameShelf(previousShelf, table.Frame)
+                    ? stationaryDrags + 1 : 0;
+                if (stationaryDrags >= 2) break;
+                continue;
+            }
+            DiningSatiety? previous = null;
+            var generation = context.Execution.Generation;
+            async Task<bool> ConfirmFeeding(ObservedUi observed, CancellationToken ct)
+            {
+                if (generation != context.Execution.Generation) { previous = null; generation = context.Execution.Generation; }
+                var value = await dining.ReadAsync(observed.Frame, ct);
+                if (!context.Execution.IsObservationCurrent(observed.Frame)) { previous = null; return false; }
+                var confirmed = value is not null && value == previous && value.Capacity == satiety.Capacity && value.Current > satiety.Current;
+                previous = value;
+                return confirmed;
+            }
+            table = await navigator.TransitionAsync(table, "dining-cake", "添加波波饼并确认饱腹值增加", token,
+                "dining-close", allowRetry: false, accept: ConfirmFeeding, pages: [DailyPage.DiningTable]);
+            satiety = previous!;
+            added++;
+            stationaryDrags = 0;
+        }
+        return (table, added == 0 ? "已查至食材列表右端，未发现波波饼" : $"已添加波波饼，饱腹值 {satiety.Current}/{satiety.Capacity}");
+    }
+
+    private static bool SameShelf(FrameSnapshot left, FrameSnapshot right)
+    {
+        if (!left.SameClientSurface(right) || left.Width != 1920 || left.Height != 1080
+            || left.Pixels.Length < left.Stride * left.Height || right.Pixels.Length < right.Stride * right.Height) return false;
+        var a = left.Pixels.Span;
+        var b = right.Pixels.Span;
+        var changed = 0;
+        var total = 0;
+        // Compare card illustrations at fixed positions. Exclude counts, highlights and the moving background.
+        for (var y = 924; y <= 973; y += 5)
+        for (var x = 355; x <= 1520; x += 5)
+        {
+            var i = y * left.Stride + x * 4;
+            if (Math.Abs(a[i] - b[i]) + Math.Abs(a[i+1] - b[i+1]) + Math.Abs(a[i+2] - b[i+2]) > 60) changed++;
+            total++;
+        }
+        return changed < total * .04;
     }
 }

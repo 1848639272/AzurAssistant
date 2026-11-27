@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 1,
-  "Version": "2026.11.26",
+  "Version": "2026.11.27",
   "Source": "游戏界面 · 公测 3217420",
   "CardCenters": [
     600,
@@ -44,6 +44,8 @@
     "future-card-edge-3",
     "future-card-edge-4",
     "future-card-edge-5",
-    "future-card-edge-6"
+    "future-card-edge-6",
+    "future-card-edge-7",
+    "future-card-edge-8"
   ]
 }

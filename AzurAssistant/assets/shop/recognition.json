@@ -1,0 +1,273 @@
+{
+  "SchemaVersion": 1,
+  "ReferenceWidth": 1920,
+  "ReferenceHeight": 1080,
+  "Templates": {
+    "menu-shop": {
+      "File": "menu-shop.png",
+      "Search": {
+        "X": 1378,
+        "Y": 810,
+        "Width": 155,
+        "Height": 100
+      },
+      "Threshold": 0.88,
+      "Sha256": "51891FDB983974E5CA0C1889B1372DBB99385AB5158E122730A941D269FBC121",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 1427,
+        "Y": 845,
+        "Width": 59,
+        "Height": 32
+      },
+      "Version": "2026.11.28"
+    },
+    "title": {
+      "File": "title.png",
+      "Search": {
+        "X": 49,
+        "Y": 13,
+        "Width": 125,
+        "Height": 70
+      },
+      "Threshold": 0.88,
+      "Sha256": "A5A0496E2BE6F0FEB1FE9844AACF6C601C1D5370EDC7A1C162B829076B52323B",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 88,
+        "Y": 30,
+        "Width": 57,
+        "Height": 32
+      },
+      "Version": "2026.11.28"
+    },
+    "close": {
+      "File": "close.png",
+      "Search": {
+        "X": 1820,
+        "Y": 7,
+        "Width": 95,
+        "Height": 83
+      },
+      "Threshold": 0.88,
+      "Sha256": "032A27E788481BBAD485AFEFA38379FA90446BDCB32178BC3E6611068A87DB81",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 1851,
+        "Y": 27,
+        "Width": 36,
+        "Height": 36
+      },
+      "Version": "2026.11.28"
+    },
+    "featured-tab": {
+      "File": "featured-tab.png",
+      "Search": {
+        "X": 160,
+        "Y": 1003,
+        "Width": 1710,
+        "Height": 60
+      },
+      "Threshold": 0.88,
+      "Sha256": "F070AF4C83021762B884ADE76EF52F76C11033381B75634E288F4D99D02B0340",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 588,
+        "Y": 1016,
+        "Width": 134,
+        "Height": 32
+      },
+      "Version": "2026.11.28"
+    },
+    "featured-tab-selected": {
+      "File": "featured-tab-selected.png",
+      "Search": {
+        "X": 160,
+        "Y": 1003,
+        "Width": 1710,
+        "Height": 60
+      },
+      "Threshold": 0.88,
+      "Sha256": "178BBAA20E2FB69041C51D2E33DE85A456657D241A6F01F43C1A0E9B6E2859C5",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 588,
+        "Y": 1016,
+        "Width": 134,
+        "Height": 32
+      },
+      "Version": "2026.11.28"
+    },
+    "limited-tab": {
+      "File": "limited-tab.png",
+      "Search": {
+        "X": 640,
+        "Y": 119,
+        "Width": 1236,
+        "Height": 52
+      },
+      "Threshold": 0.88,
+      "Sha256": "4964987125479D147501101C6DB07AA4FD2489101D99C24B2B143A65BD3723E8",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 1405,
+        "Y": 130,
+        "Width": 119,
+        "Height": 30
+      },
+      "Version": "2026.11.28"
+    },
+    "selected-marker": {
+      "File": "selected-marker.png",
+      "Search": {
+        "X": 640,
+        "Y": 158,
+        "Width": 1236,
+        "Height": 34
+      },
+      "Threshold": 0.88,
+      "Sha256": "E02AAEA604CE9435000F606DE9B71B553A5CE2BBF09CF8F5879E8DE004B8D219",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 1454,
+        "Y": 166,
+        "Width": 21,
+        "Height": 15
+      },
+      "Version": "2026.11.28"
+    },
+    "gift-title": {
+      "File": "gift-title.png",
+      "Search": {
+        "X": 888,
+        "Y": 216,
+        "Width": 308,
+        "Height": 84
+      },
+      "Threshold": 0.88,
+      "Sha256": "D0E58164D80F7A2C6B7549EF1A054793FEBC6A446A76FD3608B0FC24B5E61D87",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 1028,
+        "Y": 240,
+        "Width": 155,
+        "Height": 31
+      },
+      "Version": "2026.11.28"
+    },
+    "gift-free": {
+      "File": "gift-free.png",
+      "Search": {
+        "X": 956,
+        "Y": 351,
+        "Width": 242,
+        "Height": 64
+      },
+      "Threshold": 0.88,
+      "Sha256": "54F79FFD65D048DE6B085D3B96DFBA74F0E2272FCB612C9E5A56BFEAF909354A",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 1032,
+        "Y": 374,
+        "Width": 99,
+        "Height": 29
+      },
+      "Version": "2026.11.28"
+    },
+    "price-yuan": {
+      "File": "price-yuan.png",
+      "Search": {
+        "X": 1000,
+        "Y": 361,
+        "Width": 129,
+        "Height": 52
+      },
+      "Threshold": 0.88,
+      "Sha256": "440A9FFB62CE45A5B90E8CCE1DDFFA09613443BA5647C10661AD93F6638BEDD2",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 1621,
+        "Y": 377,
+        "Width": 18,
+        "Height": 26
+      },
+      "Version": "2026.11.28"
+    },
+    "detail-title": {
+      "File": "detail-title.png",
+      "Search": {
+        "X": 480,
+        "Y": 325,
+        "Width": 314,
+        "Height": 86
+      },
+      "Threshold": 0.88,
+      "Sha256": "7C41F04EA9A0FEE6820D220968ECD54ADA7AD0BEA16B3F7FF08CBF9925B1C3D4",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 512,
+        "Y": 351,
+        "Width": 210,
+        "Height": 41
+      },
+      "Version": "2026.11.28"
+    },
+    "detail-free": {
+      "File": "detail-free.png",
+      "Search": {
+        "X": 1090,
+        "Y": 630,
+        "Width": 221,
+        "Height": 86
+      },
+      "Threshold": 0.88,
+      "Sha256": "E299525AB89CD58F05CBA82FFBD7FBED2B0AF77BCABE7BAD8D0ADC2C39676984",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 1152,
+        "Y": 664,
+        "Width": 85,
+        "Height": 25
+      },
+      "Version": "2026.11.28"
+    },
+    "reward-title": {
+      "File": "reward-title.png",
+      "Search": {
+        "X": 875,
+        "Y": 294,
+        "Width": 171,
+        "Height": 107
+      },
+      "Threshold": 0.88,
+      "Sha256": "543B2534EA129937353E30D0A52AF2AB2474921AB59761B4336D3F8EA64E19B5",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 924,
+        "Y": 332,
+        "Width": 73,
+        "Height": 42
+      },
+      "Version": "2026.11.28"
+    },
+    "reward-dismiss": {
+      "File": "reward-dismiss.png",
+      "Search": {
+        "X": 803,
+        "Y": 765,
+        "Width": 313,
+        "Height": 97
+      },
+      "Threshold": 0.88,
+      "Sha256": "086131B6881F98E0E3975F73C3B0F0B14AE4190864BE26096F6D022F59ECCFE2",
+      "Source": "游戏界面 · 公测",
+      "SourceCrop": {
+        "X": 866,
+        "Y": 795,
+        "Width": 188,
+        "Height": 29
+      },
+      "Version": "2026.11.28"
+    }
+  }
+}

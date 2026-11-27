@@ -32,7 +32,7 @@ public sealed record TaskContext(IFrameFeed Frames, IGameInput Input, Action<str
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         var path = TaskPath is null ? name : $"{TaskPath}-{name}";
         var sink = LogSink ?? Log;
-        return this with { TaskPath = path, LogSink = sink, Log = message => sink($"[{path}] {message}") };
+        return this with { TaskPath = path, LogSink = sink, Log = message => sink($"[{name}] {message}") };
     }
 }
 
@@ -68,13 +68,16 @@ public interface IGameWindowFocus
     uint? LastInputTick { get; }
     bool IsOtherProcessForeground { get; }
     bool IsTargetForeground { get; }
+    bool HasInputFocus(nint handle, int processId);
     bool HasMovedSince(FrameSnapshot frame);
-    Task<bool> TryActivateOnceAsync(CancellationToken token);
+    string DescribeForeground();
 }
 
 public interface IGameInput
 {
     Task ActivateAsync(CancellationToken token);
+    Task<bool> TryActivateWindowAsync(nint window, int processId, CancellationToken token)
+        => throw new NotSupportedException("当前输入后端不支持指定窗口的置前确认。");
     Task PrepareForObservationAsync(CancellationToken token) => ActivateAsync(token);
     Task ClickAsync(FrameSnapshot observation, ClientPoint point, CancellationToken token);
     /// <summary>A bounded left-button drag, cancelled and released when the foreground or viewport changes.</summary>

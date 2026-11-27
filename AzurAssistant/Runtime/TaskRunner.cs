@@ -196,7 +196,8 @@ public sealed class TaskRunner(CapturePreviewService preview, InputCoordinator i
                 if (token.IsCancellationRequested) LastResult = CancellationResult();
                 completedResult = LastResult ?? new TaskResult(false, "未取得任务结果");
                 log.Write($"最终结果：{(completedResult.Success ? "成功" : "失败")}；任务={task.Name} ({task.Id})；{completedResult.Message}",
-                    completedResult.Success ? LogLevel.Info : LogLevel.Error);
+                    completedResult.Success ? LogLevel.Info : LogLevel.Error,
+                    isUserCancellation: session.Cancellation.IsCancellationRequested && !deadline.Token.IsCancellationRequested && session.PauseFailure is null);
                 _running = false;
             }
         }

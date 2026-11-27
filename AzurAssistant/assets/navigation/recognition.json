@@ -33,7 +33,6 @@
       "Threshold": 0.72,
       "Sha256": "9aee80a0ce8f021966d770b16fae3ae08f7f538019d26d71272ef890213fd108",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "0bc67382e88260cdf3c906887ceea05eb9c5751dbd5bb821949f6274bd06b64f",
       "Crop": {
         "X": 901,
         "Y": 37,
@@ -72,7 +71,6 @@
       "Threshold": 0.86,
       "Sha256": "0dc5a80b155a9be051795a8d20255d2a8aa3ef19744beaa371619f63b802afe8",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "b7adf35a464548dffd0f9503b53843dbd297136a9f084afede54753f551257b1",
       "Crop": {
         "X": 1617,
         "Y": 986,
@@ -92,7 +90,6 @@
       "Threshold": 0.83,
       "Sha256": "5e5f27dfbbc94a03469454eb054441d8fc2ed08a027732a563bb0fa62483c9c8",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "b7adf35a464548dffd0f9503b53843dbd297136a9f084afede54753f551257b1",
       "Crop": {
         "X": 1507,
         "Y": 65,
@@ -104,22 +101,21 @@
     "overlap-teleport-icon": {
       "File": "overlap-teleport-icon.png",
       "Search": {
-        "X": 200,
-        "Y": 120,
-        "Width": 1560,
-        "Height": 825
+        "X": 160,
+        "Y": 115,
+        "Width": 1600,
+        "Height": 840
       },
-      "Threshold": 0.8,
-      "Sha256": "741518df9e6a4ebff5462230b8de4dc221c85714545423ccbf99d81abdcea4da",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "bdecb346ec2cc7608ee24a7bf2cd2686e0c2917a1844fe80d5580e0816917478",
+      "Threshold": 0.82,
+      "Sha256": "f015c002619d6c764ebd7d19096b6665f177ee9454c1dc49e1b977070a670d3c",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1161,
+        "X": 1160,
         "Y": 550,
-        "Width": 24,
-        "Height": 35
+        "Width": 21,
+        "Height": 32
       },
-      "Version": "1.0.0"
+      "Version": "2026.11.28"
     },
     "map-player-arrow": {
       "File": "map-player-arrow.png",
@@ -132,7 +128,6 @@
       "Threshold": 0.78,
       "Sha256": "bbcab9194a5a552a3c6f59a6469d8ef0fe369bfc5133d9d6015ff9582b3440fe",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "ee6969b1fb05eec205efbd0de443bb04e7000d6d0ae97c4c0d6361d66d43117e",
       "Crop": {
         "X": 887,
         "Y": 516,
@@ -152,7 +147,6 @@
       "Threshold": 0.84,
       "Sha256": "f74327e1905cf73c7ed91e1cc2cbc2610da09cfb8dd6373a96fa73a8279d841f",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "1b178678f47ac81d91a955aaaf7f40ba9a7345538be3607c3dfbbdae17997114",
       "Crop": {
         "X": 155,
         "Y": 41,
@@ -172,7 +166,6 @@
       "Threshold": 0.8,
       "Sha256": "97ca656835316d5b576eee0d233b7bae7cf29296838f24c2d243e68f502e1824",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "0bc67382e88260cdf3c906887ceea05eb9c5751dbd5bb821949f6274bd06b64f",
       "Crop": {
         "X": 1748,
         "Y": 1020,
@@ -192,7 +185,6 @@
       "Threshold": 0.85,
       "Sha256": "d30009d3d386c6ab625c69ef653119114b807413991000d3c8156df2a488cd16",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "1b178678f47ac81d91a955aaaf7f40ba9a7345538be3607c3dfbbdae17997114",
       "Crop": {
         "X": 730,
         "Y": 741,
@@ -212,7 +204,6 @@
       "Threshold": 0.85,
       "Sha256": "f7ab9947f43838660894c9b74f326eb788eb046c03afebd0c75f49d97355f2ac",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "1b178678f47ac81d91a955aaaf7f40ba9a7345538be3607c3dfbbdae17997114",
       "Crop": {
         "X": 837,
         "Y": 493,
@@ -232,7 +223,6 @@
       "Threshold": 0.85,
       "Sha256": "0b01bbdf28dc40bbbb8aeb13ea11240dbadb5d50c52ad26f5b28bab8618f66a2",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "1b178678f47ac81d91a955aaaf7f40ba9a7345538be3607c3dfbbdae17997114",
       "Crop": {
         "X": 1056,
         "Y": 712,
@@ -265,501 +255,438 @@
       "File": "village-star-node-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "dd0f9a38854d7cd8859905520309dfb634c50ba815527eea6a4e6e6aa404d927",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "b7adf35a464548dffd0f9503b53843dbd297136a9f084afede54753f551257b1",
+      "Sha256": "23d7339ab1fd9c26e394a574d7b807a45c620e299cf825e4ec72399a951d7488",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-wind-woods-title": {
       "File": "valley-wind-woods-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "045761d864a2fd693fb1fcb0dcde325f5d144aa6d8f0035785264f60c86c5bfe",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "5c4c08a8747c8330d2bd757f732d71749843bb5d982a00fc5a1c3827f05e04f1",
+      "Sha256": "99321539a0feb4da465cb04c1d01744c553e2c41cab6329e1542bc36bfa85d78",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-thunder-ruins-title": {
       "File": "valley-thunder-ruins-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "bbcee21b2c2985ca4de4d75bf5ff02ddd2c0677e7862ce885ca36d7343520db7",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "777856defb89ae4d3119be0fe10f983c3681c932f134695d39fd7f4ea5929c68",
+      "Sha256": "8ebfb7eb4446db0bd06b97147196b975711aaa038555bf02edb9d332de7f13a9",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-dinatum-title": {
       "File": "valley-dinatum-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "dc8aa64bdefb6a0bce7cff29c0219db442648b78a035997c85f18f8e6337e1ee",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "f692f962d255dce8c65d894943dff8b015c39e26c6955398a4ee045462b8ab82",
+      "Sha256": "2c16097541ee68ac8cf4777a1a57a1b93d9063d2c3b22d18a63fe3741fb62fd2",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-wind-path-title": {
       "File": "valley-wind-path-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "0b55fedaf2f772bb4de225131f06f996619671c44b7a13b91b5d54d6376eac7f",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "35bd202c21962007d8d74a53f2f65df61823cb8bdf3b32093eead5df3c1dc25b",
+      "Sha256": "7dcb45506704c3890121ffb464c6cccb9de289184f65d222891a24e37984d3af",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-fishing-hut-title": {
       "File": "valley-fishing-hut-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "954adb360d37fd28a1fb554ca31d861b80f1540daf62c3770723d1b9515a61d3",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "02590897ba47a6ea46aeb5dc805f1cdac665d7a0a073a135956541430873b14b",
+      "Sha256": "b563d2ae41097a8f614fbf231f1ddfef1520e17fcdc126ee0785375fe2d00b72",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-wolf-plain-title": {
       "File": "valley-wolf-plain-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "9fbd2a6f8948886a25f6f7ab173873b710706533835879db5a1afa280c4aaf4d",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "cf111ab7f757e5f14324603303dd7e65bd3a6a4bb2cc067d9adaeb377f5443d2",
+      "Sha256": "c355db8ef476eb4f8bc0a55176c5693dbdc5c556f7b9a80b47cf7b51d4510f44",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-rock-highlands-title": {
       "File": "valley-rock-highlands-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "989cfe0d3bfba506c13f7ef72988224e6f9c4bf746461e33ea7863c3ee54426e",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "45d218543669729a7a013e08dab4e1d04d7c9231da44c4e1fcb45be7b2bcd0d8",
+      "Sha256": "eb9de3cbd7316bd0090321e0ec5326935abeabef8ccc71f158736c238e8641b4",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-deep-ravine-title": {
       "File": "valley-deep-ravine-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "74663b88362d6136840fa0570bea1aaf7e1efd49bd4b7af75f04a6e35e0b75bb",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "abfe7f56b3308afcf1b51eb332b8afc636a8ffe5dbad5995636a036aaed4d909",
+      "Sha256": "cd544c0395271b64e3324e342ec65d0539230b6efd35c97d8e6aec05b709110d",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-shadow-valley-title": {
       "File": "valley-shadow-valley-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "9b97911d64bd86c3f2fdd5558d3534e11beae10f845f1aa43853a423eeb74cfb",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "67a0bea86e921c4d61362dbf3ea605e9bab2b77123f458cc5e625a93fe052254",
+      "Sha256": "b7a1115fd69e9c98b266fd0dac488063c6c3a0770f6180d1dd35914464822b28",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-city-gate-title": {
       "File": "valley-city-gate-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "606177d8920bdb2a5c73d19921ae142f00f54c664504bbf50f34354ea2b661db",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "02e90128164525a395cfd8f1651960287d558305084fa91c192d2b38d9d6a263",
+      "Sha256": "e37ade92ae87c7ca61213e15d4bfed71659f876f6fddb798ed0944099a835a3c",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 145,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-mist-woods-title": {
       "File": "valley-mist-woods-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "62bf96a6b5773c648631cc7354ac8af07746d9a7721ef62c8d7fb073cd86ad32",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "4b583f06a428f30c87acb058159490daf340b556678d58e9076ab0909c477650",
+      "Sha256": "882f17985ffc59a1d7f0bb8d9a51ea1a2db9693e76e2f9909152060eef50570b",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "valley-wind-hollow-title": {
       "File": "valley-wind-hollow-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "1d0e355fed609c9c25212606abb64c0148636cfc40662275b105c21bfd781725",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "3560f8fcc1542758a6e19d161951b24aab6508d68f0b840569186dc35eaafd82",
+      "Sha256": "d672fdf4fdd2849d23f59683ceb8993ddc91fa67680dd809f390a7f746d12352",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-fertile-valley-title": {
       "File": "city-fertile-valley-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "140485b4472b75375936c8b5aa51e524f0a18fa08219dc3b655ba249d84e12bb",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "84675e9aeb1e832b49d0fb1de25e3b2f48a1391be9ad8a8cc8e788868f3c08ce",
+      "Sha256": "f4bc735ef2e68ff4cb89c7a5a73b02bbf3476b07f5e552fd737da6202c69a199",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-renyang-pass-title": {
       "File": "city-renyang-pass-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "33ca602da9dd303a638f2bbc16fc86c982c1c1a5d1736cc1e3faaffabab2b4ff",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "32846bdf3e44b412be758a6cd3e8039b720c15b56c0c0a5ea87d5352155f0a71",
+      "Sha256": "1e8157f2d30e9c738bb88c63789a19444cdbc8727f077134c63b428b044a21bf",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 213,
+        "Height": 38
       },
-      "Version": "2.0.0"
-    },
-    "city-giant-leaf-path-title": {
-      "File": "city-giant-leaf-path-title.png",
-      "Search": {
-        "X": 1490,
-        "Y": 45,
-        "Width": 395,
-        "Height": 85
-      },
-      "Threshold": 0.84,
-      "Sha256": "ab0196076a275b80d3e4cc285da7195258d4c8c5801871c9faaeae9b887ab683",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "3d214bd3389b72d10300168ea50333ef28daff928e8f4e0b0af2633514c61c58",
-      "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
-      },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-fris-city-title": {
       "File": "city-fris-city-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "d7e314f95edef51fbafa9c931cb96476ef40e774ee8eb0b6015c14a091fbb656",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "ea24da168137d52bc31a80f7616ec3e5c321d65522741279d578c577b5d74f1a",
+      "Sha256": "c8541d11f04b83018d5fe3eb22a47624c99db844c15644058f108f73511469e8",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-speaker-altar-title": {
       "File": "city-speaker-altar-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "08daa5abd3536c5ce5dbaec5a04ed295514212ecca99d312b5491d4ecc10cc09",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "db717f71775134934b0e2a9b585712921456e38752241d3536731bdef460c879",
+      "Sha256": "460709f66f5097e56f81a2962800daf39448540936959e0d6894ee54fff54199",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 269,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-waterfall-lake-title": {
       "File": "city-waterfall-lake-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "90f471fe987969b580aef92459f06db9eea81816d79024564f5c29f394016358",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "a261d63c56b1380913f5b027e7d7a710b2bab70ee05ca2fe9d57a72f09861a5e",
+      "Sha256": "876923f248d50ca56db0efc4b9d887e829089d0ca42416ed99053c8a442f9f95",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 213,
+        "Height": 38
       },
-      "Version": "2.0.0"
-    },
-    "city-flower-crown-title": {
-      "File": "city-flower-crown-title.png",
-      "Search": {
-        "X": 1490,
-        "Y": 45,
-        "Width": 395,
-        "Height": 85
-      },
-      "Threshold": 0.84,
-      "Sha256": "9b56157e5fb89c78d43c0c3267bd6be111161c622f1cb4c631ff65ded9ddd993",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "a7d05791ee1e075c8468ca51239acfa0b0c4fd7cde1f530b3a8ac631b099c581",
-      "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
-      },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-last-battle-title": {
       "File": "city-last-battle-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "80c8b7b1517ceb53b1e0f762889907252a7c8caed45d1a11ab6dbe388a12f257",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "c70860faea5a92af1bf2eabe974f0ca12b04999e0a926a2508ca7e168a5e3b44",
+      "Sha256": "08b858d508c15a0628bc8b2923a149eade6eff9ffffb54bfe3afb82d399d9222",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-flower-woods-title": {
       "File": "city-flower-woods-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "3ca42acd69ce6b8f8c342fb96f2941c85719bc0a88a87afd7ae789d9eef1ad53",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "b3fda5b8653e7e27061bb4cd5de0f18b61f7d84ce2bc52917972c1e0ae613dfa",
+      "Sha256": "8a5ff6e5b6650222c25fba6ff297cd8b6c62b31ee4efbcf6468a1d24ab01a15f",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-winter-lake-title": {
       "File": "city-winter-lake-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "52b2d4a8afc520013ed950cb8ccfc9fd19f3d89a7e3640e15942d81ebf4b9fd0",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "74f51c4a2ed039828cc4bfdbb692c1060e12254b676bfffcc04d3ec38fbe611d",
+      "Sha256": "aaa9d923972fd88d7295891d585d5d73c1b64a4ebe88bb3dc40c0461113a1a06",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 213,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-winter-falls-title": {
       "File": "city-winter-falls-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "10611e644121b50380cb5e0431b4321d589d38806c3cf7452a6787cb69f6d003",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "0add9af2937c71a30cff68c02f965909bd7be6a9856c00c4bde7f63a333132bf",
+      "Sha256": "3eb824de1ae92d4e9d5e5d3311a3f4fcc80bdd93c47fe2c0f11eb1d0bf069e7b",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "city-lost-forest-title": {
       "File": "city-lost-forest-title.png",
       "Search": {
         "X": 1490,
-        "Y": 45,
-        "Width": 395,
+        "Y": 38,
+        "Width": 420,
         "Height": 85
       },
       "Threshold": 0.84,
-      "Sha256": "234c43e002e602e394f652c01206a756024f041de232ce778b7ff84137bef8b7",
-      "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "3d9afe12412ad3ff7f2e3fe6e25e980a4c0ff899be220010aced7e38cca3f8c8",
+      "Sha256": "2e6face938230b8e5333be4a4d7436aea385a0a9c642f4aa3eb47099f4b26f77",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
       "Crop": {
-        "X": 1505,
-        "Y": 64,
-        "Width": 345,
-        "Height": 44
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
       },
-      "Version": "2.0.0"
+      "Version": "2026.11.28"
     },
     "map-simple-node-icon": {
       "File": "map-simple-node-icon.png",
@@ -818,6 +745,177 @@
         "Width": 130,
         "Height": 60
       }
+    },
+    "valley-village-gate-title": {
+      "File": "valley-village-gate-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 38,
+        "Width": 420,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "2afa3bed080936a7cd0a4ec55560537645bb87361386b63aa0787b74a20401b8",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
+      "Crop": {
+        "X": 1516,
+        "Y": 51,
+        "Width": 117,
+        "Height": 38
+      },
+      "Version": "2026.11.28"
+    },
+    "valley-white-mausoleum-title": {
+      "File": "valley-white-mausoleum-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 38,
+        "Width": 420,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "c177b3ee95aa5063ece094d56661911945fe2b659bc08b359b0523d6a121c15d",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
+      "Crop": {
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
+      },
+      "Version": "2026.11.28"
+    },
+    "valley-sun-tower-title": {
+      "File": "valley-sun-tower-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 38,
+        "Width": 420,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "2b95759e9f8df3fc00fac350e8d0fc947bc6685fec8f9640ed7b8f5d53051569",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
+      "Crop": {
+        "X": 1516,
+        "Y": 51,
+        "Width": 269,
+        "Height": 38
+      },
+      "Version": "2026.11.28"
+    },
+    "map-sun-tower-icon": {
+      "File": "map-sun-tower-icon.png",
+      "Search": {
+        "X": 30,
+        "Y": 100,
+        "Width": 1720,
+        "Height": 820
+      },
+      "Threshold": 0.78,
+      "Sha256": "761a97e980d93a237a071254b895890986300797e38f50cc5eed05331692f2df",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
+      "Crop": {
+        "X": 940,
+        "Y": 520,
+        "Width": 40,
+        "Height": 38
+      },
+      "Version": "2026.11.28"
+    },
+    "city-ranger-home-title": {
+      "File": "city-ranger-home-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 38,
+        "Width": 420,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "6f6936434033e9cbfb7ae684bef51ea7e2d31c86c6414d61c1d40b424a998ae4",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
+      "Crop": {
+        "X": 1516,
+        "Y": 51,
+        "Width": 269,
+        "Height": 38
+      },
+      "Version": "2026.11.28"
+    },
+    "city-parade-title": {
+      "File": "city-parade-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 38,
+        "Width": 420,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "81d646db029b0a37500ee7b2f1389a3ef95c0f9d8c5fe6609d37cd3856110e25",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
+      "Crop": {
+        "X": 1516,
+        "Y": 51,
+        "Width": 269,
+        "Height": 38
+      },
+      "Version": "2026.11.28"
+    },
+    "overlap-city-node-label": {
+      "File": "overlap-city-node-label.png",
+      "Search": {
+        "X": 160,
+        "Y": 115,
+        "Width": 1600,
+        "Height": 840
+      },
+      "Threshold": 0.88,
+      "Sha256": "67e4d4d5d7fa7e19582046adf14662c0900c4e83af78e7653225758718fd5736",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
+      "Crop": {
+        "X": 1204,
+        "Y": 554,
+        "Width": 157,
+        "Height": 28
+      },
+      "Version": "2026.11.28"
+    },
+    "city-fertile-valley-west-title": {
+      "File": "city-fertile-valley-west-title.png",
+      "Search": {
+        "X": 1490,
+        "Y": 38,
+        "Width": 420,
+        "Height": 85
+      },
+      "Threshold": 0.84,
+      "Sha256": "a89e7ab34d6047fb0c113046b71dfce63f9513b9c06ec19fa22e15a0a1edea81",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
+      "Crop": {
+        "X": 1516,
+        "Y": 51,
+        "Width": 241,
+        "Height": 38
+      },
+      "Version": "2026.11.28"
+    },
+    "overlap-row-divider": {
+      "File": "overlap-row-divider.png",
+      "Search": {
+        "X": 145,
+        "Y": 110,
+        "Width": 1640,
+        "Height": 850
+      },
+      "Threshold": 0.94,
+      "Sha256": "fe5b7c56891d6d095e651e65d0c78d5c3c5bccf8e181ccab4d6c4099233ddafa",
+      "Source": "蓝色星原：旅谣 · 公测游戏界面",
+      "Crop": {
+        "X": 1186,
+        "Y": 552,
+        "Width": 14,
+        "Height": 32
+      },
+      "Version": "2026.11.28"
     }
   }
 }

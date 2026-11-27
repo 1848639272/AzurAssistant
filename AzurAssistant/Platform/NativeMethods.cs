@@ -2,6 +2,8 @@ using System.Runtime.InteropServices;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX.Direct3D11;
 using WinRT;
+using Windows.Foundation;
+using Windows.Security.Authorization.AppCapabilityAccess;
 
 namespace AzurAssistant.Platform;
 
@@ -66,5 +68,39 @@ internal static class NativeMethods
             if (factory != 0) Marshal.Release(factory);
             if (hstring != 0) WindowsDeleteString(hstring);
         }
+    }
+
+    // Query the Windows 11 capture interfaces at runtime while retaining the 19041 client baseline.
+    internal static unsafe IAsyncOperation<AppCapabilityAccessStatus> RequestBorderlessAccess()
+    {
+        const string name = "Windows.Graphics.Capture.GraphicsCaptureAccess";
+        nint hstring = 0, factory = 0, operation = 0;
+        try
+        {
+            Marshal.ThrowExceptionForHR(WindowsCreateString(name, name.Length, out hstring));
+            var iid = new Guid("743ed370-06ec-5040-a58a-901f0f757095");
+            Marshal.ThrowExceptionForHR(RoGetActivationFactory(hstring, in iid, out factory));
+            var request = (delegate* unmanaged[Stdcall]<nint, int, nint*, int>)(*(nint**)factory)[6];
+            Marshal.ThrowExceptionForHR(request(factory, 0, &operation)); // GraphicsCaptureAccessKind.Borderless
+            return MarshalInterface<IAsyncOperation<AppCapabilityAccessStatus>>.FromAbi(operation);
+        }
+        finally
+        {
+            if (operation != 0) Marshal.Release(operation);
+            if (factory != 0) Marshal.Release(factory);
+            if (hstring != 0) WindowsDeleteString(hstring);
+        }
+    }
+
+    internal static unsafe bool TryHideCaptureBorder(GraphicsCaptureSession session)
+    {
+        var iid = new Guid("f2cdd966-22ae-5ea1-9596-3a289344c3be");
+        if (Marshal.QueryInterface(((IWinRTObject)session).NativeObject.ThisPtr, in iid, out var session3) < 0) return false;
+        try
+        {
+            var set = (delegate* unmanaged[Stdcall]<nint, byte, int>)(*(nint**)session3)[7];
+            return set(session3, 0) >= 0;
+        }
+        finally { Marshal.Release(session3); }
     }
 }

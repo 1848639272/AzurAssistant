@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 1,
-  "AssetVersion": "2026.11.27",
+  "AssetVersion": "2026.11.28",
   "ReferenceWidth": 1920,
   "ReferenceHeight": 1080,
   "Templates": {
@@ -15,7 +15,6 @@
       "Threshold": 0.84,
       "Sha256": "f795d622d869ac48e5924ae97a71f11773f3c417438932f2485768a486ca0bbe",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "fcc721e9b9938bf35513a25f41d3b578df9a9cc53128491863b036cca3da122f",
       "SourceCrop": {
         "X": 1669,
         "Y": 843,
@@ -111,7 +110,6 @@
       "Threshold": 0.9,
       "Sha256": "f4295f51f536afb2eca055b85b19c87990d9b3d178e78bb3c3ca487ff3f34605",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "f73a9e6cf7f00c10c84d26784dbd5969dc6c311864ea6aa6ae963ca657acfdbe",
       "SourceCrop": {
         "X": 984,
         "Y": 1015,
@@ -150,7 +148,6 @@
       "Threshold": 0.87,
       "Sha256": "5c65b6f02465beadd8ca13731377428213c61e3b4c5553ad48451902c29b4971",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "658fe778a15081b5dfcbb7af00c05d8185cc0dd3a193cd88663b56e9e8b3e368",
       "SourceCrop": {
         "X": 155,
         "Y": 43,
@@ -186,7 +183,7 @@
         "Width": 142,
         "Height": 61
       },
-      "Threshold": 0.87,
+      "Threshold": 0.84,
       "Sha256": "BF680F8FA0DBD166AF9164388EA639600EBAD3D0B0A44FAF59A9ADA21C361B91",
       "Source": "游戏界面 · 公测 3217420",
       "SourceCrop": {
@@ -246,7 +243,6 @@
       "Threshold": 0.87,
       "Sha256": "da56b059ddd60e03974a58f460b69132556f83b380b0ae2024b370224399e023",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "158edfc0671315d550e521cc69cc6040b0fa56ac289564de7953a80eb1cc8024",
       "SourceCrop": {
         "X": 1703,
         "Y": 780,
@@ -266,7 +262,6 @@
       "Threshold": 0.87,
       "Sha256": "7daa7210d5dfca68ab06ff3ff7f13cde211503f0a575662e81fc9e756224f564",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "658fe778a15081b5dfcbb7af00c05d8185cc0dd3a193cd88663b56e9e8b3e368",
       "SourceCrop": {
         "X": 1703,
         "Y": 896,
@@ -286,7 +281,6 @@
       "Threshold": 0.85,
       "Sha256": "f47eb22fc4f83b502f23daccc371bbe32024c3d8e17e0f28d848717b417e3b89",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "98c3b004966b27bd7dbab5446af83100b7395ef0f545a1276508c674c8691307",
       "SourceCrop": {
         "X": 1532,
         "Y": 932,
@@ -306,7 +300,6 @@
       "Threshold": 0.87,
       "Sha256": "86ebf2966901112745f80e24ed5cf2515d90e01d478193e245dab04182bd9c5f",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "98c3b004966b27bd7dbab5446af83100b7395ef0f545a1276508c674c8691307",
       "SourceCrop": {
         "X": 1120,
         "Y": 933,
@@ -326,7 +319,6 @@
       "Threshold": 0.87,
       "Sha256": "396199fab4ee80575e390d04294a5da90882132f36451f3b32cb3a8d73506751",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "ff7497a2cb6131afe117f0179545a0d031135576e10262516f0529c1667e2c5f",
       "SourceCrop": {
         "X": 87,
         "Y": 142,
@@ -346,7 +338,6 @@
       "Threshold": 0.88,
       "Sha256": "3a2918b05dc5e80f6059b83682a973b717ea3b45ab030a7f25486872ad3826f9",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "ff7497a2cb6131afe117f0179545a0d031135576e10262516f0529c1667e2c5f",
       "SourceCrop": {
         "X": 730,
         "Y": 195,
@@ -366,7 +357,6 @@
       "Threshold": 0.88,
       "Sha256": "c7a62d438b6ff14ac8b39c20de233d6f460cb8fa7a348ad60ff616835257535c",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "ff7497a2cb6131afe117f0179545a0d031135576e10262516f0529c1667e2c5f",
       "SourceCrop": {
         "X": 730,
         "Y": 409,
@@ -386,7 +376,6 @@
       "Threshold": 0.86,
       "Sha256": "e7725db2d0d68d3e6b062c80c53a1fafbb290474f8cc9e98fd69023a3501bc8d",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "be00a43c0a0d3bce516bbdbaf16abbc3679850ac5e3b29aa361393ce444595b4",
       "SourceCrop": {
         "X": 755,
         "Y": 549,
@@ -406,7 +395,6 @@
       "Threshold": 0.84,
       "Sha256": "7b5e477d67a9b50f12c86adbeb54b463a9040bcc519c0e827bbc59b7b4878275",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "be00a43c0a0d3bce516bbdbaf16abbc3679850ac5e3b29aa361393ce444595b4",
       "SourceCrop": {
         "X": 1234,
         "Y": 663,
@@ -426,7 +414,6 @@
       "Threshold": 0.87,
       "Sha256": "fc06ad3068a9f6906a3eece0afacca4f3d6ab5fe221f5db64a681ca6f3b7444a",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "b13fd96da0085a62f881139d2515d513959dbac624e748cebc16eaef93b679bc",
       "SourceCrop": {
         "X": 408,
         "Y": 290,
@@ -484,7 +471,6 @@
       "Threshold": 0.87,
       "Sha256": "ec164657998dd57e569a6e712701d4ca294e42f59f0c34c1711756128b2af420",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "b9f84c261c5042e778ea65526012ba2320747b071fcff54bc95cf508d9249fca",
       "SourceCrop": {
         "X": 1080,
         "Y": 736,
@@ -504,7 +490,6 @@
       "Threshold": 0.86,
       "Sha256": "861dcbdf70f8f1f3f040dee725ad2a10f80a509a6c8a3a5c4b7e73c1d8d52f1a",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "d15aaa4fffc5977c2bdf4ab9110c3522973396a79e76b0b5237538b2988d6077",
       "SourceCrop": {
         "X": 1150,
         "Y": 480,
@@ -543,7 +528,6 @@
       "Threshold": 0.87,
       "Sha256": "76775709bcb54003ec2c3a735efe6bf72d207e18fd5ec451d05444365a510ae3",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "04f8afc85a0c0e78bcf4f15048cf8fc35ae480bb3856a0e4a8b7870c33255008",
       "SourceCrop": {
         "X": 1260,
         "Y": 933,
@@ -554,9 +538,8 @@
       "SearchSources": [
         {
           "Source": "蓝色星原：旅谣 · 游戏界面",
-          "SourceSha256": "f544fa77c1343350edd6c82db95ea78b0fed8b5148fb064e297368993ed652ac",
           "Version": "1.4.4",
-          "Note": "主线下一关按钮可见时返回和再次挑战左移；搜索覆盖两种已确认文字位置，保持原文字模板与阈值，不授权下一关"
+          "Note": "主线结算出现「下一关」时，「返回」与「再次挑战」左移，搜索区域覆盖两种布局"
         }
       ]
     },
@@ -571,7 +554,6 @@
       "Threshold": 0.87,
       "Sha256": "b2a6804982e23791c9e8b82365f325656db65f90e8154be756a1b523e51eddce",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "04f8afc85a0c0e78bcf4f15048cf8fc35ae480bb3856a0e4a8b7870c33255008",
       "SourceCrop": {
         "X": 1580,
         "Y": 933,
@@ -582,9 +564,8 @@
       "SearchSources": [
         {
           "Source": "蓝色星原：旅谣 · 游戏界面",
-          "SourceSha256": "f544fa77c1343350edd6c82db95ea78b0fed8b5148fb064e297368993ed652ac",
           "Version": "1.4.4",
-          "Note": "主线下一关按钮可见时返回和再次挑战左移；搜索覆盖两种已确认文字位置，保持原文字模板与阈值，不授权下一关"
+          "Note": "主线结算出现「下一关」时，「返回」与「再次挑战」左移，搜索区域覆盖两种布局"
         }
       ]
     },
@@ -599,7 +580,6 @@
       "Threshold": 0.87,
       "Sha256": "1d25ee12f74e64d148eb545f13f08189a219843e2b41ecf7deb3cc5fe4c2ff4e",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "687f060e6fc7d9cd88eaa159d50be361a71c1ae8e012d2b09a4c29c9c5172d95",
       "SourceCrop": {
         "X": 1663,
         "Y": 933,
@@ -619,7 +599,6 @@
       "Threshold": 0.87,
       "Sha256": "50125faa44b2ebd3ea9bc820c89ae3f2e908d4d8672d3df02d01202b73acc617",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "687f060e6fc7d9cd88eaa159d50be361a71c1ae8e012d2b09a4c29c9c5172d95",
       "SourceCrop": {
         "X": 1302,
         "Y": 258,
@@ -639,7 +618,6 @@
       "Threshold": 0.8,
       "Sha256": "e72b4b76c703c5cf76d787894631e41395bebbb31c6c1103d4c3b904741a29c1",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "8606dd18a34605d185fc2839bac343bd5169a7c9178c9655bf433ee5709f0f77",
       "SourceCrop": {
         "X": 1384,
         "Y": 320,
@@ -659,7 +637,6 @@
       "Threshold": 0.9,
       "Sha256": "d17a955c408139fc3d53d2d7b16fdf12e190509eeab2e7a89e81f87698de1120",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "ab24d3dbfd46ed433c2f027227f4059e375fa5b9b862faec6bfa9c2eee4cb819",
       "SourceCrop": {
         "X": 920,
         "Y": 414,
@@ -679,7 +656,6 @@
       "Threshold": 0.76,
       "Sha256": "949227c5279959a15f2d85de58978348896921b1793b80c805b8d944a7459734",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "1aa71b8516a0190d5e4f8d555b42a2514099fd8b87b396c7796970157989a312",
       "SourceCrop": {
         "X": 1847,
         "Y": 38,
@@ -699,7 +675,6 @@
       "Threshold": 0.76,
       "Sha256": "215fe022604b596f5739acdd1e7b5b6d6e229fb8d218719323678a8a4776bd7a",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "2b1ac31f9736e4c430c43bfb8f6690c2ee236256fde86ae5196f8af91fc69b3e",
       "SourceCrop": {
         "X": 1785,
         "Y": 39,
@@ -738,7 +713,6 @@
       "Threshold": 0.8,
       "Sha256": "29147b8e2d402985d924db5a0caf6e32f54bf82b77cff5a1796463ab6e0238e7",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "1aa71b8516a0190d5e4f8d555b42a2514099fd8b87b396c7796970157989a312",
       "SourceCrop": {
         "X": 29,
         "Y": 92,
@@ -758,7 +732,6 @@
       "Threshold": 0.8,
       "Sha256": "1731e4306587ddceac338ff85c2e63c90110c03f806785d4af0b3d31ee243092",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "5d50214432a36e97fe17f7b57eb0c9972f92d7778ad9c42703efe1faf836c295",
       "SourceCrop": {
         "X": 29,
         "Y": 92,
@@ -778,7 +751,6 @@
       "Threshold": 0.82,
       "Sha256": "aedfdba4fb602f0f89c18f0ae2501501a4605562333908da93cf5f299a3e1ddb",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "61f80c6682b79091944f8e023a9f8cea6bb6bc67f03b37463a41fc9c5db9a857",
       "SourceCrop": {
         "X": 1216,
         "Y": 843,
@@ -798,7 +770,6 @@
       "Threshold": 0.86,
       "Sha256": "b683c3d8d71013a96ae3d4ec15eca7e702c02714831b98ab117f633997dfd886",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "886e36e6aff961410ff916431e952384bda3a1bc9691d52719297cb6d3f1dcd9",
       "SourceCrop": {
         "X": 1216,
         "Y": 843,
@@ -818,7 +789,6 @@
       "Threshold": 0.82,
       "Sha256": "222b64491cd29deeae52f60ed22e0597854282562aa1c8261bec8aa07e7ba7bc",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "f934790b577ef084d7c963af00e8fa9cf4185ddfc4e36ce2e550440ec8c6f11b",
       "SourceCrop": {
         "X": 1470,
         "Y": 873,
@@ -838,7 +808,6 @@
       "Threshold": 0.82,
       "Sha256": "20bf473cd13ae4cd66e7f2ed967b926af5783c085b380c6cd42e27a8f0c621e7",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "76f8a2c912e4b34d72b018e4556837d4076d5d6a62deb54461eef54c2d4442e9",
       "SourceCrop": {
         "X": 1307,
         "Y": 856,
@@ -858,7 +827,6 @@
       "Threshold": 0.87,
       "Sha256": "aaa3c0cf586464bdd4f5018f6619966698695f96e101651f697bc5d22dab45c0",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "a57d18afd2594b23b39f640f817a7be34b2747eabfc5dbcc7c667c0c4dc9ec21",
       "SourceCrop": {
         "X": 1464,
         "Y": 1007,
@@ -878,7 +846,6 @@
       "Threshold": 0.87,
       "Sha256": "ada68e24ba2e00bcf5af142762761049887c7bc955f6d35f441c8a3425fa0a7c",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "a57d18afd2594b23b39f640f817a7be34b2747eabfc5dbcc7c667c0c4dc9ec21",
       "SourceCrop": {
         "X": 797,
         "Y": 868,
@@ -917,7 +884,6 @@
       "Threshold": 0.83,
       "Sha256": "9bf1f750ae0e17dc3e5a2203c806f498373a80717fb758aca902a6fef80418d4",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "fa26184c560cad1b63203ff7839aca36d58493cdb51d4c93203329b38ecf950c",
       "SourceCrop": {
         "X": 1620,
         "Y": 370,
@@ -937,7 +903,6 @@
       "Threshold": 0.83,
       "Sha256": "6a9cf43ac226fc8bce40d9de9d0eda9197d3992cbd8491e0b36610e1fcfb2e6b",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "ca9b68bf60de23498b34dfc38e02018cff123b83fa7fcd72117ba2acd5cf10a1",
       "SourceCrop": {
         "X": 1714,
         "Y": 370,
@@ -957,7 +922,6 @@
       "Threshold": 0.83,
       "Sha256": "a4899b29b0cf78fb097a437b8cbcbce0b3082359fb19b22de70efde4d8390f13",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "658fe778a15081b5dfcbb7af00c05d8185cc0dd3a193cd88663b56e9e8b3e368",
       "SourceCrop": {
         "X": 1432,
         "Y": 354,
@@ -977,7 +941,6 @@
       "Threshold": 0.85,
       "Sha256": "c09427031ab68f56bcf350cea5e27834df90b8e1f608ebf953000f8c50298c31",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "158edfc0671315d550e521cc69cc6040b0fa56ac289564de7953a80eb1cc8024",
       "SourceCrop": {
         "X": 1769,
         "Y": 379,
@@ -997,7 +960,6 @@
       "Threshold": 0.85,
       "Sha256": "5955bdf4f9313a67e6f6928f762f348a30a0f878e000a111cd41d5226c60af42",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "658fe778a15081b5dfcbb7af00c05d8185cc0dd3a193cd88663b56e9e8b3e368",
       "SourceCrop": {
         "X": 1644,
         "Y": 362,
@@ -1017,7 +979,6 @@
       "Threshold": 0.9,
       "Sha256": "9f4545a87596ce7971b7d5dc5dae133d6e8f33893bf2ca49c0e56bfd9d5f4166",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
       "SourceCrop": {
         "X": 54,
         "Y": 263,
@@ -1037,7 +998,6 @@
       "Threshold": 0.9,
       "Sha256": "b932ac47cac770b54c2a237eaa58dc284a75f80ff49ded73752291963846ab44",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "3ad859e2b56329dea8f42221494bc101f7bcaa2eafc7bf19c108b35c30b4e696",
       "SourceCrop": {
         "X": 54,
         "Y": 381,
@@ -1057,7 +1017,6 @@
       "Threshold": 0.9,
       "Sha256": "e566ae638bf5bd691f001b5ce0e5c79a528d2fc14c3ff9c1e35c28ddc0110240",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "20b507c244ed953ead5616cd370c2a288d66a38ba71827878d5deebdbed32ad0",
       "SourceCrop": {
         "X": 54,
         "Y": 499,
@@ -1077,7 +1036,6 @@
       "Threshold": 0.9,
       "Sha256": "9202395196ee6133552687bdb9d97d1aca1632f3643325c956bb9b7ad0e7f0d0",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "13eb1120819df80101e6359388f1879d17492aefb3ade5c654ee15ee0c668940",
       "SourceCrop": {
         "X": 54,
         "Y": 616,
@@ -1097,7 +1055,6 @@
       "Threshold": 0.9,
       "Sha256": "27f56107030fff7d79d6b299ac93cbbca30e4beef847b2025e6564581f5fcdc5",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "c0779333fc0b3b8e80af6a325d557d48a8563435ce749a9a5bb72cdce72d1aca",
       "SourceCrop": {
         "X": 54,
         "Y": 563,
@@ -1117,7 +1074,6 @@
       "Threshold": 0.9,
       "Sha256": "f0d25c77d1582be1e6eeae580a93de20ec8d886a77e56d2896a3863fa5666d28",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "57249a21d66a807b1a81c7f1eb23ba611744ad653de870f9f9a920ea7db5d9e3",
       "SourceCrop": {
         "X": 54,
         "Y": 679,
@@ -1137,7 +1093,6 @@
       "Threshold": 0.9,
       "Sha256": "0f39ae827755518383734a947179975ce4b8435e9406bb240c967124dd50c2a3",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "3ad859e2b56329dea8f42221494bc101f7bcaa2eafc7bf19c108b35c30b4e696",
       "SourceCrop": {
         "X": 68,
         "Y": 270,
@@ -1157,7 +1112,6 @@
       "Threshold": 0.9,
       "Sha256": "1019f8084dd510708eb59ef56007a1927e922db29f2b56517ae061a09b57a56a",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
       "SourceCrop": {
         "X": 68,
         "Y": 388,
@@ -1177,7 +1131,6 @@
       "Threshold": 0.9,
       "Sha256": "b79d95e6de7a4b237a5495ea2491b1c613a5f5a441acfb2e45ed42eef134f551",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
       "SourceCrop": {
         "X": 68,
         "Y": 506,
@@ -1197,7 +1150,6 @@
       "Threshold": 0.9,
       "Sha256": "a834c759aa6ce07c5e31617d9604234a5e1d1af96b304cb6f821b3c37faeec28",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
       "SourceCrop": {
         "X": 68,
         "Y": 623,
@@ -1217,7 +1169,6 @@
       "Threshold": 0.9,
       "Sha256": "0757b82811ab7a6cb099b9d712679c77f2d199e6531c2ce6c132bdc6ad7d67e0",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "6012c005d3df1b145f7272bc022cb4a34ae38c7c95dc566dd5c6509fe09c96ab",
       "SourceCrop": {
         "X": 68,
         "Y": 741,
@@ -1237,7 +1188,6 @@
       "Threshold": 0.9,
       "Sha256": "c71cda704d4c72326e9baa57791463e1e68c7d24ee2db8951a6097abc9e6aff7",
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "c0779333fc0b3b8e80af6a325d557d48a8563435ce749a9a5bb72cdce72d1aca",
       "SourceCrop": {
         "X": 68,
         "Y": 686,
@@ -1358,6 +1308,253 @@
         "Y": 12,
         "Width": 66,
         "Height": 65
+      }
+    },
+    "weekly-title-public": {
+      "File": "weekly-title-public.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "F5965765122BBAADAA1822D86CE5719A92B747A05632E28DB2E194C5CBAE0AEA",
+      "Crop": {
+        "X": 93,
+        "Y": 34,
+        "Width": 99,
+        "Height": 24
+      },
+      "Search": {
+        "X": 75,
+        "Y": 16,
+        "Width": 142,
+        "Height": 61
+      }
+    },
+    "crisis-solo": {
+      "File": "crisis-solo.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "691CB962CFA8403ABDFF567F01B3D89A29779785AEEA59F6F5EDF84043C7404B",
+      "Crop": {
+        "X": 1462,
+        "Y": 865,
+        "Width": 90,
+        "Height": 39
+      },
+      "Search": {
+        "X": 1400,
+        "Y": 845,
+        "Width": 210,
+        "Height": 90
+      }
+    },
+    "crisis-tier-1-public": {
+      "File": "crisis-tier-1-public.png",
+      "Threshold": 0.93,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "FC01477CFC21FE8C47F0F09DABEF0BBE77A7D0F56E0DE1AA10D714255B2F42FE",
+      "Crop": {
+        "X": 53,
+        "Y": 235,
+        "Width": 86,
+        "Height": 80
+      },
+      "Search": {
+        "X": 45,
+        "Y": 155,
+        "Width": 108,
+        "Height": 666
+      }
+    },
+    "crisis-tier-2-public": {
+      "File": "crisis-tier-2-public.png",
+      "Threshold": 0.93,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "861B71A9A10FC8FEC74CBCEC9868D7AF5FB8A82982B48A1C763AB1F59CFDEA2D",
+      "Crop": {
+        "X": 53,
+        "Y": 352,
+        "Width": 86,
+        "Height": 80
+      },
+      "Search": {
+        "X": 45,
+        "Y": 155,
+        "Width": 108,
+        "Height": 666
+      }
+    },
+    "crisis-tier-3-public": {
+      "File": "crisis-tier-3-public.png",
+      "Threshold": 0.93,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "6F4EE2EBC96722AF70D70E034FB0704259D75F6BADA4D8F86C391768CDE94F72",
+      "Crop": {
+        "X": 53,
+        "Y": 498,
+        "Width": 86,
+        "Height": 80
+      },
+      "Search": {
+        "X": 45,
+        "Y": 155,
+        "Width": 108,
+        "Height": 666
+      }
+    },
+    "crisis-tier-4-public": {
+      "File": "crisis-tier-4-public.png",
+      "Threshold": 0.93,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "506CBE1712F3F2799159EA1C8BE9C542A231527CDC3B745DF666A1798EC33165",
+      "Crop": {
+        "X": 53,
+        "Y": 616,
+        "Width": 86,
+        "Height": 80
+      },
+      "Search": {
+        "X": 45,
+        "Y": 155,
+        "Width": 108,
+        "Height": 666
+      }
+    },
+    "crisis-glyph-1-public": {
+      "File": "crisis-glyph-1-public.png",
+      "Threshold": 0.93,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "06FCB355F37D7FD3AFC972E9FD39448EC1A0D096ACC971898AC9DF3B2222CAF7",
+      "Crop": {
+        "X": 66,
+        "Y": 270,
+        "Width": 64,
+        "Height": 44
+      },
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 660
+      }
+    },
+    "crisis-glyph-2-public": {
+      "File": "crisis-glyph-2-public.png",
+      "Threshold": 0.93,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "8D7901A44238835D4E0F11E8BF94D96BA5D8E88F42AE82B28F80BE3D68BFE769",
+      "Crop": {
+        "X": 66,
+        "Y": 388,
+        "Width": 64,
+        "Height": 44
+      },
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 660
+      }
+    },
+    "crisis-glyph-3-public": {
+      "File": "crisis-glyph-3-public.png",
+      "Threshold": 0.93,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "0F6A2D0EFC1D1B7D20647DCF37F3416257161E7A4E897713CB30787CD899B0C9",
+      "Crop": {
+        "X": 66,
+        "Y": 506,
+        "Width": 64,
+        "Height": 44
+      },
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 660
+      }
+    },
+    "crisis-glyph-4-public": {
+      "File": "crisis-glyph-4-public.png",
+      "Threshold": 0.93,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "2DD268FBB4AA231537FE1E3C85E1F5939FEABD326995C501FB8B0FCF83D33426",
+      "Crop": {
+        "X": 66,
+        "Y": 623,
+        "Width": 64,
+        "Height": 44
+      },
+      "Search": {
+        "X": 46,
+        "Y": 150,
+        "Width": 103,
+        "Height": 660
+      }
+    },
+    "catalog-back-story": {
+      "File": "catalog-back-story.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "4BACE6D9A818D4ABF960EE7420F0BF0CFB32F6450EDF5C44D3A94895D1AADD2F",
+      "Crop": {
+        "X": 1850,
+        "Y": 29,
+        "Width": 36,
+        "Height": 18
+      },
+      "Search": {
+        "X": 1838,
+        "Y": 12,
+        "Width": 66,
+        "Height": 65
+      }
+    },
+    "crisis-level-tag": {
+      "File": "crisis-level-tag.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "C9579552F3241023A3C4B65650B0F34690125AE8244D23EA576CF611F3A9CC63",
+      "Crop": {
+        "X": 65,
+        "Y": 292,
+        "Width": 44,
+        "Height": 15
+      },
+      "Search": {
+        "X": 48,
+        "Y": 155,
+        "Width": 105,
+        "Height": 660
+      }
+    },
+    "crisis-result-complete-public": {
+      "File": "crisis-result-complete-public.png",
+      "Threshold": 0.88,
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "25FA9E719C2719A28FBA179E12CCC994AC5F6AF6A0566151AC00F05B8AAB592E",
+      "Crop": {
+        "X": 1265,
+        "Y": 258,
+        "Width": 79,
+        "Height": 24
+      },
+      "Search": {
+        "X": 1252,
+        "Y": 248,
+        "Width": 105,
+        "Height": 46
       }
     }
   }

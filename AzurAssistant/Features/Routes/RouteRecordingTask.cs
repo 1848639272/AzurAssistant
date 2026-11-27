@@ -39,7 +39,15 @@ public sealed class RouteRecordingTask(INavigationRecognizer recognizer, Action<
                 token.ThrowIfCancellationRequested();
                 if (!_requests.Reader.TryRead(out var request))
                 {
-                    await session.WaitAsync(_ => true, "定位当前角色", token, stableMilliseconds: 0, minimapOnly: true);
+                    try
+                    {
+                        await session.WaitAsync(_ => true, "定位当前角色", token, timeoutSeconds: 2, stableMilliseconds: 0, minimapOnly: true);
+                    }
+                    catch (NavigationException ex)
+                    {
+                        // Opening a map or loading after a manual transfer temporarily removes the minimap.
+                        report(new(null, DateTimeOffset.Now, ex.Message));
+                    }
                     await context.Execution.DelayAsync(TimeSpan.FromMilliseconds(100), token);
                     continue;
                 }
@@ -51,7 +59,11 @@ public sealed class RouteRecordingTask(INavigationRecognizer recognizer, Action<
                         var targetMap = recognizer.Maps.Single(m => m.Id == request.MapId);
                         var node = targetMap.Teleports.Single(t => t.Id == id);
                         await session.TeleportAsync(targetMap.Id, node.Id, token);
-                        point = new(node.Name, node.X, node.Y, new(targetMap.Id, targetMap.Floor, targetMap.CoordinateVersion), TeleportId: node.Id);
+                        var destination = recognizer.Maps.Single(m => m.Id == node.ArrivalMapId);
+                        var landing = node.LandingX is { } x && node.LandingY is { } y
+                            ? new RouteLanding(new(destination.Id, destination.Floor, destination.CoordinateVersion), x, y) : null;
+                        point = new(node.Name, null, null, new(targetMap.Id, targetMap.Floor, targetMap.CoordinateVersion),
+                            TeleportId: node.Id, Landing: landing);
                     }
                     else
                     {

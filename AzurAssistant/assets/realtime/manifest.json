@@ -32,7 +32,6 @@
         "Height": 55
       },
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "3D5A6060C1C9D87425241A5B9F6FDC7B991B8AD10BCA24126D628DAAB866B6DE",
       "Crop": {
         "X": 1675,
         "Y": 32,
@@ -52,7 +51,6 @@
         "Height": 65
       },
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "3D5A6060C1C9D87425241A5B9F6FDC7B991B8AD10BCA24126D628DAAB866B6DE",
       "Crop": {
         "X": 1845,
         "Y": 30,
@@ -72,7 +70,6 @@
         "Height": 335
       },
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
       "Crop": {
         "X": 1156,
         "Y": 554,
@@ -92,7 +89,6 @@
         "Height": 335
       },
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "4A7506B7D10588D1C6EE578523E93898CC1318090DA3DBCC7B9F4EF2AE2C7D1C",
       "Crop": {
         "X": 1087,
         "Y": 563,
@@ -112,7 +108,6 @@
         "Height": 335
       },
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "292B595040C3A813FC8ACEAA26A48C4E3A7F93FBA984EBAAD5DD9E04161B2E29",
       "Crop": {
         "X": 1156,
         "Y": 554,
@@ -172,7 +167,6 @@
         "Height": 70
       },
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "6D51DD21DF74E5ACBD5B4C3C8EA7A0CD217E4C3D4160B2DE109D9639C8347285",
       "Crop": {
         "X": 891,
         "Y": 336,
@@ -192,7 +186,6 @@
         "Height": 65
       },
       "Source": "蓝色星原：旅谣 · 游戏界面",
-      "SourceSha256": "6D51DD21DF74E5ACBD5B4C3C8EA7A0CD217E4C3D4160B2DE109D9639C8347285",
       "Crop": {
         "X": 1246,
         "Y": 782,
@@ -619,6 +612,46 @@
         "Width": 295,
         "Height": 328
       }
+    },
+    {
+      "File": "blocked-town-shop.png",
+      "Threshold": 0.88,
+      "Id": "blocked-town-shop",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "99003A8D57A89F7C4A96777CDAF972EA8CA6D67A7AE4A5568877C807E257251E",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 74,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
+    },
+    {
+      "File": "blocked-read.png",
+      "Threshold": 0.88,
+      "Id": "blocked-read",
+      "Source": "游戏界面 · 公测 3217420",
+      "Version": "2026.11.28",
+      "Sha256": "CBEA24A5673BC509D7D20B41C2842FE9A68E7EFDC65FB231CC13241D7EBB3834",
+      "Crop": {
+        "X": 1206,
+        "Y": 559,
+        "Width": 38,
+        "Height": 19
+      },
+      "Search": {
+        "X": 1195,
+        "Y": 545,
+        "Width": 295,
+        "Height": 328
+      }
     }
   ],
   "BlockedNameTemplates": {
@@ -632,6 +665,8 @@
     "星辉矿场": "blocked-starlight-mine",
     "采石场": "blocked-quarry",
     "采集小屋": "blocked-gathering-hut",
-    "调查": "blocked-investigate"
+    "调查": "blocked-investigate",
+    "城镇商店": "blocked-town-shop",
+    "阅读": "blocked-read"
   }
 }

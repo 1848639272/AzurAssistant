@@ -13,6 +13,7 @@ public sealed class StartJourneyTask(IJourneyRecognizer recognizer, TimeSpan? re
     public static readonly TimeSpan UpdateTimeout = TimeSpan.FromMinutes(30);
     public static readonly TimeSpan RestartTimeout = TimeSpan.FromMinutes(2);
     public TimeSpan EntryWorldStableDuration { get; init; } = TimeSpan.FromSeconds(5);
+    internal TimeSpan GiftClaimStableDuration { get; init; } = TimeSpan.FromSeconds(1);
     public string Id => "start-journey";
     public string Name => "进入游戏";
 
@@ -56,6 +57,7 @@ public sealed class StartJourneyTask(IJourneyRecognizer recognizer, TimeSpan? re
         var monthlyObserved = false;
         var monthlyRewardObserved = false;
         var rewardClosed = false;
+        var menuDismissed = false;
 
         async Task ReconnectAsync(FrameSnapshot oldWindow)
         {
@@ -100,6 +102,8 @@ public sealed class StartJourneyTask(IJourneyRecognizer recognizer, TimeSpan? re
                         canRetry = false;
                     }
                     var waitingForMonthlyReward = monthlyObserved && !monthlyRewardObserved;
+                    if (viewport is not null && ExtraRewardTask.ObservedAfter(context, viewport))
+                    { previous = null; canRetry = false; }
                     // A return receipt belongs to the showcase handled between these two observations.
                     if (!waitingForMonthlyReward && giftPanel is not null && viewport is not null && ExtraRewardTask.ReturnedAfter(context, viewport))
                     {
@@ -123,7 +127,9 @@ public sealed class StartJourneyTask(IJourneyRecognizer recognizer, TimeSpan? re
                     var stable = previous is not null && SameObservation(previous, observed);
                     previous = observed;
                     if (!stable) { stableSince = frame.SystemTimestamp; continue; }
-                    if (frame.SystemTimestamp - stableSince < pace.StableDuration) continue;
+                    var stableFor = frame.SystemTimestamp - stableSince;
+                    if (stableFor < pace.StableDuration || (observed is { Page: JourneyPage.LoginReward, ClaimPoint: not null }
+                        && stableFor < GiftClaimStableDuration)) continue;
                     if (observed.Page is JourneyPage.UpdatePrompt or JourneyPage.Updating or JourneyPage.RestartPrompt)
                     {
                         if (entering || restartConfirmed) continue;
@@ -159,24 +165,35 @@ public sealed class StartJourneyTask(IJourneyRecognizer recognizer, TimeSpan? re
                     if (canRetry && context.Execution.Elapsed - actionAt >= pace.RetryDelay)
                     {
                         context.Log($"{actionName}：页面仍未切换，重试 1/1");
-                        await ClickAsync(actionPoint, actionName, retry: true);
+                        await ClickAsync(observed.ClaimPoint ?? actionPoint, actionName, retry: true);
                         continue;
                     }
     
                     if (observed.Page != JourneyPage.Reward) dismissedCurrentPopup = false;
+                    if (observed.Page != JourneyPage.Menu) menuDismissed = false;
     
                     switch (observed.Page)
                     {
                         case JourneyPage.InGame:
                         case JourneyPage.Menu:
                             if (selectedCard is not null && (cardVerifiedAt is null || !giftDismissed)) continue;
-                            if (observed.Page == JourneyPage.InGame && startClicked && !loginClosed && !rewardClosed &&
-                                frame.SystemTimestamp - stableSince < EntryWorldStableDuration) continue;
-                            if (monthlyObserved && !monthlyRewardObserved)
-                                return new(false, "月卡展示后未确认自动发放的获得弹窗，结果不明，已停止");
-                            return new(true, startClicked || loginClosed || rewardClosed
-                                ? "进入游戏完成，已处理确认的登录奖励并确认游戏界面"
-                                : "已经进入游戏，无需点击开始旅程");
+                            if (waitingForMonthlyReward) continue;
+                            giftPanel = null;
+                            if (observed.Page == JourneyPage.Menu)
+                            {
+                                if (!menuDismissed)
+                                {
+                                    await context.Input.PressKeyAsync(frame, GameKey.Escape, deadline.Token);
+                                    menuDismissed = true;
+                                    after = Now;
+                                    previous = null;
+                                    readyAt = context.Execution.Elapsed + pace.ActionSettle;
+                                    context.Log("已确认主菜单，返回大世界观察登录奖励");
+                                }
+                                continue;
+                            }
+                            if (frame.SystemTimestamp - stableSince < EntryWorldStableDuration) continue;
+                            return new(true, $"大世界已连续稳定 {EntryWorldStableDuration.TotalSeconds:0.##} 秒，进入游戏完成");
                         case JourneyPage.Start:
                             if (startClicked || selectedCard is not null || loginClosed || monthlyObserved || rewardClosed) break;
                             if (observed.StartPoint is not { } startPoint) break;
@@ -206,7 +223,6 @@ public sealed class StartJourneyTask(IJourneyRecognizer recognizer, TimeSpan? re
                                 await ClickAsync(claim, $"领取第 {card + 1} 张登录奖励卡片");
                                 selectedCard = card;
                                 giftPanel = frame;
-                                canRetry = false;
                                 context.Log("已点击登录奖励卡片，等待奖励展示与同卡勾选");
                             }
                             break;
@@ -243,8 +259,8 @@ public sealed class StartJourneyTask(IJourneyRecognizer recognizer, TimeSpan? re
                         if (!Fresh(frame)) throw new InputUnavailableException("识别帧已过期，未发送点击。");
                         if (point.X < 0 || point.Y < 0 || point.X >= frame.Width || point.Y >= frame.Height)
                             throw new InvalidOperationException("进入游戏识别目标超出客户区，未发送点击。");
-                        context.Log(action);
                         await context.Input.ClickAsync(frame, point, deadline.Token);
+                        context.Log(action);
                         deadline.Token.ThrowIfCancellationRequested();
                         after = Now;
                         previous = null;
@@ -277,7 +293,7 @@ public sealed class StartJourneyTask(IJourneyRecognizer recognizer, TimeSpan? re
                 : !entering ? "未稳定识别到初始页、登录奖励或游戏界面，未发送点击"
                 : "未确认进入游戏，任务已停止";
             var budget = waitingUpdate ? (restartConfirmed ? RestartTimeout : updateBudget) : entering ? entryBudget : recognitionBudget;
-            return new(false, $"{budget.TotalSeconds:0.#} 秒等待超时；{reason}") { AllowPageRecovery = !waitingUpdate && selectedCard is null };
+            return new(false, $"{budget.TotalSeconds:0.#} 秒等待超时；{reason}") { AllowPageRecovery = false };
         }
     }
 

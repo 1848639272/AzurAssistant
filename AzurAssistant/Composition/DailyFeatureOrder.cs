@@ -10,6 +10,7 @@ public static class DailyFeatureOrder
 {
     public static IReadOnlyList<DailyFeatureChoice> Choices { get; } = Array.AsReadOnly<DailyFeatureChoice>([
         new("claim-mail", "领取邮件", s => s.ClaimMail, (s, v) => s with { ClaimMail = v }),
+        new("shop", "商城", s => s.Shop, (s, v) => s with { Shop = v }),
         new("home-center", "家园中枢", s => s.HomeCenter, (s, v) => s with { HomeCenter = v }),
         new("claim-activity", "日常周常领取", s => s.ClaimActivity, (s, v) => s with { ClaimActivity = v }),
         new("claim-battle-pass", "通行证领取", s => s.ClaimBattlePass, (s, v) => s with { ClaimBattlePass = v }),
@@ -23,6 +24,11 @@ public static class DailyFeatureOrder
         var ids = order.Length == 0 ? [] : order.Split(',');
         if (ids.Distinct(StringComparer.Ordinal).Count() != ids.Length || ids.Any(id => !Choices.Any(c => c.Id == id)))
             throw new InvalidDataException("一条龙顺序包含重复或未支持的任务ID。");
-        return ids.Select(id => Choices.Single(c => c.Id == id)).Concat(Choices.Where(c => !ids.Contains(c.Id))).ToArray();
+        var ordered = ids.Select(id => Choices.Single(c => c.Id == id)).ToList();
+        var mail = Array.IndexOf(ids, "claim-mail");
+        if (mail >= 0 && !ids.Contains("shop"))
+            ordered.Insert(mail + 1, Choices.Single(c => c.Id == "shop"));
+        ordered.AddRange(Choices.Where(c => !ordered.Contains(c)));
+        return ordered;
     }
 }
